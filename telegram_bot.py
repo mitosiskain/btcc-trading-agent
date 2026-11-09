@@ -136,9 +136,37 @@ class TelegramNotifier:
         )
         self.send_message(msg)
 
+    def download_file_bytes(self, file_id: str) -> Optional[tuple[bytes, str]]:
+        """Download a photo/document sent to the Telegram bot and return (bytes, mime_type)."""
+        if not self.token or not file_id:
+            return None
+        info = self._api_call(f"getFile?file_id={file_id}")
+        if not info.get("ok"):
+            return None
+        file_path = (info.get("result") or {}).get("file_path")
+        if not file_path:
+            return None
+        url = f"https://api.telegram.org/file/bot{self.token}/{file_path}"
+        ext = file_path.rsplit(".", 1)[-1].lower() if "." in file_path else "jpg"
+        mime_map = {"png": "image/png", "webp": "image/webp", "jpg": "image/jpeg", "jpeg": "image/jpeg"}
+        mime_type = mime_map.get(ext, "image/jpeg")
+        try:
+            resp = self.session.get(url, timeout=10)
+            if resp.status_code == 200 and resp.content:
+                return resp.content, mime_type
+        except Exception:
+            pass
+        try:
+            res = subprocess.run(["curl", "-4", "-s", url], capture_output=True, timeout=12)
+            if res.returncode == 0 and res.stdout:
+                return res.stdout, mime_type
+        except Exception:
+            pass
+        return None
+
     def poll_commands(self, command_handler: Callable[[str], str]) -> bool:
         """
-        Non-blocking poll for incoming Telegram messages (both /commands and plain-English chat).
+        Non-blocking poll for incoming Telegram messages (both /commands, plain-English chat, and screenshots!).
         Returns True if one or more messages were processed.
         """
         if not self.token:
@@ -154,6 +182,14 @@ class TelegramNotifier:
                 msg = upd.get("message") or upd.get("edited_message") or {}
                 cid = msg.get("chat", {}).get("id")
                 text = (msg.get("text") or "").strip()
+                caption = (msg.get("caption") or "").strip()
+
+                # Check for photo or image document (screenshot)
+                photo_file_id: Optional[str] = None
+                if msg.get("photo") and isinstance(msg["photo"], list):
+                    photo_file_id = msg["photo"][-1].get("file_id")
+                elif msg.get("document") and str(msg["document"].get("mime_type", "")).startswith("image/"):
+                    photo_file_id = msg["document"].get("file_id")
 
                 # Auto-bind chat_id on first message!
                 if cid and not self.chat_id:
@@ -162,16 +198,24 @@ class TelegramNotifier:
                         "✅ *Connected to @kaintraderbot!*\n"
                         f"• *Your Chat ID*: `{self.chat_id}` (saved to `.env`)\n"
                         "• Live BTCC entry recommendations & *Profit-Flatline Stall* exit alerts are now active.\n\n"
-                        "You can chat in plain English (e.g. _\"I went long on BTC at 74500 10x\"_, _\"set alert threshold to 75%\"_, _\"closed my BTC trade\"_) or use `/status`, `/positions`, `/scan`!"
+                        "You can send a *screenshot of your BTCC positions*, chat in plain English (e.g. _\"I went long on BTC at 74500 10x\"_, _\"set alert threshold to 75%\"_), or use `/status`!"
                     )
                     processed_any = True
-                    if text and text.lower() != "/start":
-                        reply = command_handler(text)
-                        if reply:
-                            self.send_message(reply)
-                    continue
 
                 if cid and self.chat_id and str(cid) != str(self.chat_id):
+                    continue
+
+                if photo_file_id:
+                    processed_any = True
+                    dl = self.download_file_bytes(photo_file_id)
+                    owner = getattr(command_handler, "__self__", None)
+                    if dl and owner and hasattr(owner, "handle_telegram_photo"):
+                        img_bytes, mime_type = dl
+                        reply = owner.handle_telegram_photo(img_bytes, mime_type=mime_type, caption=caption)
+                        if reply:
+                            self.send_message(reply)
+                    else:
+                        self.send_message("⚠️ Could not download screenshot from Telegram. Please try sending it again.")
                     continue
 
                 if text:

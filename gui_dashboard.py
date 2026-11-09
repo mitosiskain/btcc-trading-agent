@@ -794,9 +794,218 @@ class DashboardController:
                 f"   TP1: `{tp.get('tp1_str')}` | TP2: `{tp.get('tp2_str')}` | SL: `{tp.get('sl_str')}`"
             )
         lines.append(
-            "\n💬 _Chat naturally: \"I went long on BTC at 74500 20x\", \"closed BTC\", or \"set threshold to 75%\"_"
+            "\n💬 _Send a *screenshot* of your BTCC positions, or chat naturally: \"I went long on BTC at 74500 20x\", \"closed BTC\", \"set threshold to 75%\"_"
         )
         return "\n".join(lines)
+
+    def handle_telegram_photo(self, img_bytes: bytes, mime_type: str = "image/jpeg", caption: str = "") -> str:
+        """
+        Parse a screenshot sent to Telegram (BTCC Positions screen, Order ticket, Closed PnL card, or Chart)
+        using Gemini Vision and automatically track/update/sync open positions!
+        """
+        if not self.config.gemini_api_key:
+            return "⚠️ `GEMINI_API_KEY` is required to read screenshots."
+
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=self.config.gemini_api_key)
+            prompt = f"""
+You are examining a mobile or desktop trading screenshot sent by the user (typically from the BTCC exchange app, TradingView, or another crypto/RWA platform).
+User's optional caption: "{caption}"
+
+Extract ALL trading positions or order tickets visible in the image.
+Important BTCC / exchange conventions:
+- "Buy" or green badge/direction = "LONG"; "Sell" or red badge/direction = "SHORT".
+- "Open Price" / "Avg. Open Price" / "Entry Price" = entry_price.
+- "Margin" / "Position Margin" = margin_usd.
+- Leverage is usually shown like "20X", "50x", "100x", "5x".
+- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA).
+- If the screenshot is a "Closed Position" / "Realized PnL" share card (or the user caption says "closed"), set is_closed=true for that position.
+- If the screenshot is ONLY a price chart with no position info, set screen_type="CHART_ONLY" and fill chart_symbol and visual_summary.
+
+Return ONLY valid JSON (no markdown fences) matching this exact structure:
+{{
+  "screen_type": "OPEN_POSITIONS" | "CLOSED_PNL" | "ORDER_TICKET" | "CHART_ONLY",
+  "positions": [
+    {{
+      "symbol_raw": "string (e.g. BTCUSDT, ETH, GOLD, SILVER, SOLUSDT)",
+      "side": "LONG" | "SHORT",
+      "entry_price": 0.0,
+      "current_price": null,
+      "leverage": 20,
+      "margin_usd": null,
+      "stop_loss": null,
+      "take_profit": null,
+      "liq_price": null,
+      "is_closed": false
+    }}
+  ],
+  "chart_symbol": "string or null",
+  "visual_summary": "Brief 1-sentence summary of what is shown in the screenshot"
+}}
+"""
+            resp = client.models.generate_content(
+                model=self.config.gemini_model,
+                contents=[
+                    types.Part.from_bytes(data=img_bytes, mime_type=mime_type),
+                    prompt,
+                ],
+                config=types.GenerateContentConfig(
+                    temperature=0.1,
+                    response_mime_type="application/json",
+                ),
+            )
+            raw_json = (resp.text or "").strip()
+            if raw_json.startswith("```"):
+                raw_json = raw_json.strip("`").removeprefix("json").strip()
+            parsed = json.loads(raw_json)
+        except Exception as e:
+            return f"⚠️ Could not parse screenshot with Vision AI: `{e}`"
+
+        if not self.asset_cards:
+            self.run_single_scan()
+        self.orchestrator.execution._load_state()
+
+        screen_type = str(parsed.get("screen_type") or "OPEN_POSITIONS").upper()
+        positions_list = parsed.get("positions") or []
+        cap_lower = (caption or "").lower()
+        force_close = "close" in cap_lower or "exit" in cap_lower or screen_type == "CLOSED_PNL"
+        sync_mode = "sync" in cap_lower or "replace" in cap_lower or "only" in cap_lower
+
+        if not positions_list:
+            chart_sym_raw = str(parsed.get("chart_symbol") or "")
+            sym = self._resolve_symbol_from_text(chart_sym_raw) or self._resolve_symbol_from_text(caption)
+            vis_note = parsed.get("visual_summary") or "Chart screenshot analyzed."
+            if sym:
+                return f"📸 *Screenshot Read*: _{vis_note}_\n\n" + self._format_single_coin_card(sym)
+            return (
+                f"📸 *Screenshot Analyzed*: _{vis_note}_\n"
+                "• No open position rows were detected in the image. Make sure your Entry Price and Coin name are visible!"
+            )
+
+        seen_open_syms: List[str] = []
+        reply_blocks: List[str] = [f"📸 *BTCC Screenshot Processed ({len(positions_list)} Position{'s' if len(positions_list) != 1 else ''})*"]
+
+        for item in positions_list:
+            sym_raw = str(item.get("symbol_raw") or "")
+            sym = self._resolve_symbol_from_text(sym_raw)
+            if not sym and sym_raw:
+                clean_s = "".join(ch for ch in sym_raw.upper() if ch.isalnum())
+                if not clean_s.endswith("USDT"):
+                    clean_s += "USDT"
+                sym = clean_s
+            if not sym:
+                continue
+
+            is_closed = bool(item.get("is_closed")) or force_close
+            if is_closed:
+                if sym in self.orchestrator.execution.open_positions:
+                    del self.orchestrator.execution.open_positions[sym]
+                    reply_blocks.append(f"\n✅ *Closed `{sym}`* (removed from active monitoring)")
+                else:
+                    reply_blocks.append(f"\nℹ️ *Closed `{sym}`* noted (was not in active tracker)")
+                continue
+
+            seen_open_syms.append(sym)
+            card = self.asset_cards.get(sym) or {}
+            tp_plan = card.get("trade_plan") or {}
+            live_price = float(card.get("price") or item.get("current_price") or tp_plan.get("safe_entry") or 0.0)
+            curr_atr = float(card.get("atr") or (live_price * 0.015) or 1.0)
+
+            side = str(item.get("side") or tp_plan.get("side") or "LONG").upper()
+            if side not in ("LONG", "SHORT"):
+                side = "LONG"
+
+            entry_p = float(item.get("entry_price") or 0.0)
+            if entry_p <= 0:
+                entry_p = live_price if live_price > 0 else float(tp_plan.get("safe_entry") or 1.0)
+
+            lev = int(item.get("leverage") or tp_plan.get("leverage") or self.config.risk.default_leverage)
+            lev = max(1, min(500, lev))
+            margin = float(item.get("margin_usd") or self.config.risk.margin_per_trade_usd)
+
+            # Calculate recommended SL / TP1 / TP2
+            if (
+                tp_plan
+                and tp_plan.get("side") == side
+                and tp_plan.get("safe_entry")
+                and abs(entry_p - float(tp_plan["safe_entry"])) / max(entry_p, 1e-9) < 0.015
+            ):
+                sl = float(tp_plan["sl"])
+                tp1 = float(tp_plan["tp1"])
+                tp2 = float(tp_plan["tp2"])
+            else:
+                if side == "LONG":
+                    sl = entry_p - 1.5 * curr_atr
+                    tp1 = entry_p + 1.8 * curr_atr
+                    tp2 = entry_p + 3.2 * curr_atr
+                else:
+                    sl = entry_p + 1.5 * curr_atr
+                    tp1 = entry_p - 1.8 * curr_atr
+                    tp2 = entry_p - 3.2 * curr_atr
+
+            if item.get("stop_loss") and float(item["stop_loss"]) > 0:
+                sl = float(item["stop_loss"])
+            if item.get("take_profit") and float(item["take_profit"]) > 0:
+                tp1 = float(item["take_profit"])
+
+            liq = (
+                float(item["liq_price"])
+                if (item.get("liq_price") and float(item["liq_price"]) > 0)
+                else (entry_p * (1.0 - 0.90 / lev) if side == "LONG" else entry_p * (1.0 + 0.90 / lev))
+            )
+
+            pos = OpenPosition(
+                position_id=f"screenshot-{sym.lower()}-{int(time.time())}",
+                symbol=sym,
+                side=side,
+                entry_price=entry_p,
+                current_price=live_price if live_price > 0 else entry_p,
+                stop_loss=sl,
+                tp1_price=tp1,
+                tp2_price=tp2,
+                leverage=lev,
+                initial_margin_usd=margin,
+                remaining_margin_usd=margin,
+                notional_usd=margin * lev,
+                liq_price=liq,
+                opened_at=datetime.now(timezone.utc).isoformat(),
+                sentiment_decision="SCREENSHOT_BTCC_SYNC",
+                sentiment_reasoning="Imported from Telegram BTCC Screenshot",
+            )
+            self.orchestrator.execution.open_positions[sym] = pos
+            pnl_usd = pos.unrealized_pnl_usd()
+            roe_pct = pos.unrealized_roe_pct()
+
+            model_side = tp_plan.get("side", side)
+            model_conf = tp_plan.get("confidence_pct", 65)
+            align_note = (
+                f"✅ Aligned with our *{model_conf}% {model_side}* signal"
+                if model_side == side
+                else f"⚠️ Caution: 4H model leans *{model_side} ({model_conf}% Conf)* — keep SL tight"
+            )
+            reply_blocks.append(
+                f"\n🟠 *{sym} — {side} ({lev}x)*\n"
+                f"   • *Entry*: `{fmt_price(entry_p)}` → *Live*: `{fmt_price(pos.current_price)}` (`${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)\n"
+                f"   • *Set TP1*: `{fmt_price(tp1)}` | *TP2*: `{fmt_price(tp2)}`\n"
+                f"   • *Set SL*: `{fmt_price(sl)}` _(${margin:.0f} margin)_\n"
+                f"   • *AI Check*: {align_note}"
+            )
+
+        if sync_mode and seen_open_syms:
+            removed = [s for s in list(self.orchestrator.execution.open_positions.keys()) if s not in seen_open_syms]
+            for s in removed:
+                del self.orchestrator.execution.open_positions[s]
+            if removed:
+                reply_blocks.append(f"\n🧹 *Synced*: Removed `{', '.join(removed)}` (no longer in screenshot).")
+
+        self.orchestrator.execution._save_state()
+        reply_blocks.append(
+            "\n🔔 _Now monitoring all screenshot positions 24/7 for TP, SL & Profit-Flatline Stalls!_"
+        )
+        return "\n".join(reply_blocks)
 
     def handle_telegram_command(self, cmd_text: str) -> str:
         """
