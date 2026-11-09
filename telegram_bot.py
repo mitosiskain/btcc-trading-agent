@@ -136,17 +136,18 @@ class TelegramNotifier:
         )
         self.send_message(msg)
 
-    def poll_commands(self, command_handler: Callable[[str], str]) -> None:
+    def poll_commands(self, command_handler: Callable[[str], str]) -> bool:
         """
-        Non-blocking poll for incoming Telegram messages.
-        If chat_id is not yet set, automatically captures it from the very first message sent to @kaintraderbot!
+        Non-blocking poll for incoming Telegram messages (both /commands and plain-English chat).
+        Returns True if one or more messages were processed.
         """
         if not self.token:
-            return
+            return False
+        processed_any = False
         try:
             data = self._api_call(f"getUpdates?offset={self.last_update_id + 1}&timeout=1")
             if not data.get("ok"):
-                return
+                return False
             updates = data.get("result", [])
             for upd in updates:
                 self.last_update_id = int(upd["update_id"])
@@ -161,15 +162,20 @@ class TelegramNotifier:
                         "✅ *Connected to @kaintraderbot!*\n"
                         f"• *Your Chat ID*: `{self.chat_id}` (saved to `.env`)\n"
                         "• Live BTCC entry recommendations & *Profit-Flatline Stall* exit alerts are now active.\n\n"
-                        "Try replying `/status`, `/positions`, `/scan`, or `/track SOLUSDT SHORT 89.50 100`!"
+                        "You can chat in plain English (e.g. _\"I went long on BTC at 74500 10x\"_, _\"set alert threshold to 75%\"_, _\"closed my BTC trade\"_) or use `/status`, `/positions`, `/scan`!"
                     )
-                    if text.startswith("/") and text.lower() != "/start":
+                    processed_any = True
+                    if text and text.lower() != "/start":
                         reply = command_handler(text)
                         if reply:
                             self.send_message(reply)
                     continue
 
-                if text.startswith("/"):
+                if cid and self.chat_id and str(cid) != str(self.chat_id):
+                    continue
+
+                if text:
+                    processed_any = True
                     if text.lower() == "/start":
                         self.send_message(command_handler("/status"))
                     else:
@@ -178,3 +184,4 @@ class TelegramNotifier:
                             self.send_message(reply)
         except Exception:
             pass
+        return processed_any

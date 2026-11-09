@@ -62,6 +62,7 @@ class DashboardController:
         self.recent_alerts: List[Dict[str, Any]] = []
         self.backtest_jobs: Dict[str, Dict[str, Any]] = {}
         self.sentiment_alert_cooldowns: Dict[str, float] = {}
+        self.alert_confidence_threshold: int = 80
         self._lock = threading.Lock()
         self._alert_cache_file = Path(__file__).resolve().parent / "state" / "cloud_alert_cache.json"
         self._load_alert_cache()
@@ -76,6 +77,8 @@ class DashboardController:
                 self.orchestrator.alerted_bar_keys = set(data.get("alerted_bar_keys") or [])
                 if data.get("last_update_id"):
                     self.orchestrator.telegram.last_update_id = int(data["last_update_id"])
+                if data.get("alert_confidence_threshold"):
+                    self.alert_confidence_threshold = max(30, min(99, int(data["alert_confidence_threshold"])))
             except Exception:
                 pass
 
@@ -88,6 +91,7 @@ class DashboardController:
                         "cooldowns": self.sentiment_alert_cooldowns,
                         "alerted_bar_keys": sorted(list(self.orchestrator.alerted_bar_keys))[-200:],
                         "last_update_id": self.orchestrator.telegram.last_update_id,
+                        "alert_confidence_threshold": self.alert_confidence_threshold,
                     },
                     indent=2,
                 )
@@ -197,6 +201,7 @@ class DashboardController:
         self.config.strategy.timeframe = tf
 
         try:
+            self.orchestrator.execution._load_state()
             for symbol in self.config.watchlist:
                 f_t0 = time.time()
                 sym_detector = self.orchestrator.get_detector_for_symbol(symbol, tf)
@@ -438,8 +443,16 @@ class DashboardController:
                         long_pts += 1.2
                     elif dom_trend == "BEARISH":
                         short_pts += 1.2
-                    if symbol in ("XAUUSDT", "XAGUSDT") and macro_compass.get("1w", {}).get("trend") == "BULLISH":
+                    if symbol in ("XAUUSDT", "XAGUSDT") and (
+                        macro_compass.get("1w", {}).get("trend") == "BULLISH"
+                        or macro_compass.get("1M", {}).get("trend") == "BULLISH"
+                    ):
                         long_pts += 1.5
+                    elif (
+                        macro_compass.get("1d", {}).get("trend") == "BULLISH"
+                        and macro_compass.get("1w", {}).get("trend") == "BULLISH"
+                    ):
+                        long_pts += 1.2
 
                     so_side = sentiment_overlap.get("bias_side", "LONG")
                     so_wt = 1.6 if sentiment_overlap.get("is_statistically_significant") else 0.6
@@ -535,8 +548,10 @@ class DashboardController:
                     f"Safe Entry: ${trade_plan['safe_entry_str']} | TP1: ${trade_plan['tp1_str']} | TP2: ${trade_plan['tp2_str']} | SL: ${trade_plan['sl_str']} • {simple_why}"
                 )
 
-                # Single Unified Telegram Alert (no conflicting duplicate alerts)
-                should_alert = (u_mode == "ENTER NOW") or (u_conf >= 82 and flatline_met)
+                # Single Unified Telegram Alert (respects user's configurable alert_confidence_threshold)
+                should_alert = (u_conf >= self.alert_confidence_threshold) and (
+                    u_mode == "ENTER NOW" or flatline_met or u_conf >= self.alert_confidence_threshold
+                )
                 if should_alert and self.orchestrator.telegram.is_configured:
                     open_pos = self.orchestrator.execution.open_positions.get(symbol)
                     alert_key = f"{symbol}_{tf}_{u_side}_{u_mode}_{'OPEN' if open_pos else 'NEW'}"
@@ -659,6 +674,92 @@ class DashboardController:
 
         threading.Thread(target=_worker, daemon=True).start()
 
+    def _resolve_symbol_from_text(self, text: str) -> Optional[str]:
+        import re
+
+        tl = text.lower()
+        aliases = [
+            ("BTCUSDT", ["btcusdt", "bitcoin", "btc"]),
+            ("ETHUSDT", ["ethusdt", "ethereum", "ether", "eth"]),
+            ("SOLUSDT", ["solusdt", "solana", "sol"]),
+            ("XRPUSDT", ["xrpusdt", "ripple", "xrp"]),
+            ("DOGEUSDT", ["dogeusdt", "dogecoin", "doge"]),
+            ("SUIUSDT", ["suiusdt", "sui"]),
+            ("XAUUSDT", ["xauusdt", "gold", "xau"]),
+            ("XAGUSDT", ["xagusdt", "silver", "xag"]),
+            ("PEPEUSDT", ["pepeusdt", "1000pepe", "pepe"]),
+            ("AVAXUSDT", ["avaxusdt", "avalanche", "avax"]),
+            ("WIFUSDT", ["wifusdt", "dogwifhat", "wif"]),
+            ("INJUSDT", ["injusdt", "injective", "inj"]),
+            ("NVDAUSDT", ["nvdausdt", "nvidia", "nvda"]),
+        ]
+        for sym, words in aliases:
+            for w in words:
+                if re.search(rf"\b{w}\b", tl):
+                    return sym
+        return None
+
+    def _format_single_coin_card(self, sym: str) -> str:
+        if not self.asset_cards:
+            self.run_single_scan()
+        c = self.asset_cards.get(sym)
+        if not c:
+            return f"ℹ️ Could not find live data for `{sym}`."
+        tp = c.get("trade_plan") or {}
+        side = tp.get("side", "LONG")
+        conf = tp.get("confidence_pct", 65)
+        mode = tp.get("entry_mode", "WAIT FOR SAFE ENTRY")
+        arrow = "📈" if side == "LONG" else "📉"
+        icon = "🟢" if side == "LONG" else "🔴"
+        open_pos = self.orchestrator.execution.open_positions.get(sym)
+        pos_block = ""
+        if open_pos is not None:
+            open_pos.current_price = float(c.get("price") or open_pos.current_price)
+            pnl_usd = open_pos.unrealized_pnl_usd()
+            roe_pct = open_pos.unrealized_roe_pct()
+            pos_block = (
+                f"\n🟠 *YOUR OPEN POSITION*: `{open_pos.side}` ({open_pos.leverage}x)\n"
+                f"• *Entry*: `{fmt_price(open_pos.entry_price)}` → *Now*: `{c.get('price_str')}` (`${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)\n"
+                f"• *Your Active Targets*: TP1 `{fmt_price(open_pos.tp1_price)}` | TP2 `{fmt_price(open_pos.tp2_price)}` | SL `{fmt_price(open_pos.stop_loss)}`\n"
+            )
+        return (
+            f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} ({conf}% Confidence)*\n"
+            f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}`)_\n"
+            f"• *Safe Entry*: `{tp.get('safe_entry_str')}`\n"
+            f"• *Take-Profit*: TP1 `{tp.get('tp1_str')}` | TP2 `{tp.get('tp2_str')}`\n"
+            f"• *Stop-Loss (SL)*: `{tp.get('sl_str')}` _({tp.get('leverage', 5)}x)_\n"
+            f"• *Why*: _{tp.get('simple_why', '')}_"
+            + pos_block
+            + f"\n\n💡 _Tell me e.g. \"I went {side.lower()} on {sym.replace('USDT', '')} at {tp.get('safe_entry_str')} {tp.get('leverage', 5)}x\" when you enter!_"
+        )
+
+    def _format_open_positions(self) -> str:
+        self.orchestrator.execution._load_state()
+        if not self.orchestrator.execution.open_positions:
+            return (
+                "📭 *No Open Positions Currently Tracked*\n"
+                "• Tell me anytime in plain English when you enter a trade, e.g.:\n"
+                "  _\"I went long on BTC at 74500 with 20x\"_\n"
+                "  _\"Shorted SOL at 86.5\"_"
+            )
+        if not self.asset_cards:
+            self.run_single_scan()
+        lines = [f"🟠 *Your Active Tracked Positions ({len(self.orchestrator.execution.open_positions)})*:"]
+        for sym, pos in self.orchestrator.execution.open_positions.items():
+            card = self.asset_cards.get(sym)
+            if card and card.get("price"):
+                pos.current_price = float(card["price"])
+            pnl_usd = pos.unrealized_pnl_usd()
+            roe_pct = pos.unrealized_roe_pct()
+            lines.append(
+                f"\n🟠 *{sym} — {pos.side} ({pos.leverage}x)*\n"
+                f"   • *Entry*: `{fmt_price(pos.entry_price)}` → *Now*: `{fmt_price(pos.current_price)}`\n"
+                f"   • *Open PnL*: `${pnl_usd:+.2f}` (`{roe_pct:+.1f}% ROE` on `${pos.remaining_margin_usd:.0f}` margin)\n"
+                f"   • *Targets*: TP1 `{fmt_price(pos.tp1_price)}` | TP2 `{fmt_price(pos.tp2_price)}` | SL `{fmt_price(pos.stop_loss)}`"
+            )
+        lines.append("\n👉 _Reply \"closed BTC\" or \"move BTC SL to 74000\" anytime to update!_")
+        return "\n".join(lines)
+
     def build_simple_telegram_sheet(self, top_n: int = 13) -> str:
         """Build a simple, unified signal sheet identical to the live website."""
         if not self.asset_cards:
@@ -666,6 +767,7 @@ class DashboardController:
         cards = list(self.asset_cards.values())
         cards.sort(
             key=lambda c: (
+                1 if c["symbol"] in self.orchestrator.execution.open_positions else 0,
                 1 if (c.get("trade_plan") or {}).get("entry_mode") == "ENTER NOW" else 0,
                 (c.get("trade_plan") or {}).get("confidence_pct", 0),
             ),
@@ -674,7 +776,7 @@ class DashboardController:
         tf_lbl = self.timeframe.upper()
         lines = [
             f"🎯 *BTCC SIMPLE TRADE SIGNALS ({tf_lbl})*",
-            f"_Updated: {self.last_scan_ts or 'Live'} • Tap any number to copy:_\n",
+            f"_Alert Threshold: {self.alert_confidence_threshold}%+ Conf • Tap any number to copy:_\n",
         ]
         for c in cards[:top_n]:
             tp = c.get("trade_plan") or {}
@@ -684,45 +786,289 @@ class DashboardController:
             mode = tp.get("entry_mode", "WAIT FOR SAFE ENTRY")
             is_open = sym in self.orchestrator.execution.open_positions
             icon = "🟠" if is_open else ("⚡" if mode == "ENTER NOW" else ("🟢" if side == "LONG" else "🔴"))
-            lbl = f"{sym} (OPEN POSITION)" if is_open else sym
+            lbl = f"{sym} (OPEN)" if is_open else sym
             arrow = "📈" if side == "LONG" else "📉"
             lines.append(
                 f"{icon} *{lbl}* — *{side} {arrow}* (*{conf}% Conf*)\n"
                 f"   Safe Entry: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}`)_\n"
                 f"   TP1: `{tp.get('tp1_str')}` | TP2: `{tp.get('tp2_str')}` | SL: `{tp.get('sl_str')}`"
             )
-        lines.append("\n👉 _Reply `/track BTCUSDT` after placing an order on BTCC to monitor it for exits!_")
+        lines.append(
+            "\n💬 _Chat naturally: \"I went long on BTC at 74500 20x\", \"closed BTC\", or \"set threshold to 75%\"_"
+        )
         return "\n".join(lines)
 
     def handle_telegram_command(self, cmd_text: str) -> str:
-        """Unified Telegram command handler that shares 100% identical state with the website."""
-        parts = cmd_text.strip().split()
-        if not parts:
+        """
+        Unified Telegram command & Natural-Language Chat handler.
+        Understands both /slash commands and plain-English position / threshold messages.
+        """
+        import re
+
+        raw = (cmd_text or "").strip()
+        if not raw:
             return ""
+        tl = raw.lower()
+        parts = raw.split()
         cmd = parts[0].lower()
 
-        if cmd in ("/scan", "/prices", "/sheet", "/signals", "/start"):
+        # 1. Alert Threshold Control (slash or natural language)
+        is_threshold_msg = (
+            cmd in ("/threshold", "/alert", "/alerts")
+            or "threshold" in tl
+            or re.search(r"\b(?:alert|alerts|notify)\b.*\b(?:\d{2}\s*%|above|over|at|below|under|confidence|conf)\b", tl)
+            or re.search(r"\b(?:confidence|conf)\b.*\b(?:threshold|alert|alerts|minimum|min)\b", tl)
+        )
+        if is_threshold_msg:
+            m_num = re.search(r"\b(\d{2})\s*%?", tl)
+            if m_num:
+                new_thresh = max(30, min(99, int(m_num.group(1))))
+                self.alert_confidence_threshold = new_thresh
+                self._save_alert_cache()
+                if not self.asset_cards:
+                    self.run_single_scan()
+                qualifying = [
+                    f"{c['symbol']} ({c['trade_plan']['confidence_pct']}% {c['trade_plan']['side']})"
+                    for c in self.asset_cards.values()
+                    if (c.get("trade_plan") or {}).get("confidence_pct", 0) >= new_thresh
+                ]
+                qual_str = ", ".join(qualifying) if qualifying else "None right now (monitoring 24/7)"
+                return (
+                    f"🔔 *Alert Threshold Updated to `{new_thresh}%` Confidence!*\n"
+                    f"• You will now receive automatic push alerts whenever a setup reaches *{new_thresh}%+ confidence*.\n"
+                    f"• *Currently ≥ {new_thresh}%*: `{qual_str}`"
+                )
+            return (
+                f"🔔 *Current Alert Threshold*: `{self.alert_confidence_threshold}% Confidence`\n"
+                "• To change it, just reply e.g. _\"set alert threshold to 75%\"_ or `/threshold 75`."
+            )
+
+        # 2. Timeframe Switch via Chat
+        tf_match = re.search(r"\b(?:timeframe|tf|chart|switch to)\s+(5m|15m|1h|4h|1d|1w|1m|1mo)\b", tl)
+        if cmd == "/tf" and len(parts) >= 2:
+            tf_val = parts[1]
+        elif tf_match:
+            tf_val = tf_match.group(1)
+        else:
+            tf_val = None
+        if tf_val:
+            norm_tf = "1M" if tf_val.lower() in ("1m", "1mo", "monthly") and "month" in tl else tf_val
+            if norm_tf in ("5m", "15m", "1h", "4h", "1d", "1w", "1M"):
+                self.timeframe = norm_tf
+                self.run_single_scan()
+                return f"⏱️ *Switched Chart Timeframe to `{self.timeframe.upper()}`*\n\n" + self.build_simple_telegram_sheet(top_n=8)
+
+        # 3. Close / Exit Position via Natural Language or /close
+        sym_in_msg = self._resolve_symbol_from_text(raw)
+        is_close_intent = (
+            cmd in ("/close", "/exit")
+            or bool(
+                re.search(
+                    r"\b(?:close|closed|closing|exit|exited|exiting|out of|stopped out|took profit|sold my|remove|cancel)\b",
+                    tl,
+                )
+            )
+        )
+        if is_close_intent:
+            self.orchestrator.execution._load_state()
+            if re.search(r"\ball\b", tl) and self.orchestrator.execution.open_positions:
+                closed_syms = list(self.orchestrator.execution.open_positions.keys())
+                self.orchestrator.execution.open_positions.clear()
+                self.orchestrator.execution._save_state()
+                return f"✅ *Closed all tracked positions*: `{', '.join(closed_syms)}`"
+            target_sym = sym_in_msg
+            if not target_sym and len(self.orchestrator.execution.open_positions) == 1:
+                target_sym = next(iter(self.orchestrator.execution.open_positions.keys()))
+            if target_sym:
+                if target_sym in self.orchestrator.execution.open_positions:
+                    del self.orchestrator.execution.open_positions[target_sym]
+                    self.orchestrator.execution._save_state()
+                    return f"✅ *Closed `{target_sym}`* — removed from active exit/stall monitoring."
+                return f"ℹ️ `{target_sym}` is not currently in your open positions."
+
+        # 4. Update SL / TP on an Already-Open Position (e.g. "move BTC sl to 73800")
+        self.orchestrator.execution._load_state()
+        is_modify_open = (
+            sym_in_msg in self.orchestrator.execution.open_positions
+            and bool(re.search(r"\b(?:move|moved|update|updated|set|change|changed|trail)\b", tl))
+            and bool(re.search(r"\b(?:sl|stop|tp|tp1|tp2|target)\b", tl))
+            and not bool(re.search(r"\b(?:went|bought|shorted|entered|opened|took)\b", tl))
+        )
+        if is_modify_open and sym_in_msg:
+            pos = self.orchestrator.execution.open_positions[sym_in_msg]
+            sl_m = re.search(r"\b(?:sl|stop(?:\s*loss)?)\s*(?:to|at|@|:|=)?\s*\$?(\d+(?:\.\d+)?)", tl)
+            tp2_m = re.search(r"\btp2\s*(?:to|at|@|:|=)?\s*\$?(\d+(?:\.\d+)?)", tl)
+            tp1_m = re.search(r"\b(?:tp1?|take\s*profit|target)\s*(?:to|at|@|:|=)?\s*\$?(\d+(?:\.\d+)?)", tl)
+            changes = []
+            if sl_m:
+                pos.stop_loss = float(sl_m.group(1))
+                changes.append(f"SL → `{fmt_price(pos.stop_loss)}`")
+            if tp1_m:
+                pos.tp1_price = float(tp1_m.group(1))
+                changes.append(f"TP1 → `{fmt_price(pos.tp1_price)}`")
+            if tp2_m:
+                pos.tp2_price = float(tp2_m.group(1))
+                changes.append(f"TP2 → `{fmt_price(pos.tp2_price)}`")
+            if changes:
+                self.orchestrator.execution._save_state()
+                return (
+                    f"🟠 *Updated Open Position: {sym_in_msg} ({pos.side})*\n"
+                    f"• *Changes*: {', '.join(changes)}\n"
+                    f"• *Current Levels*: Entry `{fmt_price(pos.entry_price)}` | TP1 `{fmt_price(pos.tp1_price)}` | TP2 `{fmt_price(pos.tp2_price)}` | SL `{fmt_price(pos.stop_loss)}`"
+                )
+
+        # 5. Open / Track a Position via Natural Language or /track
+        has_entry_intent = (
+            cmd == "/track"
+            or bool(
+                re.search(
+                    r"\b(?:long|longed|short|shorted|bought|buy|buying|sell|selling|entered|enter|took|taking|opened|open|in on|i'm in|im in|track|tracking|position)\b",
+                    tl,
+                )
+            )
+        )
+        if sym_in_msg and has_entry_intent:
+            if not self.asset_cards:
+                self.run_single_scan()
+            card = self.asset_cards.get(sym_in_msg) or {}
+            tp_plan = card.get("trade_plan") or {}
+            live_price = float(card.get("price") or tp_plan.get("safe_entry") or 0.0)
+            curr_atr = float(card.get("atr") or (live_price * 0.015) or 1.0)
+
+            # Determine Side
+            if re.search(r"\b(?:short|shorted|selling|sell|puts|bear)\b", tl):
+                side = "SHORT"
+            elif re.search(r"\b(?:long|longed|bought|buy|buying|calls|bull)\b", tl):
+                side = "LONG"
+            else:
+                side = str(tp_plan.get("side") or "LONG").upper()
+
+            # Extract optional custom SL, TP1, TP2, Leverage, Margin
+            work_text = re.sub(r"\b1000pepe\b", "pepe", tl)
+            sl_m = re.search(r"\b(?:sl|stop(?:\s*loss)?)\s*(?:at|@|to|:|=)?\s*\$?(\d+(?:\.\d+)?)", work_text)
+            tp2_m = re.search(r"\btp2\s*(?:at|@|to|:|=)?\s*\$?(\d+(?:\.\d+)?)", work_text)
+            tp1_m = re.search(r"\b(?:tp1?|take\s*profit|target)\s*(?:at|@|to|:|=)?\s*\$?(\d+(?:\.\d+)?)", work_text)
+            lev_m = re.search(r"\b(\d{1,3})\s*x\b|\bleverage\s*(?:of\s*|at\s*|:|=)?\s*(\d{1,3})\b", work_text)
+            margin_m = re.search(r"\b(?:margin\s*\$?(\d+(?:\.\d+)?)|\$(\d+(?:\.\d+)?)\s*margin)\b", work_text)
+
+            lev = int(lev_m.group(1) or lev_m.group(2)) if lev_m else int(tp_plan.get("leverage") or self.config.risk.default_leverage)
+            lev = max(1, min(500, lev))
+            margin = float(margin_m.group(1) or margin_m.group(2)) if margin_m else float(self.config.risk.margin_per_trade_usd)
+
+            # Remove matched substrings before searching for entry price
+            cleaned_for_entry = work_text
+            for m_obj in (sl_m, tp2_m, tp1_m, lev_m, margin_m):
+                if m_obj:
+                    cleaned_for_entry = cleaned_for_entry.replace(m_obj.group(0), " ")
+
+            entry_p: Optional[float] = None
+            # Explicit 'at / @ / entry' price
+            explicit_entry_m = re.search(r"\b(?:at|@|entry|from|around|price)\s*\$?(\d+(?:\.\d+)?)", cleaned_for_entry)
+            if explicit_entry_m:
+                cand = float(explicit_entry_m.group(1))
+                if live_price <= 0 or (0.15 * live_price <= cand <= 6.0 * live_price):
+                    entry_p = cand
+            if entry_p is None:
+                # Any remaining number in the message that looks like a valid asset price
+                for num_str in re.findall(r"\$?(\d+(?:\.\d+)?)", cleaned_for_entry):
+                    cand = float(num_str)
+                    if live_price > 0 and (0.20 * live_price <= cand <= 5.0 * live_price):
+                        entry_p = cand
+                        break
+                    elif live_price <= 0 and cand > 0:
+                        entry_p = cand
+                        break
+            if entry_p is None or entry_p <= 0:
+                entry_p = live_price if live_price > 0 else float(tp_plan.get("safe_entry") or 1.0)
+
+            # Compute default SL / TP1 / TP2 around entry_p
+            if (
+                tp_plan
+                and tp_plan.get("side") == side
+                and tp_plan.get("safe_entry")
+                and abs(entry_p - float(tp_plan["safe_entry"])) / max(entry_p, 1e-9) < 0.012
+            ):
+                sl = float(tp_plan["sl"])
+                tp1 = float(tp_plan["tp1"])
+                tp2 = float(tp_plan["tp2"])
+            else:
+                if side == "LONG":
+                    sl = entry_p - 1.5 * curr_atr
+                    tp1 = entry_p + 1.8 * curr_atr
+                    tp2 = entry_p + 3.2 * curr_atr
+                else:
+                    sl = entry_p + 1.5 * curr_atr
+                    tp1 = entry_p - 1.8 * curr_atr
+                    tp2 = entry_p - 3.2 * curr_atr
+
+            if sl_m:
+                sl = float(sl_m.group(1))
+            if tp1_m:
+                tp1 = float(tp1_m.group(1))
+            if tp2_m:
+                tp2 = float(tp2_m.group(1))
+
+            liq = entry_p * (1.0 - 0.90 / lev) if side == "LONG" else entry_p * (1.0 + 0.90 / lev)
+            pos = OpenPosition(
+                position_id=f"manual-{sym_in_msg.lower()}-{int(time.time())}",
+                symbol=sym_in_msg,
+                side=side,
+                entry_price=entry_p,
+                current_price=live_price if live_price > 0 else entry_p,
+                stop_loss=sl,
+                tp1_price=tp1,
+                tp2_price=tp2,
+                leverage=lev,
+                initial_margin_usd=margin,
+                remaining_margin_usd=margin,
+                notional_usd=margin * lev,
+                liq_price=liq,
+                opened_at=datetime.now(timezone.utc).isoformat(),
+                sentiment_decision="MANUAL_BTCC_TRADE",
+                sentiment_reasoning=f"Reported via Telegram: {raw[:80]}",
+            )
+            self.orchestrator.execution.open_positions[sym_in_msg] = pos
+            self.orchestrator.execution._save_state()
+            pnl_usd = pos.unrealized_pnl_usd()
+            roe_pct = pos.unrealized_roe_pct()
+            return (
+                f"🟠 *Position Tracked: {sym_in_msg} — {side} ({lev}x)*\n"
+                f"• *Your Entry*: `{fmt_price(entry_p)}` _(Live: `{fmt_price(pos.current_price)}` | `${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)_\n"
+                f"• *Take-Profit*: TP1 `{fmt_price(tp1)}` | TP2 `{fmt_price(tp2)}`\n"
+                f"• *Stop-Loss (SL)*: `{fmt_price(sl)}`\n"
+                f"• _Monitoring 24/7 in the cloud for TP, SL & Profit-Flatline Stalls! Reply \"closed {sym_in_msg.replace('USDT', '')}\" when you exit._"
+            )
+
+        # 6. Check Open Positions (/positions or natural language)
+        if cmd == "/positions" or re.search(r"\b(?:my positions|open positions|my trades|what am i in|active trades|positions)\b", tl):
+            return self._format_open_positions()
+
+        # 7. Single-Coin Check (e.g. "how is btc?", "sol", "what about gold?")
+        if sym_in_msg and cmd not in ("/backtest",):
+            return self._format_single_coin_card(sym_in_msg)
+
+        # 8. Scan / Signals / Status / Help
+        if cmd in ("/scan", "/prices", "/sheet", "/signals", "/start") or re.search(
+            r"\b(?:scan|signals|sheet|prices|what looks good|best trades|setups|market|update)\b", tl
+        ):
             self.run_single_scan()
             return self.build_simple_telegram_sheet()
 
-        if cmd == "/status":
+        if cmd == "/status" or re.search(r"\b(?:status|hi|hello|hey|help|commands)\b", tl):
             self.run_single_scan()
             return (
-                f"📊 *BTCC Bot Status ({self.timeframe.upper()} Chart)*\n"
+                f"📊 *BTCC Cloud Bot Status ({self.timeframe.upper()} Chart)*\n"
                 f"• *Last Scan*: `{self.last_scan_ts}`\n"
+                f"• *Alert Threshold*: `{self.alert_confidence_threshold}%+ Confidence`\n"
                 f"• *Open Positions*: `{len(self.orchestrator.execution.open_positions)}`\n\n"
                 + self.build_simple_telegram_sheet(top_n=6)
+                + "\n\n📖 *What You Can Say Anytime:*\n"
+                "• _\"I went long on BTC at 74500 with 20x\"_\n"
+                "• _\"Shorted SOL at 86.5, sl 89 tp 81\"_\n"
+                "• _\"Closed my BTC trade\"_ or _\"My positions\"_\n"
+                "• _\"Set alert threshold to 75%\"_\n"
+                "• _\"How is ETH looking?\"_ or _\"Signals\"_"
             )
-
-        if cmd == "/track" and len(parts) == 2:
-            sym = parts[1].upper()
-            if not self.asset_cards:
-                self.run_single_scan()
-            card = self.asset_cards.get(sym)
-            if card and card.get("trade_plan"):
-                tp = card["trade_plan"]
-                full_cmd = f"/track {sym} {tp['side']} {tp['safe_entry']} {tp['leverage']}"
-                return self.orchestrator.handle_telegram_command(full_cmd)
 
         return self.orchestrator.handle_telegram_command(cmd_text)
 
@@ -1645,6 +1991,7 @@ def create_app(controller: DashboardController) -> web.Application:
                     print(f"[TELEGRAM POLL ERROR] {tg_err}", flush=True)
 
     async def background_scanner_task(app_inst: web.Application) -> None:
+        await asyncio.sleep(1.0)
         try:
             await asyncio.wait_for(asyncio.to_thread(controller.run_single_scan), timeout=120.0)
         except Exception as init_err:

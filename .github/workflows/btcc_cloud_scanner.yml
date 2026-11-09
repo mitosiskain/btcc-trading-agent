@@ -2,14 +2,14 @@ name: BTCC 24/7 Cloud Trading Scanner
 
 on:
   schedule:
-    # Runs automatically every 20 minutes 24/7 (~0.5 min per run, well within GitHub Free's 2,000 mins/mo)
-    - cron: '*/20 * * * *'
+    # Runs automatically every 15 minutes 24/7 (stays live for 14 mins polling Telegram every 4s & scanning every 60s)
+    - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       duration_minutes:
-        description: 'Continuous live polling duration in minutes (0 = single scan, 60-350 = live session while PC is off)'
+        description: 'Continuous live polling duration in minutes (0 = single scan, 14 = standard cycle, 60-350 = extended live session)'
         required: false
-        default: '0'
+        default: '14'
       timeframe:
         description: 'Chart timeframe (4h, 1d, 1w, 1M, 1h)'
         required: false
@@ -43,6 +43,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Configure Git for Live Cloud State Sync
+        run: |
+          git config user.name "btcc-cloud-bot"
+          git config user.email "btcc-cloud-bot@users.noreply.github.com"
+
       - name: Run BTCC Cloud Scanner & Telegram Bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -51,19 +56,21 @@ jobs:
           GEMINI_MODEL: 'gemini-2.5-flash'
           MARGIN_PER_TRADE_USD: '5.0'
           DEFAULT_LEVERAGE: '5'
+          INPUT_DURATION: ${{ github.event.inputs.duration_minutes }}
+          INPUT_TIMEFRAME: ${{ github.event.inputs.timeframe }}
+          INPUT_SUMMARY: ${{ github.event.inputs.send_summary }}
         run: |
-          DUR="${{ github.event.inputs.duration_minutes || '0' }}"
-          TF="${{ github.event.inputs.timeframe || '4h' }}"
+          DUR="${INPUT_DURATION:-14}"
+          TF="${INPUT_TIMEFRAME:-4h}"
           SUMMARY_FLAG=""
-          if [ "${{ github.event.inputs.send_summary }}" = "true" ]; then
+          if [ "$INPUT_SUMMARY" = "true" ]; then
             SUMMARY_FLAG="--send-summary"
           fi
-          python -u cloud_runner.py --timeframe "$TF" --duration-minutes "$DUR" $SUMMARY_FLAG
+          python -u cloud_runner.py --timeframe "$TF" --duration-minutes "$DUR" --git-sync $SUMMARY_FLAG
 
       - name: Persist Open Positions & Alert Cache
+        if: always()
         run: |
-          git config user.name "btcc-cloud-bot"
-          git config user.email "btcc-cloud-bot@users.noreply.github.com"
           git add state/portfolio_state.json state/cloud_alert_cache.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
             git commit -m "chore(state): update cloud portfolio & alert cache [skip ci]"
