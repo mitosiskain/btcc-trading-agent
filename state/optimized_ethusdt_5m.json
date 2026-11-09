@@ -1,0 +1,89 @@
+{
+  "best_metrics": {
+    "symbol": "ETHUSDT",
+    "timeframe": "5m",
+    "total_bars": 1500,
+    "total_trades": 3,
+    "win_rate_pct": 66.67,
+    "profit_factor": 23.0,
+    "total_net_pnl_usd": 0.44,
+    "avg_roe_per_trade_pct": 2.92,
+    "max_drawdown_usd": 0.02,
+    "profit_stall_exits_count": 2,
+    "tp1_hits_count": 2,
+    "tp2_hits_count": 0,
+    "stop_loss_count": 0,
+    "params": {
+      "timeframe": "5m",
+      "atr_period": 14,
+      "impulse_window_bars": 6,
+      "impulse_min_atr_mult": 1.8,
+      "impulse_min_pct": 0.42,
+      "flatline_bars": 2,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.15,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 0.44,
+      "win_rate_pct": 66.67,
+      "profit_factor": 23.0,
+      "stall_saves_count": 2
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 0.82,
+      "win_rate_pct": 66.67,
+      "profit_factor": 42.0
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 20,
+      "entry_time": "2026-11-04 08:40:00+00:00",
+      "exit_time": "2026-11-04 09:10:00+00:00",
+      "entry_price": 2324.84,
+      "exit_price": 2321.75,
+      "net_pnl_usd": 0.11,
+      "roe_pct": 2.22,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 6
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 20,
+      "entry_time": "2026-11-04 15:35:00+00:00",
+      "exit_time": "2026-11-04 15:55:00+00:00",
+      "entry_price": 2436.3,
+      "exit_price": 2425.68,
+      "net_pnl_usd": 0.35,
+      "roe_pct": 6.92,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 20,
+      "entry_time": "2026-11-06 09:25:00+00:00",
+      "exit_time": "2026-11-06 10:35:00+00:00",
+      "entry_price": 2241.35,
+      "exit_price": 2241.35,
+      "net_pnl_usd": -0.02,
+      "roe_pct": -0.39,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 14
+    }
+  ]
+}

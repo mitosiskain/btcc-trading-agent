@@ -1,0 +1,128 @@
+{
+  "best_metrics": {
+    "symbol": "SUIUSDT",
+    "timeframe": "1d",
+    "total_bars": 750,
+    "total_trades": 6,
+    "win_rate_pct": 100.0,
+    "profit_factor": 99.0,
+    "total_net_pnl_usd": 5.74,
+    "avg_roe_per_trade_pct": 19.11,
+    "max_drawdown_usd": 0.0,
+    "profit_stall_exits_count": 2,
+    "tp1_hits_count": 5,
+    "tp2_hits_count": 3,
+    "stop_loss_count": 0,
+    "params": {
+      "timeframe": "1d",
+      "atr_period": 14,
+      "impulse_window_bars": 7,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 1.8,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 0.95,
+      "flatline_body_decay_ratio": 0.78,
+      "stop_loss_atr_buffer": 0.55,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 10
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 5.74,
+      "win_rate_pct": 100.0,
+      "profit_factor": 99.0,
+      "stall_saves_count": 2
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 5.46,
+      "win_rate_pct": 100.0,
+      "profit_factor": 99.0
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-03-24 00:00:00+00:00",
+      "exit_time": "2025-03-29 00:00:00+00:00",
+      "entry_price": 2.3967,
+      "exit_price": 2.3967,
+      "net_pnl_usd": 0.79,
+      "roe_pct": 15.78,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 5
+    },
+    {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-09-08 00:00:00+00:00",
+      "exit_time": "2025-09-13 00:00:00+00:00",
+      "entry_price": 3.4976,
+      "exit_price": 3.8668,
+      "net_pnl_usd": 1.05,
+      "roe_pct": 20.93,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 5
+    },
+    {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-09-28 00:00:00+00:00",
+      "exit_time": "2025-10-05 00:00:00+00:00",
+      "entry_price": 3.2761,
+      "exit_price": 3.5627,
+      "net_pnl_usd": 0.9,
+      "roe_pct": 18.01,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 7
+    },
+    {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-12-27 00:00:00+00:00",
+      "exit_time": "2026-01-03 00:00:00+00:00",
+      "entry_price": 1.4508,
+      "exit_price": 1.643,
+      "net_pnl_usd": 1.19,
+      "roe_pct": 23.86,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 7
+    },
+    {
+      "symbol": "SUIUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2026-07-01 00:00:00+00:00",
+      "exit_time": "2026-07-06 00:00:00+00:00",
+      "entry_price": 0.7152,
+      "exit_price": 0.7495,
+      "net_pnl_usd": 0.61,
+      "roe_pct": 12.15,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "SUIUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2026-10-22 00:00:00+00:00",
+      "exit_time": "2026-10-30 00:00:00+00:00",
+      "entry_price": 0.9719,
+      "exit_price": 0.8403,
+      "net_pnl_usd": 1.2,
+      "roe_pct": 23.92,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 8
+    }
+  ]
+}

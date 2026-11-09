@@ -1,0 +1,180 @@
+{
+  "best_metrics": {
+    "symbol": "XAGUSDT",
+    "timeframe": "1M",
+    "total_bars": 269,
+    "total_trades": 13,
+    "win_rate_pct": 76.92,
+    "profit_factor": 5.1,
+    "total_net_pnl_usd": 13.62,
+    "avg_roe_per_trade_pct": 20.96,
+    "max_drawdown_usd": 1.37,
+    "profit_stall_exits_count": 2,
+    "tp1_hits_count": 7,
+    "tp2_hits_count": 4,
+    "stop_loss_count": 2,
+    "params": {
+      "timeframe": "1M",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.8,
+      "impulse_min_pct": 7.0,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.65,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 6
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 13.62,
+      "win_rate_pct": 76.92,
+      "profit_factor": 5.1,
+      "stall_saves_count": 2
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 13.24,
+      "win_rate_pct": 76.92,
+      "profit_factor": 4.99
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "XAGUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2007-09-01 04:00:00+00:00",
+      "exit_time": "2008-02-01 05:00:00+00:00",
+      "entry_price": 13.794,
+      "exit_price": 17.7739,
+      "net_pnl_usd": 2.58,
+      "roe_pct": 51.54,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 5
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2009-09-01 04:00:00+00:00",
+      "exit_time": "2010-04-01 04:00:00+00:00",
+      "entry_price": 16.636,
+      "exit_price": 18.611,
+      "net_pnl_usd": 1.18,
+      "roe_pct": 23.56,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2010-09-01 04:00:00+00:00",
+      "exit_time": "2010-11-01 04:00:00+00:00",
+      "entry_price": 21.798,
+      "exit_price": 28.0,
+      "net_pnl_usd": 2.84,
+      "roe_pct": 56.72,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2012-12-01 05:00:00+00:00",
+      "exit_time": "2013-07-01 04:00:00+00:00",
+      "entry_price": 30.173,
+      "exit_price": 19.617,
+      "net_pnl_usd": 3.52,
+      "roe_pct": 70.34,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 7
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2014-09-01 04:00:00+00:00",
+      "exit_time": "2015-05-01 04:00:00+00:00",
+      "entry_price": 17.006,
+      "exit_price": 16.684,
+      "net_pnl_usd": 0.18,
+      "roe_pct": 3.61,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2016-04-01 04:00:00+00:00",
+      "exit_time": "2016-09-01 04:00:00+00:00",
+      "entry_price": 17.789,
+      "exit_price": 19.139,
+      "net_pnl_usd": 1.08,
+      "roe_pct": 21.59,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2018-08-01 04:00:00+00:00",
+      "exit_time": "2018-12-01 05:00:00+00:00",
+      "entry_price": 14.438,
+      "exit_price": 15.433,
+      "net_pnl_usd": -0.7,
+      "roe_pct": -13.96,
+      "exit_reason": "FAILED_BREAKDOWN_BOUNCE_WARNING",
+      "bars_held": 4
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2019-07-01 04:00:00+00:00",
+      "exit_time": "2020-02-01 05:00:00+00:00",
+      "entry_price": 16.346,
+      "exit_price": 16.346,
+      "net_pnl_usd": 0.55,
+      "roe_pct": 11.07,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 5
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2022-11-01 04:00:00+00:00",
+      "exit_time": "2023-06-01 04:00:00+00:00",
+      "entry_price": 21.55,
+      "exit_price": 22.81,
+      "net_pnl_usd": 1.08,
+      "roe_pct": 21.67,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 6
+    },
+    {
+      "symbol": "XAGUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2023-09-01 04:00:00+00:00",
+      "exit_time": "2023-11-01 04:00:00+00:00",
+      "entry_price": 22.236,
+      "exit_price": 25.2551,
+      "net_pnl_usd": -1.37,
+      "roe_pct": -27.34,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 1
+    }
+  ]
+}

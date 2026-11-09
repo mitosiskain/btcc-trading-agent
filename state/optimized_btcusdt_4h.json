@@ -1,0 +1,154 @@
+{
+  "best_metrics": {
+    "symbol": "BTCUSDT",
+    "timeframe": "4h",
+    "total_bars": 800,
+    "total_trades": 8,
+    "win_rate_pct": 75.0,
+    "profit_factor": 2.2,
+    "total_net_pnl_usd": 2.23,
+    "avg_roe_per_trade_pct": 5.58,
+    "max_drawdown_usd": 1.02,
+    "profit_stall_exits_count": 2,
+    "tp1_hits_count": 4,
+    "tp2_hits_count": 2,
+    "stop_loss_count": 2,
+    "params": {
+      "timeframe": "4h",
+      "atr_period": 14,
+      "impulse_window_bars": 5,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 0.8,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 0.95,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.55,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 2.23,
+      "win_rate_pct": 75.0,
+      "profit_factor": 2.2,
+      "stall_saves_count": 2
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 2.31,
+      "win_rate_pct": 75.0,
+      "profit_factor": 2.24
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2026-07-25 08:00:00+00:00",
+      "exit_time": "2026-07-26 04:00:00+00:00",
+      "entry_price": 64031.3,
+      "exit_price": 64341.2,
+      "net_pnl_usd": 0.43,
+      "roe_pct": 8.52,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2026-08-01 04:00:00+00:00",
+      "exit_time": "2026-08-01 16:00:00+00:00",
+      "entry_price": 63019.6,
+      "exit_price": 62416.4944,
+      "net_pnl_usd": -0.84,
+      "roe_pct": -16.75,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 3
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2026-08-29 16:00:00+00:00",
+      "exit_time": "2026-08-30 20:00:00+00:00",
+      "entry_price": 78154.9,
+      "exit_price": 78154.9,
+      "net_pnl_usd": 0.27,
+      "roe_pct": 5.45,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 7
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2026-09-17 12:00:00+00:00",
+      "exit_time": "2026-09-18 08:00:00+00:00",
+      "entry_price": 76751.8,
+      "exit_price": 78305.8537,
+      "net_pnl_usd": 1.27,
+      "roe_pct": 25.43,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "SHORT",
+      "leverage": 16,
+      "entry_time": "2026-09-19 16:00:00+00:00",
+      "exit_time": "2026-09-20 12:00:00+00:00",
+      "entry_price": 81330.5,
+      "exit_price": 80871.4,
+      "net_pnl_usd": 0.58,
+      "roe_pct": 11.56,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2026-09-26 20:00:00+00:00",
+      "exit_time": "2026-09-28 00:00:00+00:00",
+      "entry_price": 84403.3,
+      "exit_price": 83405.6665,
+      "net_pnl_usd": -1.02,
+      "roe_pct": -20.35,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 7
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2026-10-30 20:00:00+00:00",
+      "exit_time": "2026-11-03 20:00:00+00:00",
+      "entry_price": 77312.6,
+      "exit_price": 77441.7,
+      "net_pnl_usd": 0.06,
+      "roe_pct": 1.23,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 24
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "SHORT",
+      "leverage": 16,
+      "entry_time": "2026-11-05 04:00:00+00:00",
+      "exit_time": "2026-11-05 12:00:00+00:00",
+      "entry_price": 80362.4,
+      "exit_price": 78808.0064,
+      "net_pnl_usd": 1.48,
+      "roe_pct": 29.51,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    }
+  ]
+}

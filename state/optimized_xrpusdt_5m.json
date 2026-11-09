@@ -1,0 +1,115 @@
+{
+  "best_metrics": {
+    "symbol": "XRPUSDT",
+    "timeframe": "5m",
+    "total_bars": 1500,
+    "total_trades": 5,
+    "win_rate_pct": 80.0,
+    "profit_factor": 4.43,
+    "total_net_pnl_usd": 0.24,
+    "avg_roe_per_trade_pct": 1.0,
+    "max_drawdown_usd": 0.07,
+    "profit_stall_exits_count": 2,
+    "tp1_hits_count": 3,
+    "tp2_hits_count": 2,
+    "stop_loss_count": 1,
+    "params": {
+      "timeframe": "5m",
+      "atr_period": 14,
+      "impulse_window_bars": 8,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 0.28,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.05,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.55,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 0.24,
+      "win_rate_pct": 80.0,
+      "profit_factor": 4.43,
+      "stall_saves_count": 2
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 0.27,
+      "win_rate_pct": 80.0,
+      "profit_factor": 4.86
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "XRPUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-11-04 12:35:00+00:00",
+      "exit_time": "2026-11-04 14:30:00+00:00",
+      "entry_price": 1.2796,
+      "exit_price": 1.2902,
+      "net_pnl_usd": 0.18,
+      "roe_pct": 3.69,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 23
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-04 22:50:00+00:00",
+      "exit_time": "2026-11-04 23:20:00+00:00",
+      "entry_price": 1.313,
+      "exit_price": 1.309,
+      "net_pnl_usd": 0.03,
+      "roe_pct": 0.62,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 6
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-05 02:15:00+00:00",
+      "exit_time": "2026-11-05 02:35:00+00:00",
+      "entry_price": 1.309,
+      "exit_price": 1.308,
+      "net_pnl_usd": 0.01,
+      "roe_pct": 0.29,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-06 09:35:00+00:00",
+      "exit_time": "2026-11-06 11:10:00+00:00",
+      "entry_price": 1.1983,
+      "exit_price": 1.1922,
+      "net_pnl_usd": 0.09,
+      "roe_pct": 1.78,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 19
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-11-07 09:55:00+00:00",
+      "exit_time": "2026-11-07 10:15:00+00:00",
+      "entry_price": 1.1711,
+      "exit_price": 1.1689,
+      "net_pnl_usd": -0.07,
+      "roe_pct": -1.39,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 4
+    }
+  ]
+}

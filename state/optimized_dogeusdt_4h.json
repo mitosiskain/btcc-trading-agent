@@ -1,0 +1,180 @@
+{
+  "best_metrics": {
+    "symbol": "DOGEUSDT",
+    "timeframe": "4h",
+    "total_bars": 800,
+    "total_trades": 11,
+    "win_rate_pct": 63.64,
+    "profit_factor": 2.83,
+    "total_net_pnl_usd": 3.0,
+    "avg_roe_per_trade_pct": 5.46,
+    "max_drawdown_usd": 1.02,
+    "profit_stall_exits_count": 2,
+    "tp1_hits_count": 6,
+    "tp2_hits_count": 5,
+    "stop_loss_count": 3,
+    "params": {
+      "timeframe": "4h",
+      "atr_period": 14,
+      "impulse_window_bars": 7,
+      "impulse_min_atr_mult": 2.2,
+      "impulse_min_pct": 1.1,
+      "flatline_bars": 4,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.25,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 3.0,
+      "win_rate_pct": 63.64,
+      "profit_factor": 2.83,
+      "stall_saves_count": 2
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 2.65,
+      "win_rate_pct": 63.64,
+      "profit_factor": 2.62
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-08-15 20:00:00+00:00",
+      "exit_time": "2026-08-17 12:00:00+00:00",
+      "entry_price": 0.0696,
+      "exit_price": 0.0705,
+      "net_pnl_usd": -0.35,
+      "roe_pct": -6.92,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 10
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 3,
+      "entry_time": "2026-08-26 12:00:00+00:00",
+      "exit_time": "2026-08-27 08:00:00+00:00",
+      "entry_price": 0.0845,
+      "exit_price": 0.0882,
+      "net_pnl_usd": -0.67,
+      "roe_pct": -13.41,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 5
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-09-09 12:00:00+00:00",
+      "exit_time": "2026-09-09 20:00:00+00:00",
+      "entry_price": 0.0889,
+      "exit_price": 0.0856,
+      "net_pnl_usd": 0.71,
+      "roe_pct": 14.23,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-09-11 04:00:00+00:00",
+      "exit_time": "2026-09-11 12:00:00+00:00",
+      "entry_price": 0.0838,
+      "exit_price": 0.0882,
+      "net_pnl_usd": 1.29,
+      "roe_pct": 25.8,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 3,
+      "entry_time": "2026-09-24 12:00:00+00:00",
+      "exit_time": "2026-09-26 00:00:00+00:00",
+      "entry_price": 0.0956,
+      "exit_price": 0.0979,
+      "net_pnl_usd": 0.43,
+      "roe_pct": 8.6,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 9
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-04 12:00:00+00:00",
+      "exit_time": "2026-10-04 20:00:00+00:00",
+      "entry_price": 0.0941,
+      "exit_price": 0.0972,
+      "net_pnl_usd": 0.56,
+      "roe_pct": 11.24,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-11 00:00:00+00:00",
+      "exit_time": "2026-10-11 12:00:00+00:00",
+      "entry_price": 0.085,
+      "exit_price": 0.0869,
+      "net_pnl_usd": -0.58,
+      "roe_pct": -11.63,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 3
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-17 12:00:00+00:00",
+      "exit_time": "2026-10-18 00:00:00+00:00",
+      "entry_price": 0.0792,
+      "exit_price": 0.0792,
+      "net_pnl_usd": -0.04,
+      "roe_pct": -0.8,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 3
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-27 12:00:00+00:00",
+      "exit_time": "2026-10-28 00:00:00+00:00",
+      "entry_price": 0.0781,
+      "exit_price": 0.0802,
+      "net_pnl_usd": 0.65,
+      "roe_pct": 12.99,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 3
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-01 16:00:00+00:00",
+      "exit_time": "2026-11-03 04:00:00+00:00",
+      "entry_price": 0.075,
+      "exit_price": 0.074,
+      "net_pnl_usd": 0.36,
+      "roe_pct": 7.12,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 9
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "best_metrics": {
+    "symbol": "INJUSDT",
+    "timeframe": "1d",
+    "total_bars": 1000,
+    "total_trades": 7,
+    "win_rate_pct": 57.14,
+    "profit_factor": 2.25,
+    "total_net_pnl_usd": 2.03,
+    "avg_roe_per_trade_pct": 5.81,
+    "max_drawdown_usd": 0.98,
+    "profit_stall_exits_count": 1,
+    "tp1_hits_count": 1,
+    "tp2_hits_count": 1,
+    "stop_loss_count": 1,
+    "params": {
+      "timeframe": "1d",
+      "atr_period": 14,
+      "impulse_window_bars": 7,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 1.8,
+      "flatline_bars": 4,
+      "flatline_max_retracement_ratio": 0.5,
+      "flatline_max_range_atr": 1.25,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 10
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 2.03,
+      "win_rate_pct": 57.14,
+      "profit_factor": 2.25,
+      "stall_saves_count": 1
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 2.09,
+      "win_rate_pct": 57.14,
+      "profit_factor": 2.28
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "INJUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2024-04-24 00:00:00+00:00",
+      "exit_time": "2024-05-03 00:00:00+00:00",
+      "entry_price": 26.434,
+      "exit_price": 24.953,
+      "net_pnl_usd": 0.78,
+      "roe_pct": 15.62,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 9
+    },
+    {
+      "symbol": "INJUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2024-06-30 00:00:00+00:00",
+      "exit_time": "2024-07-03 00:00:00+00:00",
+      "entry_price": 23.506,
+      "exit_price": 21.2224,
+      "net_pnl_usd": -0.98,
+      "roe_pct": -19.61,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 3
+    },
+    {
+      "symbol": "INJUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-02-10 00:00:00+00:00",
+      "exit_time": "2025-02-20 00:00:00+00:00",
+      "entry_price": 14.558,
+      "exit_price": 15.699,
+      "net_pnl_usd": 0.77,
+      "roe_pct": 15.5,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 10
+    },
+    {
+      "symbol": "INJUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2025-06-17 00:00:00+00:00",
+      "exit_time": "2025-06-22 00:00:00+00:00",
+      "entry_price": 10.956,
+      "exit_price": 9.0264,
+      "net_pnl_usd": 1.75,
+      "roe_pct": 35.04,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 5
+    },
+    {
+      "symbol": "INJUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2025-11-20 00:00:00+00:00",
+      "exit_time": "2025-11-30 00:00:00+00:00",
+      "entry_price": 5.946,
+      "exit_price": 5.726,
+      "net_pnl_usd": 0.36,
+      "roe_pct": 7.22,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 10
+    },
+    {
+      "symbol": "INJUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2026-03-06 00:00:00+00:00",
+      "exit_time": "2026-03-11 00:00:00+00:00",
+      "entry_price": 2.901,
+      "exit_price": 3.003,
+      "net_pnl_usd": -0.36,
+      "roe_pct": -7.21,
+      "exit_reason": "FAILED_BREAKDOWN_BOUNCE_WARNING",
+      "bars_held": 5
+    },
+    {
+      "symbol": "INJUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2026-07-10 00:00:00+00:00",
+      "exit_time": "2026-07-12 00:00:00+00:00",
+      "entry_price": 5.011,
+      "exit_price": 4.868,
+      "net_pnl_usd": -0.29,
+      "roe_pct": -5.89,
+      "exit_reason": "FAILED_BREAKOUT_REJECT_WARNING",
+      "bars_held": 2
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "best_metrics": {
+    "symbol": "XRPUSDT",
+    "timeframe": "1M",
+    "total_bars": 109,
+    "total_trades": 3,
+    "win_rate_pct": 33.33,
+    "profit_factor": 2.95,
+    "total_net_pnl_usd": 7.28,
+    "avg_roe_per_trade_pct": 48.58,
+    "max_drawdown_usd": 3.73,
+    "profit_stall_exits_count": 0,
+    "tp1_hits_count": 0,
+    "tp2_hits_count": 1,
+    "stop_loss_count": 0,
+    "params": {
+      "timeframe": "1M",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.1,
+      "impulse_min_pct": 7.0,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.05,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 6
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 7.28,
+      "win_rate_pct": 33.33,
+      "profit_factor": 2.95,
+      "stall_saves_count": 0
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 7.28,
+      "win_rate_pct": 33.33,
+      "profit_factor": 2.95
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "XRPUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2020-07-01 00:00:00+00:00",
+      "exit_time": "2020-11-01 00:00:00+00:00",
+      "entry_price": 0.2589,
+      "exit_price": 0.5443,
+      "net_pnl_usd": 11.01,
+      "roe_pct": 220.29,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2023-03-01 00:00:00+00:00",
+      "exit_time": "2023-09-01 00:00:00+00:00",
+      "entry_price": 0.5385,
+      "exit_price": 0.5154,
+      "net_pnl_usd": -0.44,
+      "roe_pct": -8.76,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2026-06-01 00:00:00+00:00",
+      "exit_time": "2026-08-01 00:00:00+00:00",
+      "entry_price": 1.0384,
+      "exit_price": 1.379,
+      "net_pnl_usd": -3.29,
+      "roe_pct": -65.79,
+      "exit_reason": "FAILED_BREAKDOWN_BOUNCE_WARNING",
+      "bars_held": 2
+    }
+  ]
+}

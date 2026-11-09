@@ -1,0 +1,102 @@
+{
+  "best_metrics": {
+    "symbol": "SOLUSDT",
+    "timeframe": "1w",
+    "total_bars": 260,
+    "total_trades": 4,
+    "win_rate_pct": 75.0,
+    "profit_factor": 4.38,
+    "total_net_pnl_usd": 8.85,
+    "avg_roe_per_trade_pct": 44.25,
+    "max_drawdown_usd": 2.62,
+    "profit_stall_exits_count": 1,
+    "tp1_hits_count": 3,
+    "tp2_hits_count": 2,
+    "stop_loss_count": 1,
+    "params": {
+      "timeframe": "1w",
+      "atr_period": 14,
+      "impulse_window_bars": 2,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 3.5,
+      "flatline_bars": 2,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.05,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.55,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 8
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 8.85,
+      "win_rate_pct": 75.0,
+      "profit_factor": 4.38,
+      "stall_saves_count": 1
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 8.29,
+      "win_rate_pct": 75.0,
+      "profit_factor": 4.16
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "SOLUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2022-11-21 00:00:00+00:00",
+      "exit_time": "2023-01-16 00:00:00+00:00",
+      "entry_price": 14.099,
+      "exit_price": 26.3317,
+      "net_pnl_usd": 7.45,
+      "roe_pct": 149.03,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 8
+    },
+    {
+      "symbol": "SOLUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2023-08-14 00:00:00+00:00",
+      "exit_time": "2023-09-18 00:00:00+00:00",
+      "entry_price": 21.76,
+      "exit_price": 19.351,
+      "net_pnl_usd": 1.36,
+      "roe_pct": 27.16,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "SOLUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2024-09-16 00:00:00+00:00",
+      "exit_time": "2024-11-04 00:00:00+00:00",
+      "entry_price": 144.587,
+      "exit_price": 189.8989,
+      "net_pnl_usd": 2.66,
+      "roe_pct": 53.29,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 7
+    },
+    {
+      "symbol": "SOLUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2025-05-26 00:00:00+00:00",
+      "exit_time": "2025-07-21 00:00:00+00:00",
+      "entry_price": 157.62,
+      "exit_price": 198.8356,
+      "net_pnl_usd": -2.62,
+      "roe_pct": -52.48,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 8
+    }
+  ]
+}

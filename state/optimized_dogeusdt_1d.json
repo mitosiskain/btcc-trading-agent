@@ -1,0 +1,154 @@
+{
+  "best_metrics": {
+    "symbol": "DOGEUSDT",
+    "timeframe": "1d",
+    "total_bars": 750,
+    "total_trades": 8,
+    "win_rate_pct": 87.5,
+    "profit_factor": 5.56,
+    "total_net_pnl_usd": 4.97,
+    "avg_roe_per_trade_pct": 12.43,
+    "max_drawdown_usd": 1.09,
+    "profit_stall_exits_count": 0,
+    "tp1_hits_count": 5,
+    "tp2_hits_count": 4,
+    "stop_loss_count": 1,
+    "params": {
+      "timeframe": "1d",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.8,
+      "impulse_min_pct": 1.8,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 0.95,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 10
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 4.97,
+      "win_rate_pct": 87.5,
+      "profit_factor": 5.56,
+      "stall_saves_count": 0
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 4.97,
+      "win_rate_pct": 87.5,
+      "profit_factor": 5.56
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-01-02 00:00:00+00:00",
+      "exit_time": "2025-01-03 00:00:00+00:00",
+      "entry_price": 0.3388,
+      "exit_price": 0.3892,
+      "net_pnl_usd": 1.48,
+      "roe_pct": 29.57,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 1
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2025-01-26 00:00:00+00:00",
+      "exit_time": "2025-01-28 00:00:00+00:00",
+      "entry_price": 0.3358,
+      "exit_price": 0.3358,
+      "net_pnl_usd": 0.02,
+      "roe_pct": 0.42,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 2
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2025-02-01 00:00:00+00:00",
+      "exit_time": "2025-02-02 00:00:00+00:00",
+      "entry_price": 0.3077,
+      "exit_price": 0.2532,
+      "net_pnl_usd": 1.76,
+      "roe_pct": 35.24,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 1
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2025-02-21 00:00:00+00:00",
+      "exit_time": "2025-02-25 00:00:00+00:00",
+      "entry_price": 0.2394,
+      "exit_price": 0.1978,
+      "net_pnl_usd": 1.47,
+      "roe_pct": 29.32,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-03-24 00:00:00+00:00",
+      "exit_time": "2025-03-28 00:00:00+00:00",
+      "entry_price": 0.1829,
+      "exit_price": 0.1829,
+      "net_pnl_usd": 0.32,
+      "roe_pct": 6.33,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 4
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2025-10-26 00:00:00+00:00",
+      "exit_time": "2025-10-30 00:00:00+00:00",
+      "entry_price": 0.2057,
+      "exit_price": 0.1835,
+      "net_pnl_usd": -1.09,
+      "roe_pct": -21.76,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 4
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2026-01-25 00:00:00+00:00",
+      "exit_time": "2026-01-31 00:00:00+00:00",
+      "entry_price": 0.1194,
+      "exit_price": 0.1068,
+      "net_pnl_usd": 0.67,
+      "roe_pct": 13.41,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 6
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2026-09-09 00:00:00+00:00",
+      "exit_time": "2026-09-18 00:00:00+00:00",
+      "entry_price": 0.0861,
+      "exit_price": 0.0861,
+      "net_pnl_usd": 0.34,
+      "roe_pct": 6.87,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 9
+    }
+  ]
+}

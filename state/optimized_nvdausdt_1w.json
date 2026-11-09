@@ -1,0 +1,89 @@
+{
+  "best_metrics": {
+    "symbol": "NVDAUSDT",
+    "timeframe": "1w",
+    "total_bars": 260,
+    "total_trades": 3,
+    "win_rate_pct": 66.67,
+    "profit_factor": 1.21,
+    "total_net_pnl_usd": 0.89,
+    "avg_roe_per_trade_pct": 5.94,
+    "max_drawdown_usd": 4.21,
+    "profit_stall_exits_count": 0,
+    "tp1_hits_count": 1,
+    "tp2_hits_count": 2,
+    "stop_loss_count": 1,
+    "params": {
+      "timeframe": "1w",
+      "atr_period": 14,
+      "impulse_window_bars": 4,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 2.5,
+      "flatline_bars": 2,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.35,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 8
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 0.89,
+      "win_rate_pct": 66.67,
+      "profit_factor": 1.21,
+      "stall_saves_count": 0
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 0.89,
+      "win_rate_pct": 66.67,
+      "profit_factor": 1.21
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "NVDAUSDT",
+      "side": "SHORT",
+      "leverage": 4,
+      "entry_time": "2022-06-27 04:00:00+00:00",
+      "exit_time": "2022-07-18 04:00:00+00:00",
+      "entry_price": 14.523,
+      "exit_price": 17.5659,
+      "net_pnl_usd": -4.21,
+      "roe_pct": -84.17,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 3
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2023-02-20 05:00:00+00:00",
+      "exit_time": "2023-03-20 04:00:00+00:00",
+      "entry_price": 23.286,
+      "exit_price": 26.8803,
+      "net_pnl_usd": 2.57,
+      "roe_pct": 51.46,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2023-12-11 05:00:00+00:00",
+      "exit_time": "2024-01-08 05:00:00+00:00",
+      "entry_price": 48.89,
+      "exit_price": 55.1106,
+      "net_pnl_usd": 2.53,
+      "roe_pct": 50.53,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    }
+  ]
+}

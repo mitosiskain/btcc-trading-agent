@@ -1,0 +1,167 @@
+{
+  "best_metrics": {
+    "symbol": "AVAXUSDT",
+    "timeframe": "1h",
+    "total_bars": 1000,
+    "total_trades": 9,
+    "win_rate_pct": 66.67,
+    "profit_factor": 2.55,
+    "total_net_pnl_usd": 1.33,
+    "avg_roe_per_trade_pct": 2.93,
+    "max_drawdown_usd": 0.52,
+    "profit_stall_exits_count": 4,
+    "tp1_hits_count": 6,
+    "tp2_hits_count": 2,
+    "stop_loss_count": 2,
+    "params": {
+      "timeframe": "1h",
+      "atr_period": 14,
+      "impulse_window_bars": 7,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 0.55,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.5,
+      "flatline_max_range_atr": 0.95,
+      "flatline_body_decay_ratio": 0.78,
+      "stop_loss_atr_buffer": 0.55,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 1.33,
+      "win_rate_pct": 66.67,
+      "profit_factor": 2.55,
+      "stall_saves_count": 4
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 1.06,
+      "win_rate_pct": 66.67,
+      "profit_factor": 2.23
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "AVAXUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-09-30 22:00:00+00:00",
+      "exit_time": "2026-10-01 06:00:00+00:00",
+      "entry_price": 10.946,
+      "exit_price": 11.132,
+      "net_pnl_usd": 0.39,
+      "roe_pct": 7.7,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 8
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-02 22:00:00+00:00",
+      "exit_time": "2026-10-03 03:00:00+00:00",
+      "entry_price": 10.714,
+      "exit_price": 10.915,
+      "net_pnl_usd": 0.47,
+      "roe_pct": 9.3,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-12 09:00:00+00:00",
+      "exit_time": "2026-10-12 11:00:00+00:00",
+      "entry_price": 11.058,
+      "exit_price": 10.9192,
+      "net_pnl_usd": -0.34,
+      "roe_pct": -6.73,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 2
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-24 05:00:00+00:00",
+      "exit_time": "2026-10-24 09:00:00+00:00",
+      "entry_price": 9.009,
+      "exit_price": 8.863,
+      "net_pnl_usd": 0.35,
+      "roe_pct": 6.93,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-24 22:00:00+00:00",
+      "exit_time": "2026-10-25 02:00:00+00:00",
+      "entry_price": 8.93,
+      "exit_price": 8.975,
+      "net_pnl_usd": 0.12,
+      "roe_pct": 2.43,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-30 19:00:00+00:00",
+      "exit_time": "2026-10-31 03:00:00+00:00",
+      "entry_price": 8.439,
+      "exit_price": 8.588,
+      "net_pnl_usd": 0.45,
+      "roe_pct": 8.97,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 8
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-03 16:00:00+00:00",
+      "exit_time": "2026-11-04 01:00:00+00:00",
+      "entry_price": 8.546,
+      "exit_price": 8.355,
+      "net_pnl_usd": 0.41,
+      "roe_pct": 8.24,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 9
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-11-05 08:00:00+00:00",
+      "exit_time": "2026-11-05 12:00:00+00:00",
+      "entry_price": 8.793,
+      "exit_price": 8.6836,
+      "net_pnl_usd": -0.33,
+      "roe_pct": -6.67,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 4
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-07 02:00:00+00:00",
+      "exit_time": "2026-11-07 05:00:00+00:00",
+      "entry_price": 8.295,
+      "exit_price": 8.351,
+      "net_pnl_usd": -0.19,
+      "roe_pct": -3.83,
+      "exit_reason": "FAILED_BREAKDOWN_BOUNCE_WARNING",
+      "bars_held": 3
+    }
+  ]
+}

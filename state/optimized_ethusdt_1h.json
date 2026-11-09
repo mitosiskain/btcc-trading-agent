@@ -1,0 +1,167 @@
+{
+  "best_metrics": {
+    "symbol": "ETHUSDT",
+    "timeframe": "1h",
+    "total_bars": 800,
+    "total_trades": 9,
+    "win_rate_pct": 66.67,
+    "profit_factor": 2.0,
+    "total_net_pnl_usd": 0.89,
+    "avg_roe_per_trade_pct": 1.95,
+    "max_drawdown_usd": 0.55,
+    "profit_stall_exits_count": 1,
+    "tp1_hits_count": 3,
+    "tp2_hits_count": 5,
+    "stop_loss_count": 3,
+    "params": {
+      "timeframe": "1h",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 0.55,
+      "flatline_bars": 4,
+      "flatline_max_retracement_ratio": 0.5,
+      "flatline_max_range_atr": 0.95,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 0.89,
+      "win_rate_pct": 66.67,
+      "profit_factor": 2.0,
+      "stall_saves_count": 1
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 0.9,
+      "win_rate_pct": 66.67,
+      "profit_factor": 2.01
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "ETHUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-10 01:00:00+00:00",
+      "exit_time": "2026-10-10 17:00:00+00:00",
+      "entry_price": 2494.39,
+      "exit_price": 2506.7,
+      "net_pnl_usd": 0.11,
+      "roe_pct": 2.11,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 16
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-13 23:00:00+00:00",
+      "exit_time": "2026-10-14 00:00:00+00:00",
+      "entry_price": 2496.89,
+      "exit_price": 2517.6412,
+      "net_pnl_usd": -0.23,
+      "roe_pct": -4.61,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-15 23:00:00+00:00",
+      "exit_time": "2026-10-16 11:00:00+00:00",
+      "entry_price": 2441.0,
+      "exit_price": 2470.3626,
+      "net_pnl_usd": -0.32,
+      "roe_pct": -6.46,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 12
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-20 12:00:00+00:00",
+      "exit_time": "2026-10-20 14:00:00+00:00",
+      "entry_price": 2395.3,
+      "exit_price": 2421.4551,
+      "net_pnl_usd": 0.19,
+      "roe_pct": 3.87,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-21 07:00:00+00:00",
+      "exit_time": "2026-10-21 13:00:00+00:00",
+      "entry_price": 2455.59,
+      "exit_price": 2489.7486,
+      "net_pnl_usd": 0.33,
+      "roe_pct": 6.51,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 6
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-24 08:00:00+00:00",
+      "exit_time": "2026-10-24 14:00:00+00:00",
+      "entry_price": 2368.27,
+      "exit_price": 2341.4954,
+      "net_pnl_usd": 0.26,
+      "roe_pct": 5.2,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 6
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-25 05:00:00+00:00",
+      "exit_time": "2026-10-25 09:00:00+00:00",
+      "entry_price": 2352.43,
+      "exit_price": 2325.3421,
+      "net_pnl_usd": 0.19,
+      "roe_pct": 3.75,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-11-04 19:00:00+00:00",
+      "exit_time": "2026-11-05 14:00:00+00:00",
+      "entry_price": 2405.01,
+      "exit_price": 2335.4356,
+      "net_pnl_usd": 0.7,
+      "roe_pct": 14.01,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 19
+    },
+    {
+      "symbol": "ETHUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-11-06 09:00:00+00:00",
+      "exit_time": "2026-11-06 15:00:00+00:00",
+      "entry_price": 2238.07,
+      "exit_price": 2209.5158,
+      "net_pnl_usd": -0.34,
+      "roe_pct": -6.83,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 6
+    }
+  ]
+}

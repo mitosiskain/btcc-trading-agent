@@ -1,0 +1,180 @@
+{
+  "best_metrics": {
+    "symbol": "NVDAUSDT",
+    "timeframe": "1M",
+    "total_bars": 335,
+    "total_trades": 24,
+    "win_rate_pct": 62.5,
+    "profit_factor": 3.73,
+    "total_net_pnl_usd": 63.89,
+    "avg_roe_per_trade_pct": 53.26,
+    "max_drawdown_usd": 5.54,
+    "profit_stall_exits_count": 6,
+    "tp1_hits_count": 5,
+    "tp2_hits_count": 5,
+    "stop_loss_count": 5,
+    "params": {
+      "timeframe": "1M",
+      "atr_period": 14,
+      "impulse_window_bars": 2,
+      "impulse_min_atr_mult": 1.1,
+      "impulse_min_pct": 5.0,
+      "flatline_bars": 2,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.65,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 6
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 63.89,
+      "win_rate_pct": 62.5,
+      "profit_factor": 3.73,
+      "stall_saves_count": 6
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 44.79,
+      "win_rate_pct": 52.17,
+      "profit_factor": 2.55
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2013-04-01 04:00:00+00:00",
+      "exit_time": "2013-08-01 04:00:00+00:00",
+      "entry_price": 0.3442,
+      "exit_price": 0.3688,
+      "net_pnl_usd": 1.41,
+      "roe_pct": 28.17,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2013-09-01 04:00:00+00:00",
+      "exit_time": "2014-03-01 05:00:00+00:00",
+      "entry_price": 0.389,
+      "exit_price": 0.4478,
+      "net_pnl_usd": 3.3,
+      "roe_pct": 66.09,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "SHORT",
+      "leverage": 4,
+      "entry_time": "2014-07-01 04:00:00+00:00",
+      "exit_time": "2014-09-01 04:00:00+00:00",
+      "entry_price": 0.4375,
+      "exit_price": 0.4881,
+      "net_pnl_usd": -2.33,
+      "roe_pct": -46.62,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 2
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "SHORT",
+      "leverage": 4,
+      "entry_time": "2015-06-01 04:00:00+00:00",
+      "exit_time": "2015-08-01 04:00:00+00:00",
+      "entry_price": 0.5027,
+      "exit_price": 0.567,
+      "net_pnl_usd": -2.58,
+      "roe_pct": -51.52,
+      "exit_reason": "STOP_LOSS_HIT",
+      "bars_held": 2
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2019-03-01 05:00:00+00:00",
+      "exit_time": "2019-09-01 04:00:00+00:00",
+      "entry_price": 4.489,
+      "exit_price": 4.3517,
+      "net_pnl_usd": -0.63,
+      "roe_pct": -12.59,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2019-10-01 04:00:00+00:00",
+      "exit_time": "2020-02-01 05:00:00+00:00",
+      "entry_price": 5.0255,
+      "exit_price": 7.6419,
+      "net_pnl_usd": 10.39,
+      "roe_pct": 207.89,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2022-11-01 04:00:00+00:00",
+      "exit_time": "2023-05-01 04:00:00+00:00",
+      "entry_price": 16.923,
+      "exit_price": 29.8308,
+      "net_pnl_usd": 14.02,
+      "roe_pct": 280.46,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 6
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "SHORT",
+      "leverage": 4,
+      "entry_time": "2025-01-01 05:00:00+00:00",
+      "exit_time": "2025-05-01 04:00:00+00:00",
+      "entry_price": 120.07,
+      "exit_price": 120.07,
+      "net_pnl_usd": 0.91,
+      "roe_pct": 18.21,
+      "exit_reason": "BREAKEVEN_STOP_HIT",
+      "bars_held": 4
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2025-09-01 04:00:00+00:00",
+      "exit_time": "2025-11-01 04:00:00+00:00",
+      "entry_price": 186.58,
+      "exit_price": 177.0,
+      "net_pnl_usd": -1.04,
+      "roe_pct": -20.9,
+      "exit_reason": "FAILED_BREAKOUT_REJECT_WARNING",
+      "bars_held": 2
+    },
+    {
+      "symbol": "NVDAUSDT",
+      "side": "LONG",
+      "leverage": 4,
+      "entry_time": "2026-04-01 04:00:00+00:00",
+      "exit_time": "2026-08-01 04:00:00+00:00",
+      "entry_price": 199.57,
+      "exit_price": 220.78,
+      "net_pnl_usd": 2.11,
+      "roe_pct": 42.15,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    }
+  ]
+}

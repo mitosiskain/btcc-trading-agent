@@ -1,0 +1,89 @@
+{
+  "best_metrics": {
+    "symbol": "DOGEUSDT",
+    "timeframe": "1M",
+    "total_bars": 109,
+    "total_trades": 3,
+    "win_rate_pct": 66.67,
+    "profit_factor": 4.09,
+    "total_net_pnl_usd": 11.52,
+    "avg_roe_per_trade_pct": 76.82,
+    "max_drawdown_usd": 3.73,
+    "profit_stall_exits_count": 1,
+    "tp1_hits_count": 0,
+    "tp2_hits_count": 1,
+    "stop_loss_count": 0,
+    "params": {
+      "timeframe": "1M",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.1,
+      "impulse_min_pct": 7.0,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.05,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 6
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 11.52,
+      "win_rate_pct": 66.67,
+      "profit_factor": 4.09,
+      "stall_saves_count": 1
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 7.64,
+      "win_rate_pct": 50.0,
+      "profit_factor": 2.59
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "DOGEUSDT",
+      "side": "SHORT",
+      "leverage": 2,
+      "entry_time": "2022-05-01 00:00:00+00:00",
+      "exit_time": "2022-09-01 00:00:00+00:00",
+      "entry_price": 0.0859,
+      "exit_price": 0.0617,
+      "net_pnl_usd": 2.81,
+      "roe_pct": 56.27,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 4
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2022-10-01 00:00:00+00:00",
+      "exit_time": "2023-04-01 00:00:00+00:00",
+      "entry_price": 0.127,
+      "exit_price": 0.0798,
+      "net_pnl_usd": -3.73,
+      "roe_pct": -74.56,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "side": "LONG",
+      "leverage": 2,
+      "entry_time": "2023-11-01 00:00:00+00:00",
+      "exit_time": "2024-03-01 00:00:00+00:00",
+      "entry_price": 0.0834,
+      "exit_price": 0.1872,
+      "net_pnl_usd": 12.44,
+      "roe_pct": 248.74,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    }
+  ]
+}

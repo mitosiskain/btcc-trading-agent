@@ -1,0 +1,141 @@
+{
+  "best_metrics": {
+    "symbol": "BTCUSDT",
+    "timeframe": "1M",
+    "total_bars": 147,
+    "total_trades": 7,
+    "win_rate_pct": 85.71,
+    "profit_factor": 41.74,
+    "total_net_pnl_usd": 206.55,
+    "avg_roe_per_trade_pct": 590.09,
+    "max_drawdown_usd": 5.07,
+    "profit_stall_exits_count": 3,
+    "tp1_hits_count": 5,
+    "tp2_hits_count": 2,
+    "stop_loss_count": 0,
+    "params": {
+      "timeframe": "1M",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.1,
+      "impulse_min_pct": 5.0,
+      "flatline_bars": 3,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 1.35,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 6
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 206.55,
+      "win_rate_pct": 85.71,
+      "profit_factor": 41.74,
+      "stall_saves_count": 3
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 206.62,
+      "win_rate_pct": 85.71,
+      "profit_factor": 41.75
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2019-04-01 00:00:00+00:00",
+      "exit_time": "2019-10-01 00:00:00+00:00",
+      "entry_price": 5350.7266,
+      "exit_price": 9199.585,
+      "net_pnl_usd": 69.57,
+      "roe_pct": 1391.31,
+      "exit_reason": "TIME_STOP_EXPIRED",
+      "bars_held": 6
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2020-10-01 00:00:00+00:00",
+      "exit_time": "2020-12-01 00:00:00+00:00",
+      "entry_price": 13780.9951,
+      "exit_price": 20104.48,
+      "net_pnl_usd": 35.25,
+      "roe_pct": 704.94,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 2
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "SHORT",
+      "leverage": 16,
+      "entry_time": "2022-04-01 00:00:00+00:00",
+      "exit_time": "2022-09-01 00:00:00+00:00",
+      "entry_price": 37714.875,
+      "exit_price": 19431.7891,
+      "net_pnl_usd": 38.34,
+      "roe_pct": 766.71,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2023-01-01 00:00:00+00:00",
+      "exit_time": "2023-07-01 00:00:00+00:00",
+      "entry_price": 23139.2832,
+      "exit_price": 29230.1113,
+      "net_pnl_usd": 20.99,
+      "roe_pct": 419.72,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 6
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "LONG",
+      "leverage": 16,
+      "entry_time": "2023-10-01 00:00:00+00:00",
+      "exit_time": "2024-02-01 00:00:00+00:00",
+      "entry_price": 34667.7812,
+      "exit_price": 53642.9003,
+      "net_pnl_usd": 30.95,
+      "roe_pct": 619.08,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "SHORT",
+      "leverage": 16,
+      "entry_time": "2025-11-01 00:00:00+00:00",
+      "exit_time": "2026-04-01 00:00:00+00:00",
+      "entry_price": 90394.3125,
+      "exit_price": 76304.3203,
+      "net_pnl_usd": 16.52,
+      "roe_pct": 330.34,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 5
+    },
+    {
+      "symbol": "BTCUSDT",
+      "side": "SHORT",
+      "leverage": 16,
+      "entry_time": "2026-06-01 00:00:00+00:00",
+      "exit_time": "2026-07-01 00:00:00+00:00",
+      "entry_price": 58558.8594,
+      "exit_price": 62813.7461,
+      "net_pnl_usd": -5.07,
+      "roe_pct": -101.44,
+      "exit_reason": "FAILED_BREAKDOWN_BOUNCE_WARNING",
+      "bars_held": 1
+    }
+  ]
+}

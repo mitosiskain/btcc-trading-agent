@@ -1,0 +1,72 @@
+name: BTCC 24/7 Cloud Trading Scanner
+
+on:
+  schedule:
+    # Runs automatically every 20 minutes 24/7 (~0.5 min per run, well within GitHub Free's 2,000 mins/mo)
+    - cron: '*/20 * * * *'
+  workflow_dispatch:
+    inputs:
+      duration_minutes:
+        description: 'Continuous live polling duration in minutes (0 = single scan, 60-350 = live session while PC is off)'
+        required: false
+        default: '0'
+      timeframe:
+        description: 'Chart timeframe (4h, 1d, 1w, 1M, 1h)'
+        required: false
+        default: '4h'
+      send_summary:
+        description: 'Send full signal sheet to Telegram immediately? (true/false)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: btcc-cloud-scanner
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run BTCC Cloud Scanner & Telegram Bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: 'gemini-2.5-flash'
+          MARGIN_PER_TRADE_USD: '5.0'
+          DEFAULT_LEVERAGE: '5'
+        run: |
+          DUR="${{ github.event.inputs.duration_minutes || '0' }}"
+          TF="${{ github.event.inputs.timeframe || '4h' }}"
+          SUMMARY_FLAG=""
+          if [ "${{ github.event.inputs.send_summary }}" = "true" ]; then
+            SUMMARY_FLAG="--send-summary"
+          fi
+          python -u cloud_runner.py --timeframe "$TF" --duration-minutes "$DUR" $SUMMARY_FLAG
+
+      - name: Persist Open Positions & Alert Cache
+        run: |
+          git config user.name "btcc-cloud-bot"
+          git config user.email "btcc-cloud-bot@users.noreply.github.com"
+          git add state/portfolio_state.json state/cloud_alert_cache.json 2>/dev/null || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(state): update cloud portfolio & alert cache [skip ci]"
+            git pull --rebase origin main || true
+            git push origin main || true
+          fi

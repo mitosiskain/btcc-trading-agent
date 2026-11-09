@@ -1,0 +1,102 @@
+{
+  "best_metrics": {
+    "symbol": "PEPEUSDT",
+    "timeframe": "1h",
+    "total_bars": 1000,
+    "total_trades": 4,
+    "win_rate_pct": 100.0,
+    "profit_factor": 99.0,
+    "total_net_pnl_usd": 2.39,
+    "avg_roe_per_trade_pct": 11.95,
+    "max_drawdown_usd": 0.0,
+    "profit_stall_exits_count": 1,
+    "tp1_hits_count": 3,
+    "tp2_hits_count": 3,
+    "stop_loss_count": 0,
+    "params": {
+      "timeframe": "1h",
+      "atr_period": 14,
+      "impulse_window_bars": 3,
+      "impulse_min_atr_mult": 1.4,
+      "impulse_min_pct": 0.55,
+      "flatline_bars": 4,
+      "flatline_max_retracement_ratio": 0.38,
+      "flatline_max_range_atr": 0.95,
+      "flatline_body_decay_ratio": 0.55,
+      "stop_loss_atr_buffer": 0.35,
+      "tp1_retracement_ratio": 0.382,
+      "tp2_retracement_ratio": 0.618,
+      "exit_on_profit_flatline": true,
+      "exit_flatline_bars": 3,
+      "min_profit_r_for_stall_exit": 0.8,
+      "max_hold_bars": 24
+    }
+  },
+  "ab_stall_exit_comparison": {
+    "with_profit_flatline_exit": {
+      "net_pnl_usd": 2.39,
+      "win_rate_pct": 100.0,
+      "profit_factor": 99.0,
+      "stall_saves_count": 1
+    },
+    "without_profit_flatline_exit": {
+      "net_pnl_usd": 2.26,
+      "win_rate_pct": 100.0,
+      "profit_factor": 99.0
+    }
+  },
+  "sample_trades": [
+    {
+      "symbol": "PEPEUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-09 01:00:00+00:00",
+      "exit_time": "2026-10-09 08:00:00+00:00",
+      "entry_price": 0.0,
+      "exit_price": 0.0,
+      "net_pnl_usd": 0.27,
+      "roe_pct": 5.33,
+      "exit_reason": "PROFIT_FLATLINE_STALL",
+      "bars_held": 7
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-15 20:00:00+00:00",
+      "exit_time": "2026-10-16 17:00:00+00:00",
+      "entry_price": 0.0,
+      "exit_price": 0.0,
+      "net_pnl_usd": 0.95,
+      "roe_pct": 18.92,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 21
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_time": "2026-10-17 11:00:00+00:00",
+      "exit_time": "2026-10-17 15:00:00+00:00",
+      "entry_price": 0.0,
+      "exit_price": 0.0,
+      "net_pnl_usd": 0.32,
+      "roe_pct": 6.48,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 4
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "side": "LONG",
+      "leverage": 5,
+      "entry_time": "2026-10-21 07:00:00+00:00",
+      "exit_time": "2026-10-21 14:00:00+00:00",
+      "entry_price": 0.0,
+      "exit_price": 0.0,
+      "net_pnl_usd": 0.85,
+      "roe_pct": 17.06,
+      "exit_reason": "TP2_FULL_REVERSAL_TARGET",
+      "bars_held": 7
+    }
+  ]
+}

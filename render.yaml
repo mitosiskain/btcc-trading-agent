@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: btcc-trading-agent
+    runtime: docker
+    plan: free
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MARGIN_PER_TRADE_USD
+        value: "5.0"
+      - key: DEFAULT_LEVERAGE
+        value: "5"
