@@ -248,7 +248,18 @@ class ExecutionEngine:
 
         pos.current_price = exit_sig.current_price
 
-        # Case 0: Early Structure-Reclaim / Failed-Breakout Reversal Warning (keep position tracked, mark warning_sent)
+        # Case 0: Manual user-tracked BTCC positions (position_id starts with "manual-")
+        # Never auto-delete a manual position from open_positions so the bot always knows the user still holds it
+        # and sends 🟠 POSITION UPDATE messages instead of 🟢/🔴 new-trade messages!
+        if str(pos.position_id).startswith("manual-"):
+            if exit_sig.urgency == "WARNING_REVERSAL_RISK":
+                pos.warning_sent = True
+            elif exit_sig.urgency == "TAKE_PARTIAL_AND_TRAIL" and not pos.tp1_hit:
+                pos.tp1_hit = True
+            self._save_state()
+            return None
+
+        # Case 0b: Early Structure-Reclaim / Failed-Breakout Reversal Warning (keep position tracked, mark warning_sent)
         if exit_sig.urgency == "WARNING_REVERSAL_RISK":
             pos.warning_sent = True
             self._save_state()

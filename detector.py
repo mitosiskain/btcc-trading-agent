@@ -858,6 +858,8 @@ class ImpulseFlatlineDetector:
         roe_pct = price_ret_pct * leverage
         pnl_usd = margin_usd * (roe_pct / 100.0)
 
+        prec = 8 if curr_price < 0.001 else (5 if curr_price < 1.0 else (4 if curr_price < 100 else 2))
+
         if hit_sl:
             sl_move = -abs(entry_price - stop_loss) if not tp1_already_hit else 0.0
             sl_roe = (sl_move / entry_price) * 100.0 * leverage
@@ -871,7 +873,7 @@ class ImpulseFlatlineDetector:
                 unrealized_pnl_pct_on_margin=round(sl_roe, 2),
                 unrealized_pnl_usd=round(margin_usd * (sl_roe / 100.0), 2),
                 r_multiple=round(sl_move / risk_dist, 2),
-                explanation="Price crossed stop level; isolated trade closed to protect reserve account.",
+                explanation=f"Price crossed stop level ({stop_loss:.{prec}f}); protect reserve account.",
             )
 
         if hit_tp2:
@@ -887,7 +889,7 @@ class ImpulseFlatlineDetector:
                 unrealized_pnl_pct_on_margin=round(tp2_roe, 2),
                 unrealized_pnl_usd=round(margin_usd * (tp2_roe / 100.0), 2),
                 r_multiple=round(tp2_move / risk_dist, 2),
-                explanation=f"Full 61.8% reversal target ({tp2_price:.2f}) reached! Lock in +{tp2_roe:.1f}% ROE.",
+                explanation=f"Full 61.8% reversal target ({tp2_price:.{prec}f}) reached! Lock in +{tp2_roe:.1f}% ROE.",
             )
 
         # Check Profit-Flatline Stall ("ETH reversed into profit and is now flatlining -> TAKE PROFIT!")
@@ -918,7 +920,7 @@ class ImpulseFlatlineDetector:
                     r_multiple=round(r_mult, 2),
                     explanation=(
                         f"Reversal is up +{roe_pct:.1f}% ROE ({r_mult:.2f}R) and has FLATLINED sideways for {w_exit} bars "
-                        f"(favorable drift {favorable_progress:+.2f} vs ATR {atr:.2f}). Momentum is stalling—lock in profit now!"
+                        f"(favorable drift {favorable_progress:+.{prec}f} vs ATR {atr:.{prec}f}). Momentum is stalling—lock in profit now!"
                     ),
                 )
 
@@ -934,8 +936,8 @@ class ImpulseFlatlineDetector:
                 unrealized_pnl_usd=round(pnl_usd, 2),
                 r_multiple=round(r_mult, 2),
                 explanation=(
-                    f"TP1 (38.2% retracement at {tp1_price:.2f}) hit (+{roe_pct:.1f}% ROE)! "
-                    f"Take 50% profit and move Stop-Loss to breakeven ({entry_price:.2f})."
+                    f"TP1 (38.2% retracement at {tp1_price:.{prec}f}) hit (+{roe_pct:.1f}% ROE)! "
+                    f"Take 50% profit and move Stop-Loss to breakeven ({entry_price:.{prec}f})."
                 ),
             )
 

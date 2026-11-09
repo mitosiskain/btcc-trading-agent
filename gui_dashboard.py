@@ -256,7 +256,11 @@ class DashboardController:
                     )
                     if exit_sig is not None:
                         closed_rec = self.orchestrator.execution.process_exit_signal(exit_sig)
-                        self.orchestrator.telegram.send_exit_or_stall_alert(exit_sig, closed_rec)
+                        exit_cd_key = f"exit_{symbol}_{exit_sig.reason}"
+                        now_exit_ts = time.time()
+                        if now_exit_ts - self.sentiment_alert_cooldowns.get(exit_cd_key, 0.0) >= 3600:
+                            self.sentiment_alert_cooldowns[exit_cd_key] = now_exit_ts
+                            self.orchestrator.telegram.send_exit_or_stall_alert(exit_sig, closed_rec)
                         self.recent_alerts.insert(
                             0,
                             {
@@ -534,20 +538,39 @@ class DashboardController:
                 # Single Unified Telegram Alert (no conflicting duplicate alerts)
                 should_alert = (u_mode == "ENTER NOW") or (u_conf >= 82 and flatline_met)
                 if should_alert and self.orchestrator.telegram.is_configured:
-                    alert_key = f"{symbol}_{tf}_{u_side}_{u_mode}"
+                    open_pos = self.orchestrator.execution.open_positions.get(symbol)
+                    alert_key = f"{symbol}_{tf}_{u_side}_{u_mode}_{'OPEN' if open_pos else 'NEW'}"
                     now_ts = time.time()
                     cooldown = 3600 if u_mode == "ENTER NOW" else 14400
                     if now_ts - self.sentiment_alert_cooldowns.get(alert_key, 0.0) >= cooldown:
                         self.sentiment_alert_cooldowns[alert_key] = now_ts
-                        icon = "🟢" if u_side == "LONG" else "🔴"
-                        tg_msg = (
-                            f"{icon} *{symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'} ({u_conf}% Confidence)*\n"
-                            f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()})_\n"
-                            f"• *Safe Entry*: `{trade_plan['safe_entry_str']}`\n"
-                            f"• *Take-Profit*: TP1 `{trade_plan['tp1_str']}` | TP2 `{trade_plan['tp2_str']}`\n"
-                            f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${margin_usd:.0f} @ {u_lev}x)_\n"
-                            f"• *Why*: _{simple_why}_"
-                        )
+                        if open_pos is not None:
+                            pnl_usd = open_pos.unrealized_pnl_usd()
+                            roe_pct = open_pos.unrealized_roe_pct()
+                            same_dir = (open_pos.side == u_side)
+                            pos_action = (
+                                f"HOLD / TRAIL {open_pos.side} ({u_conf}% Conf)"
+                                if same_dir
+                                else f"⚠️ OPPOSITE SIGNAL ({u_side} {u_conf}% Conf) — TIGHTEN SL"
+                            )
+                            tg_msg = (
+                                f"🟠 *POSITION UPDATE: {symbol} ({open_pos.side} Open)*\n"
+                                f"• *Your Open Position*: `{open_pos.side}` @ `{fmt_price(open_pos.entry_price)}` → Now `{fmt_price(curr_price)}` (`${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)\n"
+                                f"• *Update Action*: `{pos_action}` _({tf.upper()})_\n"
+                                f"• *Updated Targets*: TP1 `{trade_plan['tp1_str']}` | TP2 `{trade_plan['tp2_str']}`\n"
+                                f"• *Updated Stop-Loss*: `{trade_plan['sl_str']}`\n"
+                                f"• *Why*: _{simple_why}_"
+                            )
+                        else:
+                            icon = "🟢" if u_side == "LONG" else "🔴"
+                            tg_msg = (
+                                f"{icon} *NEW POSITION: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'} ({u_conf}% Confidence)*\n"
+                                f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()})_\n"
+                                f"• *Safe Entry*: `{trade_plan['safe_entry_str']}`\n"
+                                f"• *Take-Profit*: TP1 `{trade_plan['tp1_str']}` | TP2 `{trade_plan['tp2_str']}`\n"
+                                f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${margin_usd:.0f} @ {u_lev}x)_\n"
+                                f"• *Why*: _{simple_why}_"
+                            )
                         self.orchestrator.telegram.send_message(tg_msg)
 
                 self.asset_cards[symbol] = {
@@ -602,6 +625,8 @@ class DashboardController:
             self.last_scan_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
             self.last_scan_duration_ms = int((time.time() - t0) * 1000)
             self.scan_count += 1
+        except Exception as scan_err:
+            print(f"[SCAN ERROR] {scan_err}", flush=True)
         finally:
             self.is_scanning = False
 
@@ -657,10 +682,12 @@ class DashboardController:
             side = tp.get("side", "LONG")
             conf = tp.get("confidence_pct", 65)
             mode = tp.get("entry_mode", "WAIT FOR SAFE ENTRY")
-            icon = "⚡" if mode == "ENTER NOW" else ("🟢" if side == "LONG" else "🔴")
+            is_open = sym in self.orchestrator.execution.open_positions
+            icon = "🟠" if is_open else ("⚡" if mode == "ENTER NOW" else ("🟢" if side == "LONG" else "🔴"))
+            lbl = f"{sym} (OPEN POSITION)" if is_open else sym
             arrow = "📈" if side == "LONG" else "📉"
             lines.append(
-                f"{icon} *{sym}* — *{side} {arrow}* (*{conf}% Conf*)\n"
+                f"{icon} *{lbl}* — *{side} {arrow}* (*{conf}% Conf*)\n"
                 f"   Safe Entry: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}`)_\n"
                 f"   TP1: `{tp.get('tp1_str')}` | TP2: `{tp.get('tp2_str')}` | SL: `{tp.get('sl_str')}`"
             )
@@ -1600,29 +1627,50 @@ def create_app(controller: DashboardController) -> web.Application:
 
         return web.json_response({"ok": True, "message": "Saved settings to .env!"})
 
-    async def background_scanner_task(app_inst: web.Application) -> None:
-        await asyncio.to_thread(controller.run_single_scan)
-        elapsed = 0
+    async def telegram_poller_task(app_inst: web.Application) -> None:
         while True:
             await asyncio.sleep(3)
-            elapsed += 3
             if controller.orchestrator.telegram.token:
-                await asyncio.to_thread(
-                    controller.orchestrator.telegram.poll_commands,
-                    controller.handle_telegram_command,
-                )
-            if elapsed >= controller.poll_interval_sec:
-                elapsed = 0
-                if controller.auto_scan_enabled:
-                    await asyncio.to_thread(controller.run_single_scan)
+                try:
+                    await asyncio.wait_for(
+                        asyncio.to_thread(
+                            controller.orchestrator.telegram.poll_commands,
+                            controller.handle_telegram_command,
+                        ),
+                        timeout=15.0,
+                    )
+                except asyncio.CancelledError:
+                    break
+                except Exception as tg_err:
+                    print(f"[TELEGRAM POLL ERROR] {tg_err}", flush=True)
+
+    async def background_scanner_task(app_inst: web.Application) -> None:
+        try:
+            await asyncio.wait_for(asyncio.to_thread(controller.run_single_scan), timeout=120.0)
+        except Exception as init_err:
+            controller.is_scanning = False
+            print(f"[INITIAL SCAN ERROR] {init_err}", flush=True)
+
+        while True:
+            await asyncio.sleep(max(5, int(controller.poll_interval_sec)))
+            if controller.auto_scan_enabled:
+                try:
+                    await asyncio.wait_for(asyncio.to_thread(controller.run_single_scan), timeout=120.0)
+                except asyncio.CancelledError:
+                    break
+                except Exception as loop_err:
+                    controller.is_scanning = False
+                    print(f"[SCAN LOOP ERROR] {loop_err}", flush=True)
 
     async def start_bg(app_inst: web.Application) -> None:
         app_inst["scanner_task"] = asyncio.create_task(background_scanner_task(app_inst))
+        app_inst["tg_poller_task"] = asyncio.create_task(telegram_poller_task(app_inst))
 
     async def cleanup_bg(app_inst: web.Application) -> None:
-        task = app_inst.get("scanner_task")
-        if task:
-            task.cancel()
+        for k in ("scanner_task", "tg_poller_task"):
+            task = app_inst.get(k)
+            if task:
+                task.cancel()
 
     app.on_startup.append(start_bg)
     app.on_cleanup.append(cleanup_bg)

@@ -116,19 +116,23 @@ class TelegramNotifier:
         closed_record: Optional[ClosedTradeRecord] = None,
     ) -> None:
         if exit_sig.reason == "PROFIT_FLATLINE_STALL":
-            header = f"🚨💰 *TAKE PROFIT NOW (STALL): {exit_sig.symbol}*"
+            header = f"🟠 *POSITION UPDATE — TAKE PROFIT NOW (STALL): {exit_sig.symbol}*"
         elif "TP" in exit_sig.reason:
-            header = f"🎯💵 *TAKE-PROFIT HIT: {exit_sig.symbol}*"
+            header = f"🟠 *POSITION UPDATE — TAKE-PROFIT HIT: {exit_sig.symbol}*"
         elif "STOP" in exit_sig.reason:
-            header = f"🛡️ *STOP-LOSS HIT: {exit_sig.symbol}*"
+            header = f"🟠 *POSITION UPDATE — STOP-LOSS LEVEL CROSSED: {exit_sig.symbol}*"
         else:
-            header = f"⏱️ *EXIT ALERT: {exit_sig.symbol}*"
+            header = f"🟠 *POSITION UPDATE — EXIT/TRAIL ALERT: {exit_sig.symbol}*"
+
+        prec = 8 if exit_sig.current_price < 0.001 else (5 if exit_sig.current_price < 1.0 else (4 if exit_sig.current_price < 100 else 2))
+        entry_str = f"{exit_sig.entry_price:.{prec}f}"
+        curr_str = f"{exit_sig.current_price:.{prec}f}"
 
         msg = (
             f"{header}\n"
-            f"• *Side*: `{exit_sig.position_side}` | *Entry*: `{exit_sig.entry_price}` → *Now*: `{exit_sig.current_price}`\n"
-            f"• *PnL*: `${exit_sig.unrealized_pnl_usd:+.2f}` (`{exit_sig.unrealized_pnl_pct_on_margin:+.1f}% ROE`)\n"
-            f"• *Action*: _{exit_sig.explanation}_"
+            f"• *Your Open Position*: `{exit_sig.position_side}` | *Entry*: `{entry_str}` → *Now*: `{curr_str}`\n"
+            f"• *Open PnL*: `${exit_sig.unrealized_pnl_usd:+.2f}` (`{exit_sig.unrealized_pnl_pct_on_margin:+.1f}% ROE`)\n"
+            f"• *Recommended Update*: _{exit_sig.explanation}_"
         )
         self.send_message(msg)
 
