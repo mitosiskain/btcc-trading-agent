@@ -64,8 +64,147 @@ class DashboardController:
         self.sentiment_alert_cooldowns: Dict[str, float] = {}
         self.alert_confidence_threshold: int = 80
         self._lock = threading.Lock()
-        self._alert_cache_file = Path(__file__).resolve().parent / "state" / "cloud_alert_cache.json"
+        self._git_lock = threading.Lock()
+        self._last_git_pull_ts: float = 0.0
+        self._repo_root = Path(__file__).resolve().parent
+        self._alert_cache_file = self._repo_root / "state" / "cloud_alert_cache.json"
         self._load_alert_cache()
+
+    def _clear_symbol_position_cooldowns(self, symbol: Optional[str] = None) -> None:
+        """Clear stale position/exit alert cooldowns when a symbol (or ALL) is manually closed."""
+        if not symbol or symbol.upper() == "ALL":
+            self.sentiment_alert_cooldowns = {
+                k: v
+                for k, v in self.sentiment_alert_cooldowns.items()
+                if not k.startswith("exit_") and not k.endswith("_OPEN")
+            }
+            return
+        sym = symbol.upper()
+        self.sentiment_alert_cooldowns = {
+            k: v
+            for k, v in self.sentiment_alert_cooldowns.items()
+            if not k.startswith(f"exit_{sym}_") and not (k.startswith(f"{sym}_") and k.endswith("_OPEN"))
+        }
+
+    def pull_remote_portfolio_if_newer(self, min_interval_sec: float = 45.0) -> bool:
+        """
+        Conflict-free state check against origin/main so Local & GitHub Cloud never split-brain:
+        if GitHub Cloud processed a newer Telegram open/close (higher positions_version_ts),
+        adopt origin/main's portfolio_state.json immediately without touching code files.
+        """
+        now = time.time()
+        if (now - self._last_git_pull_ts) < min_interval_sec:
+            return False
+        if not (self._repo_root / ".git").exists():
+            return False
+        if not self._git_lock.acquire(blocking=False):
+            return False
+        adopted = False
+        try:
+            import subprocess
+
+            self._last_git_pull_ts = now
+            fetch_res = subprocess.run(
+                ["git", "fetch", "origin", "main"],
+                cwd=str(self._repo_root),
+                check=False,
+                capture_output=True,
+                timeout=6,
+            )
+            if fetch_res.returncode != 0:
+                return False
+
+            rem_port_res = subprocess.run(
+                ["git", "show", "origin/main:state/portfolio_state.json"],
+                cwd=str(self._repo_root),
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=4,
+            )
+            if rem_port_res.returncode == 0 and rem_port_res.stdout:
+                rem_port = json.loads(rem_port_res.stdout)
+                rem_ver = float(rem_port.get("positions_version_ts", 0.0))
+                self.orchestrator.execution._load_state()
+                loc_ver = float(self.orchestrator.execution.positions_version_ts or 0.0)
+                if rem_ver > loc_ver + 0.01:
+                    self.orchestrator.execution.state_file.write_text(json.dumps(rem_port, indent=2))
+                    self.orchestrator.execution._load_state()
+                    adopted = True
+
+            rem_cache_res = subprocess.run(
+                ["git", "show", "origin/main:state/cloud_alert_cache.json"],
+                cwd=str(self._repo_root),
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=4,
+            )
+            if rem_cache_res.returncode == 0 and rem_cache_res.stdout:
+                rem_cache = json.loads(rem_cache_res.stdout)
+                rem_uid = int(rem_cache.get("last_update_id", 0))
+                if rem_uid > self.orchestrator.telegram.last_update_id:
+                    self.orchestrator.telegram.last_update_id = rem_uid
+                for k, v in (rem_cache.get("cooldowns") or {}).items():
+                    self.sentiment_alert_cooldowns[str(k)] = max(
+                        float(v), float(self.sentiment_alert_cooldowns.get(str(k), 0.0))
+                    )
+                self._save_alert_cache()
+        except Exception:
+            pass
+        finally:
+            self._git_lock.release()
+        return adopted
+
+    def push_state_to_git_async(self, commit_msg: str = "chore(state): sync manual position update [skip ci]") -> None:
+        """Immediately export static web JSONs and push updated portfolio state to origin/main in background."""
+        self._save_alert_cache()
+        self.export_static_cloud_dashboard()
+        if not (self._repo_root / ".git").exists():
+            return
+
+        def _sync_worker() -> None:
+            import subprocess
+
+            with self._git_lock:
+                try:
+                    cwd = str(self._repo_root)
+                    subprocess.run(
+                        [
+                            "git",
+                            "add",
+                            "state/portfolio_state.json",
+                            "state/cloud_alert_cache.json",
+                            "docs/index.html",
+                            "docs/state.json",
+                            "btcc/index.html",
+                            "btcc/state.json",
+                            "index.html",
+                            "state.json",
+                        ],
+                        cwd=cwd,
+                        check=False,
+                        capture_output=True,
+                        timeout=8,
+                    )
+                    diff = subprocess.run(["git", "diff", "--staged", "--quiet"], cwd=cwd, check=False, timeout=5)
+                    if diff.returncode != 0:
+                        subprocess.run(["git", "commit", "-m", commit_msg], cwd=cwd, check=False, capture_output=True, timeout=8)
+                        rb = subprocess.run(
+                            ["git", "pull", "--rebase", "--autostash", "-X", "theirs", "origin", "main"],
+                            cwd=cwd,
+                            check=False,
+                            capture_output=True,
+                            timeout=18,
+                        )
+                        if rb.returncode != 0:
+                            subprocess.run(["git", "rebase", "--abort"], cwd=cwd, check=False, capture_output=True, timeout=5)
+                        else:
+                            subprocess.run(["git", "push", "origin", "main"], cwd=cwd, check=False, capture_output=True, timeout=18)
+                except Exception:
+                    pass
+
+        threading.Thread(target=_sync_worker, daemon=True).start()
 
     def _load_alert_cache(self) -> None:
         if self._alert_cache_file.exists():
@@ -214,6 +353,7 @@ class DashboardController:
         self.config.strategy.timeframe = tf
 
         try:
+            self.pull_remote_portfolio_if_newer(min_interval_sec=45.0)
             self.orchestrator.execution._load_state()
             for symbol in self.config.watchlist:
                 f_t0 = time.time()
@@ -503,7 +643,9 @@ class DashboardController:
                                 f"• *Updated Stop-Loss*: `{trade_plan['sl_str']}`\n"
                                 f"• *Why*: _{simple_why}_"
                             )
+                            tg_markup = self.orchestrator.telegram.build_close_buttons([symbol])
                         else:
+                            tg_markup = None
                             icon = "🟢" if u_side == "LONG" else "🔴"
                             entry_lbl = "Maker Limit Entry" if u_mode == "ENTER NOW" else "Resting Maker Trap"
                             tg_msg = (
@@ -514,7 +656,7 @@ class DashboardController:
                                 f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${margin_usd:.0f} @ {u_lev}x Kelly Safe)_\n"
                                 f"• *Why*: _{simple_why}_"
                             )
-                        self.orchestrator.telegram.send_message(tg_msg)
+                        self.orchestrator.telegram.send_message(tg_msg, reply_markup=tg_markup)
 
                 self.asset_cards[symbol] = {
                     "symbol": symbol,
@@ -649,7 +791,7 @@ class DashboardController:
 
         threading.Thread(target=_worker, daemon=True).start()
 
-    def _resolve_symbol_from_text(self, text: str) -> Optional[str]:
+    def _resolve_all_symbols_from_text(self, text: str) -> List[str]:
         import re
 
         tl = text.lower()
@@ -660,19 +802,33 @@ class DashboardController:
             ("XRPUSDT", ["xrpusdt", "ripple", "xrp"]),
             ("DOGEUSDT", ["dogeusdt", "dogecoin", "doge"]),
             ("SUIUSDT", ["suiusdt", "sui"]),
-            ("XAUUSDT", ["xauusdt", "gold", "xau"]),
-            ("XAGUSDT", ["xagusdt", "silver", "xag"]),
-            ("PEPEUSDT", ["pepeusdt", "1000pepe", "pepe"]),
+            ("XAUUSDT", ["xauusdt", "goldusdt", "gold", "xau"]),
+            ("XAGUSDT", ["xagusdt", "silverusdt", "silver", "xag"]),
+            ("PEPEUSDT", ["pepeusdt", "1000pepeusdt", "1000pepe", "pepe"]),
             ("AVAXUSDT", ["avaxusdt", "avalanche", "avax"]),
             ("WIFUSDT", ["wifusdt", "dogwifhat", "wif"]),
             ("INJUSDT", ["injusdt", "injective", "inj"]),
             ("NVDAUSDT", ["nvdausdt", "nvidia", "nvda"]),
         ]
+        found: List[str] = []
         for sym, words in aliases:
             for w in words:
                 if re.search(rf"\b{w}\b", tl):
-                    return sym
-        return None
+                    if sym not in found:
+                        found.append(sym)
+                    break
+        # Also match any custom symbol currently in open_positions (e.g. ADAUSDT -> 'ada' / 'adausdt')
+        for open_sym in list(self.orchestrator.execution.open_positions.keys()):
+            if open_sym in found:
+                continue
+            base = open_sym.lower().removesuffix("usdt")
+            if re.search(rf"\b(?:{re.escape(open_sym.lower())}|{re.escape(base)})\b", tl):
+                found.append(open_sym)
+        return found
+
+    def _resolve_symbol_from_text(self, text: str) -> Optional[str]:
+        matches = self._resolve_all_symbols_from_text(text)
+        return matches[0] if matches else None
 
     def _format_single_coin_card(self, sym: str) -> str:
         if not self.asset_cards:
@@ -799,18 +955,22 @@ Important BTCC / exchange conventions:
 - "Margin" / "Position Margin" = margin_usd.
 - Leverage is usually shown like "20X", "50x", "100x", "5x".
 - Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA).
-- If the screenshot is a "Closed Position" / "Realized PnL" share card (or the user caption says "closed"), set is_closed=true for that position.
-- If the screenshot is ONLY a price chart with no position info, set screen_type="CHART_ONLY" and fill chart_symbol and visual_summary.
+- If the screenshot is an exchange "Positions" tab showing ZERO open positions (e.g. "Positions (0)", "No Data", "No open positions"), set screen_type="EMPTY_POSITIONS" and positions=[].
+- If the screenshot is a full exchange "Positions" list tab showing currently open positions, set screen_type="OPEN_POSITIONS".
+- If the screenshot is a "Closed Position" / "Position History" / "Realized PnL" card or row (or the user caption says "closed"), set screen_type="CLOSED_PNL" and set is_closed=true (and exit_price if visible) for closed rows.
+- If the screenshot is a single order entry ticket before execution, set screen_type="ORDER_TICKET".
+- If the screenshot is ONLY a price chart with no position panel, set screen_type="CHART_ONLY" and fill chart_symbol and visual_summary.
 
 Return ONLY valid JSON (no markdown fences) matching this exact structure:
 {{
-  "screen_type": "OPEN_POSITIONS" | "CLOSED_PNL" | "ORDER_TICKET" | "CHART_ONLY",
+  "screen_type": "OPEN_POSITIONS" | "EMPTY_POSITIONS" | "CLOSED_PNL" | "ORDER_TICKET" | "CHART_ONLY",
   "positions": [
     {{
       "symbol_raw": "string (e.g. BTCUSDT, ETH, GOLD, SILVER, SOLUSDT)",
       "side": "LONG" | "SHORT",
       "entry_price": 0.0,
       "current_price": null,
+      "exit_price": null,
       "leverage": 20,
       "margin_usd": null,
       "stop_loss": null,
@@ -848,13 +1008,35 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
         screen_type = str(parsed.get("screen_type") or "OPEN_POSITIONS").upper()
         positions_list = parsed.get("positions") or []
         cap_lower = (caption or "").lower()
-        force_close = "close" in cap_lower or "exit" in cap_lower or screen_type == "CLOSED_PNL"
-        sync_mode = "sync" in cap_lower or "replace" in cap_lower or "only" in cap_lower
+        force_close = any(w in cap_lower for w in ("close", "closed", "exit", "exited", "sold", "out")) or screen_type == "CLOSED_PNL"
+        keep_others = any(w in cap_lower for w in ("add", "keep", "also"))
+        # Full BTCC Positions screen syncs open positions automatically unless it's a single order ticket or user said 'add'
+        sync_mode = (screen_type == "OPEN_POSITIONS" and not keep_others) or any(
+            w in cap_lower for w in ("sync", "replace", "only")
+        )
+
+        # Case A: Screenshot shows an empty BTCC Positions tab ("Positions (0)" / "No Data")
+        if screen_type == "EMPTY_POSITIONS" or (not positions_list and any(w in cap_lower for w in ("empty", "none", "clear", "closed all", "no positions"))):
+            live_px = {s: float(c.get("price") or 0.0) for s, c in self.asset_cards.items() if c.get("price")}
+            closed_recs = self.orchestrator.execution.close_all_manual(live_prices=live_px, reason="SCREENSHOT_EMPTY_SYNC")
+            self._clear_symbol_position_cooldowns("ALL")
+            self.push_state_to_git_async("chore(state): close all via empty BTCC positions screenshot [skip ci]")
+            if closed_recs:
+                summary = ", ".join(f"`{r.symbol}` (`${r.net_pnl_usd:+.2f}`)" for r in closed_recs)
+                return f"✅ *Synced Empty BTCC Positions Screen*\n• Closed all tracked positions: {summary}"
+            return "📭 *BTCC Positions Screen Confirmed Empty* — no active positions tracked."
 
         if not positions_list:
             chart_sym_raw = str(parsed.get("chart_symbol") or "")
             sym = self._resolve_symbol_from_text(chart_sym_raw) or self._resolve_symbol_from_text(caption)
             vis_note = parsed.get("visual_summary") or "Chart screenshot analyzed."
+            if sym and force_close and sym in self.orchestrator.execution.open_positions:
+                px = float((self.asset_cards.get(sym) or {}).get("price") or 0.0) or None
+                rec = self.orchestrator.execution.close_position_manual(sym, exit_price=px, reason="SCREENSHOT_CLOSE")
+                self._clear_symbol_position_cooldowns(sym)
+                self.push_state_to_git_async(f"chore(state): close {sym} via screenshot [skip ci]")
+                pnl_note = f" (`${rec.net_pnl_usd:+.2f}` / `{rec.roe_pct:+.1f}% ROE`)" if rec else ""
+                return f"✅ *Closed `{sym}`*{pnl_note} — removed from active monitoring."
             if sym:
                 return f"📸 *Screenshot Read*: _{vis_note}_\n\n" + self._format_single_coin_card(sym)
             return (
@@ -878,9 +1060,11 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
 
             is_closed = bool(item.get("is_closed")) or force_close
             if is_closed:
-                if sym in self.orchestrator.execution.open_positions:
-                    del self.orchestrator.execution.open_positions[sym]
-                    reply_blocks.append(f"\n✅ *Closed `{sym}`* (removed from active monitoring)")
+                exit_px = float(item.get("exit_price") or item.get("current_price") or (self.asset_cards.get(sym) or {}).get("price") or 0.0) or None
+                rec = self.orchestrator.execution.close_position_manual(sym, exit_price=exit_px, reason="SCREENSHOT_CLOSED_PNL")
+                self._clear_symbol_position_cooldowns(sym)
+                if rec is not None:
+                    reply_blocks.append(f"\n✅ *Closed `{sym}`* (`${rec.net_pnl_usd:+.2f}` / `{rec.roe_pct:+.1f}% ROE` — removed from active monitoring)")
                 else:
                     reply_blocks.append(f"\nℹ️ *Closed `{sym}`* noted (was not in active tracker)")
                 continue
@@ -974,14 +1158,18 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
         if sync_mode and seen_open_syms:
             removed = [s for s in list(self.orchestrator.execution.open_positions.keys()) if s not in seen_open_syms]
             for s in removed:
-                del self.orchestrator.execution.open_positions[s]
+                px = float((self.asset_cards.get(s) or {}).get("price") or 0.0) or None
+                self.orchestrator.execution.close_position_manual(s, exit_price=px, reason="SCREENSHOT_SYNC_CLOSED")
+                self._clear_symbol_position_cooldowns(s)
             if removed:
-                reply_blocks.append(f"\n🧹 *Synced*: Removed `{', '.join(removed)}` (no longer in screenshot).")
+                reply_blocks.append(f"\n🧹 *Synced with BTCC Screen*: Closed `{', '.join(removed)}` (no longer open in screenshot).")
 
-        self.orchestrator.execution._save_state()
-        reply_blocks.append(
-            "\n🔔 _Now monitoring all screenshot positions 24/7 for TP, SL & Profit-Flatline Stalls!_"
-        )
+        self.orchestrator.execution.touch_positions_version()
+        self.push_state_to_git_async("chore(state): sync BTCC screenshot positions [skip ci]")
+        if seen_open_syms:
+            reply_blocks.append(
+                "\n🔔 _Monitoring active positions 24/7 — tap *✅ Mark Closed* below anytime you exit!_"
+            )
         return "\n".join(reply_blocks)
 
     def handle_telegram_command(self, cmd_text: str) -> str:
@@ -1044,36 +1232,91 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 self.run_single_scan()
                 return f"⏱️ *Switched Chart Timeframe to `{self.timeframe.upper()}`*\n\n" + self.build_simple_telegram_sheet(top_n=8)
 
-        # 3. Close / Exit Position via Natural Language or /close
-        sym_in_msg = self._resolve_symbol_from_text(raw)
+        # 3. Close / Exit Position via Natural Language, 1-Tap Button, or /close
+        self.orchestrator.execution._load_state()
+        all_syms_in_msg = self._resolve_all_symbols_from_text(raw)
+        sym_in_msg = all_syms_in_msg[0] if all_syms_in_msg else None
         is_close_intent = (
-            cmd in ("/close", "/exit")
+            cmd in ("/close", "/exit", "/clear", "/flat")
             or bool(
                 re.search(
-                    r"\b(?:close|closed|closing|exit|exited|exiting|out of|stopped out|took profit|sold my|remove|cancel)\b",
+                    r"\b(?:close|closed|closing|exit|exited|exiting|out of|i'm out|im out|all out|got out|stopped out|stop hit|sl hit|tp hit|hit sl|hit tp|took profit|took profits|cashed out|sold|covered|cut|flat|no positions|no open positions|nothing open|clear positions|clear all|remove|cancel|liquidated|done with)\b",
                     tl,
                 )
             )
         )
         if is_close_intent:
-            self.orchestrator.execution._load_state()
-            if re.search(r"\ball\b", tl) and self.orchestrator.execution.open_positions:
-                closed_syms = list(self.orchestrator.execution.open_positions.keys())
-                self.orchestrator.execution.open_positions.clear()
-                self.orchestrator.execution._save_state()
-                return f"✅ *Closed all tracked positions*: `{', '.join(closed_syms)}`"
-            target_sym = sym_in_msg
-            if not target_sym and len(self.orchestrator.execution.open_positions) == 1:
-                target_sym = next(iter(self.orchestrator.execution.open_positions.keys()))
-            if target_sym:
-                if target_sym in self.orchestrator.execution.open_positions:
-                    del self.orchestrator.execution.open_positions[target_sym]
-                    self.orchestrator.execution._save_state()
-                    return f"✅ *Closed `{target_sym}`* — removed from active exit/stall monitoring."
-                return f"ℹ️ `{target_sym}` is not currently in your open positions."
+            wants_close_all = bool(
+                re.search(
+                    r"\b(?:all|everything|both|every|all out|i'm out|im out|flat|no positions|no open positions|nothing open|clear|my positions|my trades)\b",
+                    tl,
+                )
+            ) and not all_syms_in_msg
+            live_px = {s: float(c.get("price") or 0.0) for s, c in self.asset_cards.items() if c.get("price")}
+
+            if wants_close_all:
+                if not self.orchestrator.execution.open_positions:
+                    return "📭 *No open positions currently tracked* — you're already flat!"
+                recs = self.orchestrator.execution.close_all_manual(live_prices=live_px, reason="MANUAL_CLOSE_ALL")
+                self._clear_symbol_position_cooldowns("ALL")
+                self.push_state_to_git_async("chore(state): close all manual positions [skip ci]")
+                closed_summary = ", ".join(
+                    f"`{r.symbol}` (`${r.net_pnl_usd:+.2f}` / `{r.roe_pct:+.1f}%`)" for r in recs
+                )
+                return f"✅ *Closed All Tracked Positions ({len(recs)})*:\n• {closed_summary}"
+
+            # Parse optional explicit exit price (e.g. "closed ETH at 2062" or "sold nvda @ 171.5")
+            explicit_exit_m = re.search(r"\b(?:at|@|for|price|exit)\s*\$?(\d+(?:\.\d+)?)", tl)
+            explicit_exit_px = float(explicit_exit_m.group(1)) if explicit_exit_m else None
+
+            target_syms = list(all_syms_in_msg)
+            if not target_syms and len(self.orchestrator.execution.open_positions) == 1:
+                target_syms = [next(iter(self.orchestrator.execution.open_positions.keys()))]
+
+            if target_syms:
+                closed_msgs: List[str] = []
+                not_open: List[str] = []
+                for t_sym in target_syms:
+                    if t_sym in self.orchestrator.execution.open_positions:
+                        pos_ref = self.orchestrator.execution.open_positions[t_sym]
+                        ref_px = live_px.get(t_sym) or pos_ref.current_price or pos_ref.entry_price
+                        use_px = (
+                            explicit_exit_px
+                            if (
+                                explicit_exit_px is not None
+                                and len(target_syms) == 1
+                                and (ref_px <= 0 or 0.15 * ref_px <= explicit_exit_px <= 6.0 * ref_px)
+                            )
+                            else (live_px.get(t_sym) or None)
+                        )
+                        rec = self.orchestrator.execution.close_position_manual(
+                            t_sym, exit_price=use_px, reason="MANUAL_CLOSE"
+                        )
+                        self._clear_symbol_position_cooldowns(t_sym)
+                        if rec is not None:
+                            closed_msgs.append(
+                                f"✅ *Closed `{t_sym}`* @ `{fmt_price(rec.exit_price)}` "
+                                f"(`${rec.net_pnl_usd:+.2f}` / `{rec.roe_pct:+.1f}% ROE`)"
+                            )
+                    else:
+                        not_open.append(t_sym)
+                if closed_msgs:
+                    self.push_state_to_git_async(f"chore(state): close {','.join(target_syms)} [skip ci]")
+                    rem_cnt = len(self.orchestrator.execution.open_positions)
+                    rem_note = f"\n• _Remaining open positions: `{rem_cnt}`_" if rem_cnt else "\n• _All tracked positions are now flat (`0` open)._"
+                    return "\n".join(closed_msgs) + rem_note
+                return f"ℹ️ `{', '.join(not_open)}` is not currently in your open positions."
+
+            if not self.orchestrator.execution.open_positions:
+                return "📭 *No open positions currently tracked* — you're already flat!"
+
+            open_list = ", ".join(f"`{s}`" for s in self.orchestrator.execution.open_positions.keys())
+            return (
+                f"🟠 *Which position did you close?* ({open_list})\n"
+                "• Tap a *✅ Mark Closed* button below, or reply e.g. `closed all`!"
+            )
 
         # 4. Update SL / TP on an Already-Open Position (e.g. "move BTC sl to 73800")
-        self.orchestrator.execution._load_state()
         is_modify_open = (
             sym_in_msg in self.orchestrator.execution.open_positions
             and bool(re.search(r"\b(?:move|moved|update|updated|set|change|changed|trail)\b", tl))
@@ -1096,7 +1339,8 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 pos.tp2_price = float(tp2_m.group(1))
                 changes.append(f"TP2 → `{fmt_price(pos.tp2_price)}`")
             if changes:
-                self.orchestrator.execution._save_state()
+                self.orchestrator.execution.touch_positions_version()
+                self.push_state_to_git_async(f"chore(state): update {sym_in_msg} targets [skip ci]")
                 return (
                     f"🟠 *Updated Open Position: {sym_in_msg} ({pos.side})*\n"
                     f"• *Changes*: {', '.join(changes)}\n"
@@ -1214,7 +1458,8 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 sentiment_reasoning=f"Reported via Telegram: {raw[:80]}",
             )
             self.orchestrator.execution.open_positions[sym_in_msg] = pos
-            self.orchestrator.execution._save_state()
+            self.orchestrator.execution.touch_positions_version()
+            self.push_state_to_git_async(f"chore(state): track manual {sym_in_msg} position [skip ci]")
             pnl_usd = pos.unrealized_pnl_usd()
             roe_pct = pos.unrealized_roe_pct()
             return (
@@ -1222,7 +1467,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 f"• *Your Entry*: `{fmt_price(entry_p)}` _(Live: `{fmt_price(pos.current_price)}` | `${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)_\n"
                 f"• *Take-Profit*: TP1 `{fmt_price(tp1)}` | TP2 `{fmt_price(tp2)}`\n"
                 f"• *Stop-Loss (SL)*: `{fmt_price(sl)}`\n"
-                f"• _Monitoring 24/7 in the cloud for TP, SL & Profit-Flatline Stalls! Reply \"closed {sym_in_msg.replace('USDT', '')}\" when you exit._"
+                f"• _Monitoring 24/7 — tap *✅ Mark Closed* below or reply \"closed {sym_in_msg.replace('USDT', '')}\" anytime you exit!_"
             )
 
         # 6. Check Open Positions (/positions or natural language)
@@ -2096,17 +2341,19 @@ def create_app(controller: DashboardController) -> web.Application:
             )
             entry_p = float(df.iloc[-1]["close"])
 
-        cmd = f"/track {sym} {side} {entry_p} {lev}"
-        msg = await asyncio.to_thread(controller.orchestrator.handle_telegram_command, cmd)
+        cmd = f"I went {side.lower()} on {sym} at {entry_p} {lev}x"
+        msg = await asyncio.to_thread(controller.handle_telegram_command, cmd)
         if controller.orchestrator.telegram.is_configured:
-            await asyncio.to_thread(controller.orchestrator.telegram.send_message, msg)
-        await asyncio.to_thread(controller.run_single_scan)
+            markup = controller.orchestrator.telegram.build_close_buttons([sym])
+            await asyncio.to_thread(controller.orchestrator.telegram.send_message, msg, markup)
         return web.json_response({"ok": True, "message": msg})
 
     async def handle_close(request: web.Request) -> web.Response:
         body = await request.json()
         sym = body.get("symbol", "").upper()
-        msg = await asyncio.to_thread(controller.orchestrator.handle_telegram_command, f"/close {sym}")
+        msg = await asyncio.to_thread(controller.handle_telegram_command, f"/close {sym}")
+        if controller.orchestrator.telegram.is_configured and msg:
+            await asyncio.to_thread(controller.orchestrator.telegram.send_message, msg)
         return web.json_response({"ok": True, "message": msg})
 
     async def handle_backtest(request: web.Request) -> web.Response:
@@ -2192,16 +2439,18 @@ def create_app(controller: DashboardController) -> web.Application:
 
     async def telegram_poller_task(app_inst: web.Application) -> None:
         while True:
-            await asyncio.sleep(3)
+            await asyncio.sleep(2.5)
             if controller.orchestrator.telegram.token:
                 try:
-                    await asyncio.wait_for(
+                    processed = await asyncio.wait_for(
                         asyncio.to_thread(
                             controller.orchestrator.telegram.poll_commands,
                             controller.handle_telegram_command,
                         ),
                         timeout=15.0,
                     )
+                    if processed:
+                        controller._save_alert_cache()
                 except asyncio.CancelledError:
                     break
                 except Exception as tg_err:
@@ -2228,7 +2477,7 @@ def create_app(controller: DashboardController) -> web.Application:
 
     async def start_bg(app_inst: web.Application) -> None:
         app_inst["scanner_task"] = asyncio.create_task(background_scanner_task(app_inst))
-        if os.getenv("ENABLE_LOCAL_TG_POLLER", "false").lower() == "true":
+        if os.getenv("ENABLE_LOCAL_TG_POLLER", "true").lower() != "false":
             app_inst["tg_poller_task"] = asyncio.create_task(telegram_poller_task(app_inst))
 
     async def cleanup_bg(app_inst: web.Application) -> None:

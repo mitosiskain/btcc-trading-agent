@@ -272,20 +272,25 @@ class BTCCTradingOrchestrator:
                 sentiment_reasoning="Manually opened on BTCC; monitored for Profit-Flatline Stall",
             )
             self.execution.open_positions[sym] = pos
-            self.execution._save_state()
+            self.execution.touch_positions_version()
             return (
-                f"🎯 *Now Monitoring Manual BTCC Trade: {sym} {side} ({lev}x)*\n"
+                f"🟠 *Now Monitoring Manual BTCC Trade: {sym} {side} ({lev}x)*\n"
                 f"• *Entry*: `{entry_p}` | *Stop*: `{sl}`\n"
                 f"• *TP1*: `{tp1}` | *TP2*: `{tp2}`\n"
                 f"• _Exit monitor will alert you immediately when this trade hits TP or flatlines in profit!_"
             )
 
         if cmd == "/close" and len(parts) >= 2:
+            self.execution._load_state()
             sym = parts[1].upper()
-            if sym in self.execution.open_positions:
-                del self.execution.open_positions[sym]
-                self.execution._save_state()
-                return f"✅ Closed/removed `{sym}` from active exit monitoring."
+            if sym == "ALL":
+                recs = self.execution.close_all_manual(reason="MANUAL_CLOSE_ALL")
+                if recs:
+                    return f"✅ Closed all tracked positions (`{', '.join(r.symbol for r in recs)}`)."
+                return "ℹ️ No active positions currently tracked."
+            rec = self.execution.close_position_manual(sym, reason="MANUAL_CLOSE")
+            if rec is not None:
+                return f"✅ Closed `{sym}` (`${rec.net_pnl_usd:+.2f}` / `{rec.roe_pct:+.1f}% ROE`) — removed from active exit monitoring."
             return f"ℹ️ No active position found for `{sym}`."
 
         if cmd == "/sentiment":

@@ -170,6 +170,7 @@ class ExecutionEngine:
 
         self.account_balance_usd: float = self.risk.total_account_balance_usd
         self.daily_realized_pnl_usd: float = 0.0
+        self.positions_version_ts: float = 0.0
         self.open_positions: Dict[str, OpenPosition] = {}
         self.closed_trades: List[ClosedTradeRecord] = []
         self._load_state()
@@ -272,6 +273,7 @@ class ExecutionEngine:
             meta_pred_r=meta_pred_r,
         )
         self.open_positions[signal.symbol] = pos
+        self.positions_version_ts = time.time()
         self._save_state()
         return pos
 
@@ -286,10 +288,9 @@ class ExecutionEngine:
 
         pos.current_price = exit_sig.current_price
 
-        # Case 0: Manual user-tracked BTCC positions (position_id starts with "manual-")
-        # Never auto-delete a manual position from open_positions so the bot always knows the user still holds it
-        # and sends 🟠 POSITION UPDATE messages instead of 🟢/🔴 new-trade messages!
-        if str(pos.position_id).startswith("manual-"):
+        # Case 0: Manual / screenshot user-tracked BTCC positions
+        # Never auto-delete a user-tracked position behind their back; send an alert with a 1-tap [✅ Mark Closed] button!
+        if str(pos.position_id).startswith(("manual-", "screenshot-")):
             if exit_sig.urgency == "WARNING_REVERSAL_RISK":
                 pos.warning_sent = True
             elif exit_sig.urgency == "TAKE_PARTIAL_AND_TRAIL" and not pos.tp1_hit:
@@ -368,13 +369,92 @@ class ExecutionEngine:
         )
         self.closed_trades.append(record)
         del self.open_positions[exit_sig.symbol]
+        self.positions_version_ts = time.time()
         self._save_state()
         return record
+
+    def close_position_manual(
+        self,
+        symbol: str,
+        exit_price: Optional[float] = None,
+        reason: str = "MANUAL_CLOSE",
+    ) -> Optional[ClosedTradeRecord]:
+        """
+        Explicitly close a tracked position (via Telegram text, 1-tap button, BTCC screenshot sync, or Web GUI),
+        recording realized PnL in closed_trades and bumping positions_version_ts so Local & Cloud stay synced.
+        """
+        sym = symbol.upper()
+        pos = self.open_positions.get(sym)
+        if not pos:
+            return None
+
+        fill_price = float(exit_price) if (exit_price is not None and exit_price > 0) else float(pos.current_price or pos.entry_price)
+        pos.current_price = fill_price
+        if pos.side == "LONG":
+            ret = (fill_price - pos.entry_price) / max(pos.entry_price, 1e-12)
+        else:
+            ret = (pos.entry_price - fill_price) / max(pos.entry_price, 1e-12)
+
+        gross_pnl = pos.remaining_margin_usd * pos.leverage * ret
+        if gross_pnl < -pos.remaining_margin_usd:
+            gross_pnl = -pos.remaining_margin_usd
+
+        exit_fee = (pos.remaining_margin_usd * pos.leverage) * (self.risk.btcc_taker_fee_pct / 100.0)
+        final_leg_pnl = gross_pnl - exit_fee
+        total_trade_pnl = pos.realized_partial_pnl_usd + final_leg_pnl
+        total_roe_pct = (total_trade_pnl / max(pos.initial_margin_usd, 1e-9)) * 100.0
+
+        self.account_balance_usd += final_leg_pnl
+        self.daily_realized_pnl_usd += final_leg_pnl
+
+        record = ClosedTradeRecord(
+            position_id=pos.position_id,
+            symbol=pos.symbol,
+            side=pos.side,
+            leverage=pos.leverage,
+            entry_price=pos.entry_price,
+            exit_price=fill_price,
+            initial_margin_usd=pos.initial_margin_usd,
+            net_pnl_usd=round(total_trade_pnl, 2),
+            roe_pct=round(total_roe_pct, 2),
+            exit_reason=reason,
+            opened_at=pos.opened_at,
+            closed_at=datetime.now(timezone.utc).isoformat(),
+            bars_held=pos.bars_held,
+        )
+        self.closed_trades.append(record)
+        del self.open_positions[sym]
+        self.positions_version_ts = time.time()
+        self._save_state()
+        return record
+
+    def close_all_manual(
+        self,
+        live_prices: Optional[Dict[str, float]] = None,
+        reason: str = "MANUAL_CLOSE_ALL",
+    ) -> List[ClosedTradeRecord]:
+        """Close all open positions and return their ClosedTradeRecords."""
+        records: List[ClosedTradeRecord] = []
+        for sym in list(self.open_positions.keys()):
+            px = (live_prices or {}).get(sym)
+            rec = self.close_position_manual(sym, exit_price=px, reason=reason)
+            if rec is not None:
+                records.append(rec)
+        if not records:
+            self.positions_version_ts = time.time()
+            self._save_state()
+        return records
+
+    def touch_positions_version(self) -> None:
+        """Bump version clock whenever open_positions is structurally added/edited and persist immediately."""
+        self.positions_version_ts = time.time()
+        self._save_state()
 
     def _save_state(self) -> None:
         data = {
             "account_balance_usd": round(self.account_balance_usd, 2),
             "daily_realized_pnl_usd": round(self.daily_realized_pnl_usd, 2),
+            "positions_version_ts": round(float(self.positions_version_ts or 0.0), 3),
             "open_positions": {k: asdict(v) for k, v in self.open_positions.items()},
             "closed_trades": [asdict(t) for t in self.closed_trades[-100:]],
         }
@@ -387,6 +467,7 @@ class ExecutionEngine:
             data = json.loads(self.state_file.read_text())
             self.account_balance_usd = float(data.get("account_balance_usd", self.account_balance_usd))
             self.daily_realized_pnl_usd = float(data.get("daily_realized_pnl_usd", 0.0))
+            self.positions_version_ts = float(data.get("positions_version_ts", 0.0))
             pos_fields = set(OpenPosition.__dataclass_fields__.keys())
             rec_fields = set(ClosedTradeRecord.__dataclass_fields__.keys())
             self.open_positions = {

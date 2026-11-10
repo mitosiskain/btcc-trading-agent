@@ -11,9 +11,12 @@ import time
 from gui_dashboard import DashboardController
 
 
-def sync_state_to_git() -> None:
-    """Commit and push updated portfolio, alert cache & static phone dashboard to GitHub."""
+def sync_state_to_git(controller: DashboardController | None = None) -> None:
+    """Commit and push updated portfolio, alert cache & static phone dashboard to GitHub without JSON rebase conflicts."""
     try:
+        if controller is not None:
+            controller._save_alert_cache()
+            controller.export_static_cloud_dashboard()
         subprocess.run(
             [
                 "git",
@@ -40,8 +43,16 @@ def sync_state_to_git() -> None:
                 capture_output=True,
                 timeout=10,
             )
-            subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False, capture_output=True, timeout=20)
-            subprocess.run(["git", "push", "origin", "main"], check=False, capture_output=True, timeout=20)
+            rb = subprocess.run(
+                ["git", "pull", "--rebase", "--autostash", "-X", "theirs", "origin", "main"],
+                check=False,
+                capture_output=True,
+                timeout=20,
+            )
+            if rb.returncode != 0:
+                subprocess.run(["git", "rebase", "--abort"], check=False, capture_output=True, timeout=5)
+            else:
+                subprocess.run(["git", "push", "origin", "main"], check=False, capture_output=True, timeout=20)
     except Exception:
         pass
 
@@ -80,7 +91,7 @@ def main() -> None:
         if controller.orchestrator.telegram.poll_commands(controller.handle_telegram_command):
             controller._save_alert_cache()
             if args.git_sync:
-                sync_state_to_git()
+                sync_state_to_git(controller)
 
     # 2. Run full market scan (auto-sends high-confidence / active alerts & checks open positions)
     controller.run_single_scan()
@@ -90,7 +101,7 @@ def main() -> None:
         controller.orchestrator.telegram.poll_commands(controller.handle_telegram_command)
     controller._save_alert_cache()
     if args.git_sync:
-        sync_state_to_git()
+        sync_state_to_git(controller)
 
     if args.send_summary and controller.orchestrator.telegram.is_configured:
         controller.orchestrator.telegram.send_message(controller.build_simple_telegram_sheet())
@@ -107,12 +118,12 @@ def main() -> None:
             if controller.orchestrator.telegram.poll_commands(controller.handle_telegram_command):
                 controller._save_alert_cache()
                 if args.git_sync:
-                    sync_state_to_git()
+                    sync_state_to_git(controller)
         if time.time() - last_scan >= 60.0:
             last_scan = time.time()
             controller.run_single_scan()
             if args.git_sync:
-                sync_state_to_git()
+                sync_state_to_git(controller)
 
     print("☁️ Cloud session completed cleanly.")
 
