@@ -60,7 +60,7 @@ class LeverageRiskConfig:
     btcc_taker_fee_pct: float = 0.045          # 0.045% per side typical BTCC VIP/standard perp taker fee
     btcc_maker_fee_pct: float = 0.020          # 0.020% per side post-only / maker limit fee
     prefer_maker_limit_entries: bool = True    # Route entries as Maker/Pullback limits to cut fee+spread drag
-    engine_version: str = "CARBON_V2"          # Active quantitative alpha engine
+    engine_version: str = os.getenv("ENGINE_VERSION", "KRYPTON_V3").upper()  # Active alpha engine: KRYPTON_V3 (default) | CARBON_V2
 
 
 @dataclass

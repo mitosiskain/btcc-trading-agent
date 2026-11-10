@@ -1,0 +1,6946 @@
+{
+  "generated_at": "2026-11-10T23:09:41.268417+00:00",
+  "params": {
+    "4h": {
+      "timeframe": "4h",
+      "entry_lookback": 20,
+      "exit_lookback": 10,
+      "ema_fast": 50,
+      "ema_slow": 200,
+      "atr_period": 20,
+      "init_stop_atr": 2.0,
+      "trail_atr": 8.0,
+      "max_hold_bars": 180,
+      "use_trend_filter": true,
+      "allow_shorts": true,
+      "btc_filter": false,
+      "min_stop_pct": 0.004
+    },
+    "1h": {
+      "timeframe": "1h",
+      "entry_lookback": 160,
+      "exit_lookback": 80,
+      "ema_fast": 200,
+      "ema_slow": 800,
+      "atr_period": 80,
+      "init_stop_atr": 3.0,
+      "trail_atr": 12.0,
+      "max_hold_bars": 720,
+      "use_trend_filter": true,
+      "allow_shorts": true,
+      "btc_filter": false,
+      "min_stop_pct": 0.004
+    }
+  },
+  "4h": {
+    "oos_window": "2025-12-02 -> 2026-10-31",
+    "oos_days": 333.3,
+    "simulator_equivalence": {
+      "passed": true,
+      "carbon_trades_repriced": 874,
+      "max_abs_pnl_diff_usd": 0.0
+    },
+    "causality_check": {
+      "passed": true,
+      "points_verified": 18,
+      "max_abs_diff": 0.0
+    },
+    "krypton_v3_oos": {
+      "total_trades": 121,
+      "win_rate_pct": 23.14,
+      "profit_factor": 1.291,
+      "expectancy_r": 0.2024,
+      "expectancy_usd": 4.89,
+      "total_net_pnl_usd": 591.54,
+      "max_drawdown_usd": 568.97,
+      "return_over_dd": 1.04,
+      "sharpe_annualized": 0.76,
+      "sortino_annualized": 1.11,
+      "avg_win_usd": 93.66,
+      "avg_loss_usd": 21.84,
+      "payoff_ratio": 4.29,
+      "oos_days": 333.3,
+      "equity_curve": [
+        {
+          "date": "2025-12-06",
+          "pnl": 0.0
+        },
+        {
+          "date": "2025-12-09",
+          "pnl": -29.0
+        },
+        {
+          "date": "2025-12-12",
+          "pnl": -51.54
+        },
+        {
+          "date": "2025-12-15",
+          "pnl": -65.98
+        },
+        {
+          "date": "2025-12-18",
+          "pnl": -65.98
+        },
+        {
+          "date": "2025-12-21",
+          "pnl": -50.99
+        },
+        {
+          "date": "2025-12-24",
+          "pnl": -50.99
+        },
+        {
+          "date": "2025-12-27",
+          "pnl": -52.0
+        },
+        {
+          "date": "2025-12-30",
+          "pnl": 144.24
+        },
+        {
+          "date": "2026-01-02",
+          "pnl": 88.41
+        },
+        {
+          "date": "2026-01-05",
+          "pnl": 88.41
+        },
+        {
+          "date": "2026-01-08",
+          "pnl": 79.28
+        },
+        {
+          "date": "2026-01-11",
+          "pnl": 79.28
+        },
+        {
+          "date": "2026-01-14",
+          "pnl": 54.43
+        },
+        {
+          "date": "2026-01-17",
+          "pnl": 147.97
+        },
+        {
+          "date": "2026-01-20",
+          "pnl": 147.97
+        },
+        {
+          "date": "2026-01-23",
+          "pnl": 147.97
+        },
+        {
+          "date": "2026-01-26",
+          "pnl": 121.36
+        },
+        {
+          "date": "2026-01-29",
+          "pnl": 121.36
+        },
+        {
+          "date": "2026-02-01",
+          "pnl": 429.99
+        },
+        {
+          "date": "2026-02-04",
+          "pnl": 429.99
+        },
+        {
+          "date": "2026-02-07",
+          "pnl": 401.84
+        },
+        {
+          "date": "2026-02-10",
+          "pnl": 401.84
+        },
+        {
+          "date": "2026-02-13",
+          "pnl": 667.47
+        },
+        {
+          "date": "2026-02-16",
+          "pnl": 667.47
+        },
+        {
+          "date": "2026-02-19",
+          "pnl": 667.47
+        },
+        {
+          "date": "2026-02-22",
+          "pnl": 625.2
+        },
+        {
+          "date": "2026-02-25",
+          "pnl": 516.75
+        },
+        {
+          "date": "2026-02-28",
+          "pnl": 467.14
+        },
+        {
+          "date": "2026-03-03",
+          "pnl": 504.82
+        },
+        {
+          "date": "2026-03-06",
+          "pnl": 504.82
+        },
+        {
+          "date": "2026-03-09",
+          "pnl": 468.55
+        },
+        {
+          "date": "2026-03-12",
+          "pnl": 441.23
+        },
+        {
+          "date": "2026-03-15",
+          "pnl": 441.23
+        },
+        {
+          "date": "2026-03-18",
+          "pnl": 416.83
+        },
+        {
+          "date": "2026-03-21",
+          "pnl": 416.83
+        },
+        {
+          "date": "2026-03-24",
+          "pnl": 544.88
+        },
+        {
+          "date": "2026-03-27",
+          "pnl": 530.65
+        },
+        {
+          "date": "2026-03-30",
+          "pnl": 502.71
+        },
+        {
+          "date": "2026-04-02",
+          "pnl": 502.71
+        },
+        {
+          "date": "2026-04-05",
+          "pnl": 486.62
+        },
+        {
+          "date": "2026-04-08",
+          "pnl": 458.14
+        },
+        {
+          "date": "2026-04-11",
+          "pnl": 458.14
+        },
+        {
+          "date": "2026-04-14",
+          "pnl": 350.4
+        },
+        {
+          "date": "2026-04-17",
+          "pnl": 350.4
+        },
+        {
+          "date": "2026-04-20",
+          "pnl": 343.85
+        },
+        {
+          "date": "2026-04-23",
+          "pnl": 318.6
+        },
+        {
+          "date": "2026-04-26",
+          "pnl": 318.6
+        },
+        {
+          "date": "2026-04-29",
+          "pnl": 281.5
+        },
+        {
+          "date": "2026-05-02",
+          "pnl": 258.59
+        },
+        {
+          "date": "2026-05-05",
+          "pnl": 258.59
+        },
+        {
+          "date": "2026-05-08",
+          "pnl": 327.77
+        },
+        {
+          "date": "2026-05-11",
+          "pnl": 298.56
+        },
+        {
+          "date": "2026-05-14",
+          "pnl": 282.51
+        },
+        {
+          "date": "2026-05-17",
+          "pnl": 254.7
+        },
+        {
+          "date": "2026-05-20",
+          "pnl": 254.7
+        },
+        {
+          "date": "2026-05-23",
+          "pnl": 226.55
+        },
+        {
+          "date": "2026-05-26",
+          "pnl": 254.96
+        },
+        {
+          "date": "2026-05-29",
+          "pnl": 231.94
+        },
+        {
+          "date": "2026-06-01",
+          "pnl": 231.94
+        },
+        {
+          "date": "2026-06-04",
+          "pnl": 231.94
+        },
+        {
+          "date": "2026-06-07",
+          "pnl": 522.09
+        },
+        {
+          "date": "2026-06-10",
+          "pnl": 522.09
+        },
+        {
+          "date": "2026-06-13",
+          "pnl": 500.4
+        },
+        {
+          "date": "2026-06-16",
+          "pnl": 470.76
+        },
+        {
+          "date": "2026-06-19",
+          "pnl": 470.76
+        },
+        {
+          "date": "2026-06-22",
+          "pnl": 470.76
+        },
+        {
+          "date": "2026-06-25",
+          "pnl": 450.12
+        },
+        {
+          "date": "2026-06-28",
+          "pnl": 513.76
+        },
+        {
+          "date": "2026-07-01",
+          "pnl": 460.15
+        },
+        {
+          "date": "2026-07-04",
+          "pnl": 435.1
+        },
+        {
+          "date": "2026-07-07",
+          "pnl": 422.95
+        },
+        {
+          "date": "2026-07-10",
+          "pnl": 394.88
+        },
+        {
+          "date": "2026-07-13",
+          "pnl": 340.2
+        },
+        {
+          "date": "2026-07-16",
+          "pnl": 313.34
+        },
+        {
+          "date": "2026-07-19",
+          "pnl": 302.32
+        },
+        {
+          "date": "2026-07-22",
+          "pnl": 345.15
+        },
+        {
+          "date": "2026-07-25",
+          "pnl": 293.2
+        },
+        {
+          "date": "2026-07-28",
+          "pnl": 266.14
+        },
+        {
+          "date": "2026-07-31",
+          "pnl": 235.93
+        },
+        {
+          "date": "2026-08-03",
+          "pnl": 182.49
+        },
+        {
+          "date": "2026-08-06",
+          "pnl": 182.49
+        },
+        {
+          "date": "2026-08-09",
+          "pnl": 197.23
+        },
+        {
+          "date": "2026-08-12",
+          "pnl": 170.28
+        },
+        {
+          "date": "2026-08-15",
+          "pnl": 152.65
+        },
+        {
+          "date": "2026-08-18",
+          "pnl": 152.65
+        },
+        {
+          "date": "2026-08-21",
+          "pnl": 98.5
+        },
+        {
+          "date": "2026-08-24",
+          "pnl": 98.5
+        },
+        {
+          "date": "2026-08-27",
+          "pnl": 141.76
+        },
+        {
+          "date": "2026-08-30",
+          "pnl": 613.18
+        },
+        {
+          "date": "2026-09-02",
+          "pnl": 613.18
+        },
+        {
+          "date": "2026-09-05",
+          "pnl": 588.07
+        },
+        {
+          "date": "2026-09-08",
+          "pnl": 588.07
+        },
+        {
+          "date": "2026-09-11",
+          "pnl": 575.68
+        },
+        {
+          "date": "2026-09-14",
+          "pnl": 550.66
+        },
+        {
+          "date": "2026-09-17",
+          "pnl": 494.82
+        },
+        {
+          "date": "2026-09-20",
+          "pnl": 494.82
+        },
+        {
+          "date": "2026-09-23",
+          "pnl": 716.16
+        },
+        {
+          "date": "2026-09-26",
+          "pnl": 716.16
+        },
+        {
+          "date": "2026-09-29",
+          "pnl": 694.37
+        },
+        {
+          "date": "2026-10-02",
+          "pnl": 653.8
+        },
+        {
+          "date": "2026-10-05",
+          "pnl": 628.14
+        },
+        {
+          "date": "2026-10-08",
+          "pnl": 600.82
+        },
+        {
+          "date": "2026-10-11",
+          "pnl": 600.82
+        },
+        {
+          "date": "2026-10-14",
+          "pnl": 545.93
+        },
+        {
+          "date": "2026-10-17",
+          "pnl": 519.73
+        },
+        {
+          "date": "2026-10-20",
+          "pnl": 522.32
+        },
+        {
+          "date": "2026-10-23",
+          "pnl": 469.7
+        },
+        {
+          "date": "2026-10-26",
+          "pnl": 563.71
+        },
+        {
+          "date": "2026-10-29",
+          "pnl": 563.71
+        },
+        {
+          "date": "2026-11-01",
+          "pnl": 598.35
+        },
+        {
+          "date": "2026-11-04",
+          "pnl": 591.54
+        }
+      ]
+    },
+    "krypton_v3_oos_2x_costs": {
+      "total_trades": 121,
+      "win_rate_pct": 23.14,
+      "profit_factor": 1.183,
+      "expectancy_r": 0.1367,
+      "expectancy_usd": 3.28,
+      "total_net_pnl_usd": 396.49,
+      "max_drawdown_usd": 681.83,
+      "return_over_dd": 0.58,
+      "sharpe_annualized": 0.51,
+      "sortino_annualized": 0.71,
+      "avg_win_usd": 91.64,
+      "avg_loss_usd": 23.33,
+      "payoff_ratio": 3.93,
+      "oos_days": 333.3
+    },
+    "krypton_bootstrap": {
+      "p_total_pnl_gt_0": 0.765,
+      "pnl_ci90_low": -614.16,
+      "pnl_ci90_high": 1964.41,
+      "exp_r_ci90_low": -0.195,
+      "exp_r_ci90_high": 0.652,
+      "t_stat_mean_r": 0.78
+    },
+    "krypton_per_symbol": {
+      "AVAXUSDT": {
+        "total_trades": 19,
+        "win_rate_pct": 21.05,
+        "profit_factor": 0.889,
+        "expectancy_r": -0.0779,
+        "expectancy_usd": -2.12,
+        "total_net_pnl_usd": -40.24,
+        "max_drawdown_usd": 305.47,
+        "return_over_dd": -0.13,
+        "sharpe_annualized": -0.18,
+        "sortino_annualized": -0.1,
+        "avg_win_usd": 80.35,
+        "avg_loss_usd": 24.11,
+        "payoff_ratio": 3.33,
+        "oos_days": 333.3
+      },
+      "BTCUSDT": {
+        "total_trades": 13,
+        "win_rate_pct": 23.08,
+        "profit_factor": 0.199,
+        "expectancy_r": -0.5527,
+        "expectancy_usd": -13.81,
+        "total_net_pnl_usd": -179.48,
+        "max_drawdown_usd": 192.2,
+        "return_over_dd": -0.93,
+        "sharpe_annualized": -2.62,
+        "sortino_annualized": -0.52,
+        "avg_win_usd": 14.84,
+        "avg_loss_usd": 22.4,
+        "payoff_ratio": 0.66,
+        "oos_days": 333.3
+      },
+      "DOGEUSDT": {
+        "total_trades": 10,
+        "win_rate_pct": 20.0,
+        "profit_factor": 0.739,
+        "expectancy_r": -0.1917,
+        "expectancy_usd": -4.96,
+        "total_net_pnl_usd": -49.58,
+        "max_drawdown_usd": 124.46,
+        "return_over_dd": -0.4,
+        "sharpe_annualized": -0.46,
+        "sortino_annualized": -0.14,
+        "avg_win_usd": 70.27,
+        "avg_loss_usd": 23.77,
+        "payoff_ratio": 2.96,
+        "oos_days": 333.3
+      },
+      "ETHUSDT": {
+        "total_trades": 15,
+        "win_rate_pct": 13.33,
+        "profit_factor": 2.896,
+        "expectancy_r": 1.2439,
+        "expectancy_usd": 30.75,
+        "total_net_pnl_usd": 461.3,
+        "max_drawdown_usd": 122.72,
+        "return_over_dd": 3.76,
+        "sharpe_annualized": 0.97,
+        "sortino_annualized": 1.44,
+        "avg_win_usd": 352.28,
+        "avg_loss_usd": 18.71,
+        "payoff_ratio": 18.83,
+        "oos_days": 333.3
+      },
+      "SOLUSDT": {
+        "total_trades": 11,
+        "win_rate_pct": 9.09,
+        "profit_factor": 0.279,
+        "expectancy_r": -0.4877,
+        "expectancy_usd": -12.01,
+        "total_net_pnl_usd": -132.09,
+        "max_drawdown_usd": 133.42,
+        "return_over_dd": -0.99,
+        "sharpe_annualized": -1.82,
+        "sortino_annualized": -0.43,
+        "avg_win_usd": 51.04,
+        "avg_loss_usd": 18.31,
+        "payoff_ratio": 2.79,
+        "oos_days": 333.3
+      },
+      "SUIUSDT": {
+        "total_trades": 16,
+        "win_rate_pct": 18.75,
+        "profit_factor": 0.987,
+        "expectancy_r": 0.0171,
+        "expectancy_usd": -0.24,
+        "total_net_pnl_usd": -3.85,
+        "max_drawdown_usd": 133.68,
+        "return_over_dd": -0.03,
+        "sharpe_annualized": -0.02,
+        "sortino_annualized": -0.01,
+        "avg_win_usd": 93.9,
+        "avg_loss_usd": 21.96,
+        "payoff_ratio": 4.27,
+        "oos_days": 333.3
+      },
+      "XAUUSDT": {
+        "total_trades": 24,
+        "win_rate_pct": 45.83,
+        "profit_factor": 3.493,
+        "expectancy_r": 1.2224,
+        "expectancy_usd": 30.72,
+        "total_net_pnl_usd": 737.32,
+        "max_drawdown_usd": 84.53,
+        "return_over_dd": 8.72,
+        "sharpe_annualized": 1.83,
+        "sortino_annualized": 1.79,
+        "avg_win_usd": 93.91,
+        "avg_loss_usd": 22.75,
+        "payoff_ratio": 4.13,
+        "oos_days": 333.3
+      },
+      "XRPUSDT": {
+        "total_trades": 13,
+        "win_rate_pct": 15.38,
+        "profit_factor": 0.184,
+        "expectancy_r": -0.6025,
+        "expectancy_usd": -15.53,
+        "total_net_pnl_usd": -201.84,
+        "max_drawdown_usd": 247.44,
+        "return_over_dd": -0.82,
+        "sharpe_annualized": -2.56,
+        "sortino_annualized": -0.52,
+        "avg_win_usd": 22.8,
+        "avg_loss_usd": 22.49,
+        "payoff_ratio": 1.01,
+        "oos_days": 333.3
+      }
+    },
+    "krypton_per_side": {
+      "LONG": {
+        "total_trades": 52,
+        "win_rate_pct": 28.85,
+        "profit_factor": 1.974,
+        "expectancy_r": 0.5726,
+        "expectancy_usd": 14.87,
+        "total_net_pnl_usd": 773.09,
+        "max_drawdown_usd": 254.24,
+        "return_over_dd": 3.04,
+        "sharpe_annualized": 1.22,
+        "sortino_annualized": 1.71,
+        "avg_win_usd": 104.44,
+        "avg_loss_usd": 21.45,
+        "payoff_ratio": 4.87,
+        "oos_days": 333.3
+      },
+      "SHORT": {
+        "total_trades": 69,
+        "win_rate_pct": 18.84,
+        "profit_factor": 0.853,
+        "expectancy_r": -0.0766,
+        "expectancy_usd": -2.63,
+        "total_net_pnl_usd": -181.55,
+        "max_drawdown_usd": 450.52,
+        "return_over_dd": -0.4,
+        "sharpe_annualized": -0.41,
+        "sortino_annualized": -0.33,
+        "avg_win_usd": 81.21,
+        "avg_loss_usd": 22.09,
+        "payoff_ratio": 3.68,
+        "oos_days": 333.3
+      }
+    },
+    "krypton_exit_reasons": {
+      "CHANNEL_EXIT": 60,
+      "STOP_LOSS": 59,
+      "TRAIL_STOP": 2
+    },
+    "krypton_trades": [
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 4,
+        "signal_idx": 1523,
+        "entry_idx": 1524,
+        "exit_idx": 1532,
+        "entry_time": "2025-12-06 08:00:00+00:00",
+        "exit_time": "2025-12-07 16:00:00+00:00",
+        "entry_ns": 1765008000000000,
+        "exit_ns": 1765123200000000,
+        "entry_price": 1.523267,
+        "exit_price": 1.632562,
+        "net_pnl_usd": -29.0024,
+        "roe_pct": -29.002,
+        "net_r": -1.0282,
+        "mfe_r": 0.127,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 9,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.142
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 31,
+        "signal_idx": 1551,
+        "entry_idx": 1552,
+        "exit_idx": 1660,
+        "entry_time": "2025-12-11 00:00:00+00:00",
+        "exit_time": "2025-12-29 00:00:00+00:00",
+        "entry_ns": 1765411200000000,
+        "exit_ns": 1766966400000000,
+        "entry_price": 4237.867404,
+        "exit_price": 4529.703878,
+        "net_pnl_usd": 209.7407,
+        "roe_pct": 209.741,
+        "net_r": 8.2968,
+        "mfe_r": 9.783,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 109,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.667
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 1552,
+        "entry_idx": 1553,
+        "exit_idx": 1608,
+        "entry_time": "2025-12-11 04:00:00+00:00",
+        "exit_time": "2025-12-20 08:00:00+00:00",
+        "entry_ns": 1765425600000000,
+        "exit_ns": 1766217600000000,
+        "entry_price": 1.997401,
+        "exit_price": 1.94318,
+        "net_pnl_usd": 14.9897,
+        "roe_pct": 14.99,
+        "net_r": 0.5952,
+        "mfe_r": 2.709,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 56,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.301
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 3,
+        "signal_idx": 1552,
+        "entry_idx": 1553,
+        "exit_idx": 1559,
+        "entry_time": "2025-12-11 04:00:00+00:00",
+        "exit_time": "2025-12-12 04:00:00+00:00",
+        "entry_ns": 1765425600000000,
+        "exit_ns": 1765512000000000,
+        "entry_price": 1.535063,
+        "exit_price": 1.648863,
+        "net_pnl_usd": -22.542,
+        "roe_pct": -22.542,
+        "net_r": -1.0307,
+        "mfe_r": 0.145,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 7,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.125
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 1561,
+        "entry_idx": 1562,
+        "exit_idx": 1578,
+        "entry_time": "2025-12-12 16:00:00+00:00",
+        "exit_time": "2025-12-15 08:00:00+00:00",
+        "entry_ns": 1765555200000000,
+        "exit_ns": 1765785600000000,
+        "entry_price": 3069.395998,
+        "exit_price": 3156.321138,
+        "net_pnl_usd": -14.4393,
+        "roe_pct": -14.439,
+        "net_r": -0.5805,
+        "mfe_r": 0.307,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 17,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.262
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 1579,
+        "entry_idx": 1580,
+        "exit_idx": 1640,
+        "entry_time": "2025-12-15 16:00:00+00:00",
+        "exit_time": "2025-12-25 16:00:00+00:00",
+        "entry_ns": 1765814400000000,
+        "exit_ns": 1766678400000000,
+        "entry_price": 12.48063,
+        "exit_price": 12.473364,
+        "net_pnl_usd": -1.0045,
+        "roe_pct": -1.004,
+        "net_r": -0.0406,
+        "mfe_r": 1.977,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 61,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.697
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 1625,
+        "entry_idx": 1626,
+        "exit_idx": 1660,
+        "entry_time": "2025-12-23 08:00:00+00:00",
+        "exit_time": "2025-12-29 00:00:00+00:00",
+        "entry_ns": 1766476800000000,
+        "exit_ns": 1766966400000000,
+        "entry_price": 1.879442,
+        "exit_price": 1.91477,
+        "net_pnl_usd": -13.5039,
+        "roe_pct": -13.504,
+        "net_r": -0.5699,
+        "mfe_r": 0.881,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 35,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.091
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 1675,
+        "entry_idx": 1676,
+        "exit_idx": 1681,
+        "entry_time": "2025-12-31 16:00:00+00:00",
+        "exit_time": "2026-01-01 12:00:00+00:00",
+        "entry_ns": 1767196800000000,
+        "exit_ns": 1767268800000000,
+        "entry_price": 0.121058,
+        "exit_price": 0.124736,
+        "net_pnl_usd": -28.2438,
+        "roe_pct": -28.244,
+        "net_r": -1.0747,
+        "mfe_r": 1.617,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.617
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 1676,
+        "entry_idx": 1677,
+        "exit_idx": 1682,
+        "entry_time": "2025-12-31 20:00:00+00:00",
+        "exit_time": "2026-01-01 16:00:00+00:00",
+        "entry_ns": 1767211200000000,
+        "exit_ns": 1767283200000000,
+        "entry_price": 1.395012,
+        "exit_price": 1.449149,
+        "net_pnl_usd": -27.5857,
+        "roe_pct": -27.586,
+        "net_r": -1.0453,
+        "mfe_r": 0.154,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.768
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 11,
+        "signal_idx": 1702,
+        "entry_idx": 1703,
+        "exit_idx": 1717,
+        "entry_time": "2026-01-05 04:00:00+00:00",
+        "exit_time": "2026-01-07 12:00:00+00:00",
+        "entry_ns": 1767585600000000,
+        "exit_ns": 1767787200000000,
+        "entry_price": 3185.38695,
+        "exit_price": 3162.897294,
+        "net_pnl_usd": -9.1322,
+        "roe_pct": -9.132,
+        "net_r": -0.3644,
+        "mfe_r": 1.689,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 15,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.517
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 25,
+        "signal_idx": 1703,
+        "entry_idx": 1704,
+        "exit_idx": 1771,
+        "entry_time": "2026-01-05 08:00:00+00:00",
+        "exit_time": "2026-01-16 12:00:00+00:00",
+        "entry_ns": 1767600000000000,
+        "exit_ns": 1768564800000000,
+        "entry_price": 4429.725768,
+        "exit_price": 4581.593498,
+        "net_pnl_usd": 80.8175,
+        "roe_pct": 80.817,
+        "net_r": 3.1826,
+        "mfe_r": 4.849,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 68,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.334
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 1744,
+        "entry_idx": 1745,
+        "exit_idx": 1750,
+        "entry_time": "2026-01-12 04:00:00+00:00",
+        "exit_time": "2026-01-13 00:00:00+00:00",
+        "entry_ns": 1768190400000000,
+        "exit_ns": 1768262400000000,
+        "entry_price": 142.539872,
+        "exit_price": 137.63394,
+        "net_pnl_usd": -24.8442,
+        "roe_pct": -24.844,
+        "net_r": -1.0567,
+        "mfe_r": 0.359,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.351
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 12,
+        "signal_idx": 1753,
+        "entry_idx": 1754,
+        "exit_idx": 1771,
+        "entry_time": "2026-01-13 16:00:00+00:00",
+        "exit_time": "2026-01-16 12:00:00+00:00",
+        "entry_ns": 1768320000000000,
+        "exit_ns": 1768564800000000,
+        "entry_price": 93426.58158,
+        "exit_price": 94518.5925,
+        "net_pnl_usd": 12.7248,
+        "roe_pct": 12.725,
+        "net_r": 0.5283,
+        "mfe_r": 2.403,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 18,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.78
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 32,
+        "signal_idx": 1784,
+        "entry_idx": 1785,
+        "exit_idx": 1854,
+        "entry_time": "2026-01-18 20:00:00+00:00",
+        "exit_time": "2026-01-30 08:00:00+00:00",
+        "entry_ns": 1768766400000000,
+        "exit_ns": 1769760000000000,
+        "entry_price": 4633.07643,
+        "exit_price": 5082.944156,
+        "net_pnl_usd": 308.6315,
+        "roe_pct": 308.631,
+        "net_r": 12.1681,
+        "mfe_r": 27.222,
+        "risk_scale": 1.0,
+        "exit_reason": "TRAIL_STOP",
+        "bars_held": 70,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.034
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 1825,
+        "entry_idx": 1826,
+        "exit_idx": 1932,
+        "entry_time": "2026-01-25 16:00:00+00:00",
+        "exit_time": "2026-02-12 08:00:00+00:00",
+        "entry_ns": 1769356800000000,
+        "exit_ns": 1770883200000000,
+        "entry_price": 1.454291,
+        "exit_price": 0.947732,
+        "net_pnl_usd": 208.957,
+        "roe_pct": 208.957,
+        "net_r": 8.4456,
+        "mfe_r": 11.111,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 107,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.18
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 1826,
+        "entry_idx": 1827,
+        "exit_idx": 1828,
+        "entry_time": "2026-01-25 20:00:00+00:00",
+        "exit_time": "2026-01-26 00:00:00+00:00",
+        "entry_ns": 1769371200000000,
+        "exit_ns": 1769385600000000,
+        "entry_price": 117.828746,
+        "exit_price": 122.17818,
+        "net_pnl_usd": -26.6145,
+        "roe_pct": -26.614,
+        "net_r": -1.0643,
+        "mfe_r": 0.118,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 3.497
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 1849,
+        "entry_idx": 1850,
+        "exit_idx": 1939,
+        "entry_time": "2026-01-29 16:00:00+00:00",
+        "exit_time": "2026-02-13 12:00:00+00:00",
+        "entry_ns": 1769702400000000,
+        "exit_ns": 1770984000000000,
+        "entry_price": 10.986154,
+        "exit_price": 9.104185,
+        "net_pnl_usd": 83.5315,
+        "roe_pct": 83.532,
+        "net_r": 3.5794,
+        "mfe_r": 6.732,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 90,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 2.083
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 6,
+        "signal_idx": 1882,
+        "entry_idx": 1883,
+        "exit_idx": 1888,
+        "entry_time": "2026-02-04 04:00:00+00:00",
+        "exit_time": "2026-02-05 00:00:00+00:00",
+        "entry_ns": 1770177600000000,
+        "exit_ns": 1770249600000000,
+        "entry_price": 5091.848166,
+        "exit_price": 4858.301812,
+        "net_pnl_usd": -28.15,
+        "roe_pct": -28.15,
+        "net_r": -1.0446,
+        "mfe_r": 0.106,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.653
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 1911,
+        "entry_idx": 1912,
+        "exit_idx": 1934,
+        "entry_time": "2026-02-09 00:00:00+00:00",
+        "exit_time": "2026-02-12 16:00:00+00:00",
+        "entry_ns": 1770595200000000,
+        "exit_ns": 1770912000000000,
+        "entry_price": 5041.078014,
+        "exit_price": 4896.031069,
+        "net_pnl_usd": -26.8647,
+        "roe_pct": -26.865,
+        "net_r": -1.0737,
+        "mfe_r": 0.631,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 23,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.23
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 4,
+        "signal_idx": 1970,
+        "entry_idx": 1971,
+        "exit_idx": 1981,
+        "entry_time": "2026-02-18 20:00:00+00:00",
+        "exit_time": "2026-02-20 12:00:00+00:00",
+        "entry_ns": 1771444800000000,
+        "exit_ns": 1771588800000000,
+        "entry_price": 0.931874,
+        "exit_price": 0.967038,
+        "net_pnl_usd": -15.5362,
+        "roe_pct": -15.536,
+        "net_r": -0.6474,
+        "mfe_r": 0.658,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.411
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 1970,
+        "entry_idx": 1971,
+        "exit_idx": 1987,
+        "entry_time": "2026-02-18 20:00:00+00:00",
+        "exit_time": "2026-02-21 12:00:00+00:00",
+        "entry_ns": 1771444800000000,
+        "exit_ns": 1771675200000000,
+        "entry_price": 66125.07234,
+        "exit_price": 68601.845685,
+        "net_pnl_usd": -26.7316,
+        "roe_pct": -26.732,
+        "net_r": -1.0388,
+        "mfe_r": 0.218,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 17,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.37
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 15,
+        "signal_idx": 1981,
+        "entry_idx": 1982,
+        "exit_idx": 2046,
+        "entry_time": "2026-02-20 16:00:00+00:00",
+        "exit_time": "2026-03-03 08:00:00+00:00",
+        "entry_ns": 1771603200000000,
+        "exit_ns": 1772524800000000,
+        "entry_price": 5054.580714,
+        "exit_price": 5182.246858,
+        "net_pnl_usd": 37.6807,
+        "roe_pct": 37.681,
+        "net_r": 1.4759,
+        "mfe_r": 6.093,
+        "risk_scale": 1.0,
+        "exit_reason": "TRAIL_STOP",
+        "bars_held": 65,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.13
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 1996,
+        "entry_idx": 1997,
+        "exit_idx": 1999,
+        "entry_time": "2026-02-23 04:00:00+00:00",
+        "exit_time": "2026-02-23 12:00:00+00:00",
+        "entry_ns": 1771819200000000,
+        "exit_ns": 1771848000000000,
+        "entry_price": 8.409056,
+        "exit_price": 8.778545,
+        "net_pnl_usd": -27.0522,
+        "roe_pct": -27.052,
+        "net_r": -1.0549,
+        "mfe_r": 0.226,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.792
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 1996,
+        "entry_idx": 1997,
+        "exit_idx": 1998,
+        "entry_time": "2026-02-23 04:00:00+00:00",
+        "exit_time": "2026-02-23 08:00:00+00:00",
+        "entry_ns": 1771819200000000,
+        "exit_ns": 1771833600000000,
+        "entry_price": 1.339831,
+        "exit_price": 1.397517,
+        "net_pnl_usd": -26.5002,
+        "roe_pct": -26.5,
+        "net_r": -1.0552,
+        "mfe_r": 0.086,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.295
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2002,
+        "entry_idx": 2003,
+        "exit_idx": 2008,
+        "entry_time": "2026-02-24 04:00:00+00:00",
+        "exit_time": "2026-02-25 00:00:00+00:00",
+        "entry_ns": 1771905600000000,
+        "exit_ns": 1771977600000000,
+        "entry_price": 1830.573812,
+        "exit_price": 1908.757553,
+        "net_pnl_usd": -26.2372,
+        "roe_pct": -26.237,
+        "net_r": -1.0494,
+        "mfe_r": 0.453,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.134
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2003,
+        "entry_idx": 2004,
+        "exit_idx": 2008,
+        "entry_time": "2026-02-24 08:00:00+00:00",
+        "exit_time": "2026-02-25 00:00:00+00:00",
+        "entry_ns": 1771920000000000,
+        "exit_ns": 1771977600000000,
+        "entry_price": 1.325336,
+        "exit_price": 1.387157,
+        "net_pnl_usd": -28.6582,
+        "roe_pct": -28.658,
+        "net_r": -1.0511,
+        "mfe_r": 0.23,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 5,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.003
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 2027,
+        "entry_idx": 2028,
+        "exit_idx": 2031,
+        "entry_time": "2026-02-28 08:00:00+00:00",
+        "exit_time": "2026-02-28 20:00:00+00:00",
+        "entry_ns": 1772265600000000,
+        "exit_ns": 1772308800000000,
+        "entry_price": 1.301244,
+        "exit_price": 1.368555,
+        "net_pnl_usd": -26.4161,
+        "roe_pct": -26.416,
+        "net_r": -1.0458,
+        "mfe_r": 0.486,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 4,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.071
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 4,
+        "signal_idx": 2027,
+        "entry_idx": 2028,
+        "exit_idx": 2031,
+        "entry_time": "2026-02-28 08:00:00+00:00",
+        "exit_time": "2026-02-28 20:00:00+00:00",
+        "entry_ns": 1772265600000000,
+        "exit_ns": 1772308800000000,
+        "entry_price": 0.089229,
+        "exit_price": 0.094312,
+        "net_pnl_usd": -23.1909,
+        "roe_pct": -23.191,
+        "net_r": -1.0398,
+        "mfe_r": 0.329,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 4,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.627
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 2072,
+        "entry_idx": 2073,
+        "exit_idx": 2083,
+        "entry_time": "2026-03-07 20:00:00+00:00",
+        "exit_time": "2026-03-09 12:00:00+00:00",
+        "entry_ns": 1772913600000000,
+        "exit_ns": 1773057600000000,
+        "entry_price": 82.441136,
+        "exit_price": 85.039754,
+        "net_pnl_usd": -16.5423,
+        "roe_pct": -16.542,
+        "net_r": -0.625,
+        "mfe_r": 0.518,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.362
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2072,
+        "entry_idx": 2073,
+        "exit_idx": 2083,
+        "entry_time": "2026-03-07 20:00:00+00:00",
+        "exit_time": "2026-03-09 12:00:00+00:00",
+        "entry_ns": 1772913600000000,
+        "exit_ns": 1773057600000000,
+        "entry_price": 67029.19148,
+        "exit_price": 68846.06646,
+        "net_pnl_usd": -19.7299,
+        "roe_pct": -19.73,
+        "net_r": -0.7525,
+        "mfe_r": 0.582,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.293
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 14,
+        "signal_idx": 2089,
+        "entry_idx": 2090,
+        "exit_idx": 2097,
+        "entry_time": "2026-03-10 16:00:00+00:00",
+        "exit_time": "2026-03-11 20:00:00+00:00",
+        "entry_ns": 1773158400000000,
+        "exit_ns": 1773259200000000,
+        "entry_price": 5229.025596,
+        "exit_price": 5132.333328,
+        "net_pnl_usd": -27.3248,
+        "roe_pct": -27.325,
+        "net_r": -1.0559,
+        "mfe_r": 0.067,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 8,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.687
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 2127,
+        "entry_idx": 2128,
+        "exit_idx": 2136,
+        "entry_time": "2026-03-17 00:00:00+00:00",
+        "exit_time": "2026-03-18 08:00:00+00:00",
+        "entry_ns": 1773705600000000,
+        "exit_ns": 1773820800000000,
+        "entry_price": 74861.36928,
+        "exit_price": 72891.81872,
+        "net_pnl_usd": -24.3975,
+        "roe_pct": -24.398,
+        "net_r": -0.9413,
+        "mfe_r": 0.528,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 9,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.339
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 17,
+        "signal_idx": 2136,
+        "entry_idx": 2137,
+        "exit_idx": 2175,
+        "entry_time": "2026-03-18 12:00:00+00:00",
+        "exit_time": "2026-03-24 20:00:00+00:00",
+        "entry_ns": 1773835200000000,
+        "exit_ns": 1774382400000000,
+        "entry_price": 4922.355332,
+        "exit_price": 4549.499718,
+        "net_pnl_usd": 128.0533,
+        "roe_pct": 128.053,
+        "net_r": 5.2524,
+        "mfe_r": 11.108,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 39,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.958
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 2137,
+        "entry_idx": 2138,
+        "exit_idx": 2177,
+        "entry_time": "2026-03-18 16:00:00+00:00",
+        "exit_time": "2026-03-25 04:00:00+00:00",
+        "entry_ns": 1773849600000000,
+        "exit_ns": 1774411200000000,
+        "entry_price": 0.094257,
+        "exit_price": 0.096804,
+        "net_pnl_usd": -14.2329,
+        "roe_pct": -14.233,
+        "net_r": -0.5496,
+        "mfe_r": 1.063,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 40,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.041
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2190,
+        "entry_idx": 2191,
+        "exit_idx": 2207,
+        "entry_time": "2026-03-27 12:00:00+00:00",
+        "exit_time": "2026-03-30 04:00:00+00:00",
+        "entry_ns": 1774612800000000,
+        "exit_ns": 1774843200000000,
+        "entry_price": 66649.96734,
+        "exit_price": 67609.41918,
+        "net_pnl_usd": -10.8525,
+        "roe_pct": -10.853,
+        "net_r": -0.4526,
+        "mfe_r": 0.759,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 17,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.273
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2190,
+        "entry_idx": 2191,
+        "exit_idx": 2208,
+        "entry_time": "2026-03-27 12:00:00+00:00",
+        "exit_time": "2026-03-30 08:00:00+00:00",
+        "entry_ns": 1774612800000000,
+        "exit_ns": 1774857600000000,
+        "entry_price": 8.746937,
+        "exit_price": 8.986144,
+        "net_pnl_usd": -17.0901,
+        "roe_pct": -17.09,
+        "net_r": -0.668,
+        "mfe_r": 1.024,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 18,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.239
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2226,
+        "entry_idx": 2227,
+        "exit_idx": 2247,
+        "entry_time": "2026-04-02 12:00:00+00:00",
+        "exit_time": "2026-04-05 20:00:00+00:00",
+        "entry_ns": 1775131200000000,
+        "exit_ns": 1775419200000000,
+        "entry_price": 1.298545,
+        "exit_price": 1.326364,
+        "net_pnl_usd": -16.0876,
+        "roe_pct": -16.088,
+        "net_r": -0.679,
+        "mfe_r": 0.49,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 21,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.168
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2254,
+        "entry_idx": 2255,
+        "exit_idx": 2259,
+        "entry_time": "2026-04-07 04:00:00+00:00",
+        "exit_time": "2026-04-07 20:00:00+00:00",
+        "entry_ns": 1775534400000000,
+        "exit_ns": 1775592000000000,
+        "entry_price": 8.674963,
+        "exit_price": 9.072628,
+        "net_pnl_usd": -28.4785,
+        "roe_pct": -28.479,
+        "net_r": -1.0633,
+        "mfe_r": 0.555,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 5,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.325
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 2282,
+        "entry_idx": 2283,
+        "exit_idx": 2284,
+        "entry_time": "2026-04-11 20:00:00+00:00",
+        "exit_time": "2026-04-12 00:00:00+00:00",
+        "entry_ns": 1775937600000000,
+        "exit_ns": 1775952000000000,
+        "entry_price": 2315.71305,
+        "exit_price": 2236.712287,
+        "net_pnl_usd": -28.0782,
+        "roe_pct": -28.078,
+        "net_r": -1.0588,
+        "mfe_r": 0.01,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.188
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 2282,
+        "entry_idx": 2283,
+        "exit_idx": 2284,
+        "entry_time": "2026-04-11 20:00:00+00:00",
+        "exit_time": "2026-04-12 00:00:00+00:00",
+        "entry_ns": 1775937600000000,
+        "exit_ns": 1775952000000000,
+        "entry_price": 73650.62718,
+        "exit_price": 71792.734433,
+        "net_pnl_usd": -26.0447,
+        "roe_pct": -26.045,
+        "net_r": -1.074,
+        "mfe_r": 0.0,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.208
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2287,
+        "entry_idx": 2288,
+        "exit_idx": 2294,
+        "entry_time": "2026-04-12 16:00:00+00:00",
+        "exit_time": "2026-04-13 16:00:00+00:00",
+        "entry_ns": 1776009600000000,
+        "exit_ns": 1776096000000000,
+        "entry_price": 0.899085,
+        "exit_price": 0.938591,
+        "net_pnl_usd": -26.87,
+        "roe_pct": -26.87,
+        "net_r": -1.0478,
+        "mfe_r": 0.046,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 7,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.229
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2287,
+        "entry_idx": 2288,
+        "exit_idx": 2294,
+        "entry_time": "2026-04-12 16:00:00+00:00",
+        "exit_time": "2026-04-13 16:00:00+00:00",
+        "entry_ns": 1776009600000000,
+        "exit_ns": 1776096000000000,
+        "entry_price": 8.952865,
+        "exit_price": 9.344802,
+        "net_pnl_usd": -26.7445,
+        "roe_pct": -26.744,
+        "net_r": -1.0469,
+        "mfe_r": 0.013,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 7,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.094
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 2295,
+        "entry_idx": 2296,
+        "exit_idx": 2327,
+        "entry_time": "2026-04-14 00:00:00+00:00",
+        "exit_time": "2026-04-19 04:00:00+00:00",
+        "entry_ns": 1776124800000000,
+        "exit_ns": 1776571200000000,
+        "entry_price": 2369.27376,
+        "exit_price": 2313.807146,
+        "net_pnl_usd": -16.8936,
+        "roe_pct": -16.894,
+        "net_r": -0.6562,
+        "mfe_r": 1.085,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 32,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.891
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 2295,
+        "entry_idx": 2296,
+        "exit_idx": 2327,
+        "entry_time": "2026-04-14 00:00:00+00:00",
+        "exit_time": "2026-04-19 04:00:00+00:00",
+        "entry_ns": 1776124800000000,
+        "exit_ns": 1776571200000000,
+        "entry_price": 74399.77698,
+        "exit_price": 75190.55888,
+        "net_pnl_usd": 10.3398,
+        "roe_pct": 10.34,
+        "net_r": 0.4001,
+        "mfe_r": 2.028,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 32,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.636
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 2344,
+        "entry_idx": 2345,
+        "exit_idx": 2377,
+        "entry_time": "2026-04-22 04:00:00+00:00",
+        "exit_time": "2026-04-27 12:00:00+00:00",
+        "entry_ns": 1776830400000000,
+        "exit_ns": 1777291200000000,
+        "entry_price": 77503.89768,
+        "exit_price": 76744.648,
+        "net_pnl_usd": -9.1583,
+        "roe_pct": -9.158,
+        "net_r": -0.3768,
+        "mfe_r": 0.932,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 33,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.468
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "LONG",
+        "leverage": 6,
+        "signal_idx": 2344,
+        "entry_idx": 2345,
+        "exit_idx": 2354,
+        "entry_time": "2026-04-22 04:00:00+00:00",
+        "exit_time": "2026-04-23 16:00:00+00:00",
+        "entry_ns": 1776830400000000,
+        "exit_ns": 1776960000000000,
+        "entry_price": 9.560345,
+        "exit_price": 9.166348,
+        "net_pnl_usd": -25.2498,
+        "roe_pct": -25.25,
+        "net_r": -1.0492,
+        "mfe_r": 0.294,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 10,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.13
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 11,
+        "signal_idx": 2372,
+        "entry_idx": 2373,
+        "exit_idx": 2375,
+        "entry_time": "2026-04-26 20:00:00+00:00",
+        "exit_time": "2026-04-27 04:00:00+00:00",
+        "entry_ns": 1777233600000000,
+        "exit_ns": 1777262400000000,
+        "entry_price": 2366.663238,
+        "exit_price": 2308.615808,
+        "net_pnl_usd": -27.9386,
+        "roe_pct": -27.939,
+        "net_r": -1.0785,
+        "mfe_r": 0.67,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.523
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 23,
+        "signal_idx": 2381,
+        "entry_idx": 2382,
+        "exit_idx": 2394,
+        "entry_time": "2026-04-28 08:00:00+00:00",
+        "exit_time": "2026-04-30 08:00:00+00:00",
+        "entry_ns": 1777363200000000,
+        "exit_ns": 1777536000000000,
+        "entry_price": 4623.755064,
+        "exit_price": 4621.904196,
+        "net_pnl_usd": -1.0961,
+        "roe_pct": -1.096,
+        "net_r": -0.0443,
+        "mfe_r": 2.373,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 13,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.252
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 2386,
+        "entry_idx": 2387,
+        "exit_idx": 2434,
+        "entry_time": "2026-04-29 04:00:00+00:00",
+        "exit_time": "2026-05-07 00:00:00+00:00",
+        "entry_ns": 1777435200000000,
+        "exit_ns": 1778112000000000,
+        "entry_price": 0.101365,
+        "exit_price": 0.110211,
+        "net_pnl_usd": 76.9077,
+        "roe_pct": 76.908,
+        "net_r": 2.9823,
+        "mfe_r": 5.462,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 48,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.227
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 8,
+        "signal_idx": 2389,
+        "entry_idx": 2390,
+        "exit_idx": 2401,
+        "entry_time": "2026-04-29 16:00:00+00:00",
+        "exit_time": "2026-05-01 12:00:00+00:00",
+        "entry_ns": 1777478400000000,
+        "exit_ns": 1777636800000000,
+        "entry_price": 0.901085,
+        "exit_price": 0.924924,
+        "net_pnl_usd": -21.814,
+        "roe_pct": -21.814,
+        "net_r": -0.8207,
+        "mfe_r": 0.671,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.708
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 12,
+        "signal_idx": 2401,
+        "entry_idx": 2402,
+        "exit_idx": 2437,
+        "entry_time": "2026-05-01 16:00:00+00:00",
+        "exit_time": "2026-05-07 12:00:00+00:00",
+        "entry_ns": 1777651200000000,
+        "exit_ns": 1778155200000000,
+        "entry_price": 78411.07908,
+        "exit_price": 79845.62768,
+        "net_pnl_usd": 21.4608,
+        "roe_pct": 21.461,
+        "net_r": 0.8575,
+        "mfe_r": 2.701,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 36,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.639
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 24,
+        "signal_idx": 2418,
+        "entry_idx": 2419,
+        "exit_idx": 2428,
+        "entry_time": "2026-05-04 12:00:00+00:00",
+        "exit_time": "2026-05-06 00:00:00+00:00",
+        "entry_ns": 1777896000000000,
+        "exit_ns": 1778025600000000,
+        "entry_price": 4552.999218,
+        "exit_price": 4604.414976,
+        "net_pnl_usd": -29.1869,
+        "roe_pct": -29.187,
+        "net_r": -1.1539,
+        "mfe_r": 1.163,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 10,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.011
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 2443,
+        "entry_idx": 2444,
+        "exit_idx": 2466,
+        "entry_time": "2026-05-08 16:00:00+00:00",
+        "exit_time": "2026-05-12 08:00:00+00:00",
+        "entry_ns": 1778256000000000,
+        "exit_ns": 1778572800000000,
+        "entry_price": 9.781422,
+        "exit_price": 9.85455,
+        "net_pnl_usd": 4.8845,
+        "roe_pct": 4.884,
+        "net_r": 0.1893,
+        "mfe_r": 2.224,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 23,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.025
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 2444,
+        "entry_idx": 2445,
+        "exit_idx": 2473,
+        "entry_time": "2026-05-08 20:00:00+00:00",
+        "exit_time": "2026-05-13 12:00:00+00:00",
+        "entry_ns": 1778270400000000,
+        "exit_ns": 1778673600000000,
+        "entry_price": 92.6024,
+        "exit_price": 90.338371,
+        "net_pnl_usd": -20.9342,
+        "roe_pct": -20.934,
+        "net_r": -0.876,
+        "mfe_r": 2.081,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 29,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.562
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 26,
+        "signal_idx": 2458,
+        "entry_idx": 2459,
+        "exit_idx": 2461,
+        "entry_time": "2026-05-11 04:00:00+00:00",
+        "exit_time": "2026-05-11 12:00:00+00:00",
+        "entry_ns": 1778472000000000,
+        "exit_ns": 1778500800000000,
+        "entry_price": 4670.305752,
+        "exit_price": 4718.623315,
+        "net_pnl_usd": -29.212,
+        "roe_pct": -29.212,
+        "net_r": -1.1844,
+        "mfe_r": 0.619,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.012
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 2480,
+        "entry_idx": 2481,
+        "exit_idx": 2483,
+        "entry_time": "2026-05-14 20:00:00+00:00",
+        "exit_time": "2026-05-15 04:00:00+00:00",
+        "entry_ns": 1778788800000000,
+        "exit_ns": 1778817600000000,
+        "entry_price": 1.516931,
+        "exit_price": 1.465683,
+        "net_pnl_usd": -27.8155,
+        "roe_pct": -27.816,
+        "net_r": -1.0642,
+        "mfe_r": 0.005,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.146
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 19,
+        "signal_idx": 2482,
+        "entry_idx": 2483,
+        "exit_idx": 2536,
+        "entry_time": "2026-05-15 04:00:00+00:00",
+        "exit_time": "2026-05-24 00:00:00+00:00",
+        "entry_ns": 1778817600000000,
+        "exit_ns": 1779580800000000,
+        "entry_price": 4609.597896,
+        "exit_price": 4538.697558,
+        "net_pnl_usd": 28.4081,
+        "roe_pct": 28.408,
+        "net_r": 1.1264,
+        "mfe_r": 2.49,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 54,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.807
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 2489,
+        "entry_idx": 2490,
+        "exit_idx": 2622,
+        "entry_time": "2026-05-16 08:00:00+00:00",
+        "exit_time": "2026-06-07 08:00:00+00:00",
+        "entry_ns": 1778918400000000,
+        "exit_ns": 1780819200000000,
+        "entry_price": 2193.071298,
+        "exit_price": 1629.715878,
+        "net_pnl_usd": 233.1397,
+        "roe_pct": 233.14,
+        "net_r": 9.7393,
+        "mfe_r": 11.82,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 133,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.344
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "leverage": 5,
+        "signal_idx": 2518,
+        "entry_idx": 2519,
+        "exit_idx": 2521,
+        "entry_time": "2026-05-21 04:00:00+00:00",
+        "exit_time": "2026-05-21 12:00:00+00:00",
+        "entry_ns": 1779336000000000,
+        "exit_ns": 1779364800000000,
+        "entry_price": 1.141699,
+        "exit_price": 1.07845,
+        "net_pnl_usd": -28.143,
+        "roe_pct": -28.143,
+        "net_r": -1.0363,
+        "mfe_r": 0.134,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.222
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 23,
+        "signal_idx": 2555,
+        "entry_idx": 2556,
+        "exit_idx": 2567,
+        "entry_time": "2026-05-27 08:00:00+00:00",
+        "exit_time": "2026-05-29 04:00:00+00:00",
+        "entry_ns": 1779868800000000,
+        "exit_ns": 1780027200000000,
+        "entry_price": 4476.334554,
+        "exit_price": 4517.633346,
+        "net_pnl_usd": -23.0269,
+        "roe_pct": -23.027,
+        "net_r": -0.9033,
+        "mfe_r": 2.11,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.192
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 4,
+        "signal_idx": 2581,
+        "entry_idx": 2582,
+        "exit_idx": 2620,
+        "entry_time": "2026-05-31 16:00:00+00:00",
+        "exit_time": "2026-06-07 00:00:00+00:00",
+        "entry_ns": 1780243200000000,
+        "exit_ns": 1780790400000000,
+        "entry_price": 0.878492,
+        "exit_price": 0.752963,
+        "net_pnl_usd": 57.0124,
+        "roe_pct": 57.012,
+        "net_r": 2.5125,
+        "mfe_r": 4.36,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 39,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.474
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 16,
+        "signal_idx": 2636,
+        "entry_idx": 2637,
+        "exit_idx": 2667,
+        "entry_time": "2026-06-09 20:00:00+00:00",
+        "exit_time": "2026-06-14 20:00:00+00:00",
+        "entry_ns": 1781035200000000,
+        "exit_ns": 1781467200000000,
+        "entry_price": 4251.94944,
+        "exit_price": 4255.517802,
+        "net_pnl_usd": -2.2548,
+        "roe_pct": -2.255,
+        "net_r": -0.0917,
+        "mfe_r": 3.471,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 31,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.099
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 2642,
+        "entry_idx": 2643,
+        "exit_idx": 2648,
+        "entry_time": "2026-06-10 20:00:00+00:00",
+        "exit_time": "2026-06-11 16:00:00+00:00",
+        "entry_ns": 1781121600000000,
+        "exit_ns": 1781193600000000,
+        "entry_price": 1.096916,
+        "exit_price": 1.1433,
+        "net_pnl_usd": -21.6849,
+        "roe_pct": -21.685,
+        "net_r": -0.8239,
+        "mfe_r": 0.167,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.097
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2666,
+        "entry_idx": 2667,
+        "exit_idx": 2667,
+        "entry_time": "2026-06-14 20:00:00+00:00",
+        "exit_time": "2026-06-14 20:00:00+00:00",
+        "entry_ns": 1781467200000000,
+        "exit_ns": 1781467200000000,
+        "entry_price": 6.42675,
+        "exit_price": 6.714356,
+        "net_pnl_usd": -27.3908,
+        "roe_pct": -27.391,
+        "net_r": -1.0482,
+        "mfe_r": 0.0,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 1,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.293
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2684,
+        "entry_idx": 2685,
+        "exit_idx": 2743,
+        "entry_time": "2026-06-17 20:00:00+00:00",
+        "exit_time": "2026-06-27 12:00:00+00:00",
+        "entry_ns": 1781726400000000,
+        "exit_ns": 1782561600000000,
+        "entry_price": 0.08534,
+        "exit_price": 0.076217,
+        "net_pnl_usd": 63.6388,
+        "roe_pct": 63.639,
+        "net_r": 2.7375,
+        "mfe_r": 4.216,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 59,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.03
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 2689,
+        "entry_idx": 2690,
+        "exit_idx": 2721,
+        "entry_time": "2026-06-18 16:00:00+00:00",
+        "exit_time": "2026-06-23 20:00:00+00:00",
+        "entry_ns": 1781798400000000,
+        "exit_ns": 1782244800000000,
+        "entry_price": 6.236816,
+        "exit_price": 6.482268,
+        "net_pnl_usd": -20.6352,
+        "roe_pct": -20.635,
+        "net_r": -0.7546,
+        "mfe_r": 1.653,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 32,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.923
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 18,
+        "signal_idx": 2758,
+        "entry_idx": 2759,
+        "exit_idx": 2759,
+        "entry_time": "2026-06-30 04:00:00+00:00",
+        "exit_time": "2026-06-30 04:00:00+00:00",
+        "entry_ns": 1782792000000000,
+        "exit_ns": 1782792000000000,
+        "entry_price": 3965.80668,
+        "exit_price": 4024.285914,
+        "net_pnl_usd": -28.1625,
+        "roe_pct": -28.163,
+        "net_r": -1.126,
+        "mfe_r": 0.0,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 1,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.086
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2760,
+        "entry_idx": 2761,
+        "exit_idx": 2772,
+        "entry_time": "2026-06-30 12:00:00+00:00",
+        "exit_time": "2026-07-02 08:00:00+00:00",
+        "entry_ns": 1782820800000000,
+        "exit_ns": 1782979200000000,
+        "entry_price": 0.071365,
+        "exit_price": 0.074295,
+        "net_pnl_usd": -25.0429,
+        "roe_pct": -25.043,
+        "net_r": -1.047,
+        "mfe_r": 0.67,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.359
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "leverage": 8,
+        "signal_idx": 2761,
+        "entry_idx": 2762,
+        "exit_idx": 2767,
+        "entry_time": "2026-06-30 16:00:00+00:00",
+        "exit_time": "2026-07-01 12:00:00+00:00",
+        "entry_ns": 1782835200000000,
+        "exit_ns": 1782907200000000,
+        "entry_price": 58344.52876,
+        "exit_price": 60152.627847,
+        "net_pnl_usd": -25.4529,
+        "roe_pct": -25.453,
+        "net_r": -1.062,
+        "mfe_r": 0.335,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.565
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 5,
+        "signal_idx": 2772,
+        "entry_idx": 2773,
+        "exit_idx": 2788,
+        "entry_time": "2026-07-02 12:00:00+00:00",
+        "exit_time": "2026-07-05 00:00:00+00:00",
+        "entry_ns": 1782993600000000,
+        "exit_ns": 1783209600000000,
+        "entry_price": 82.378822,
+        "exit_price": 80.481822,
+        "net_pnl_usd": -12.1518,
+        "roe_pct": -12.152,
+        "net_r": -0.5024,
+        "mfe_r": 0.397,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 16,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.706
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 20,
+        "signal_idx": 2804,
+        "entry_idx": 2805,
+        "exit_idx": 2878,
+        "entry_time": "2026-07-07 20:00:00+00:00",
+        "exit_time": "2026-07-20 00:00:00+00:00",
+        "entry_ns": 1783454400000000,
+        "exit_ns": 1784505600000000,
+        "entry_price": 4107.948246,
+        "exit_price": 4019.813802,
+        "net_pnl_usd": 42.835,
+        "roe_pct": 42.835,
+        "net_r": 1.6857,
+        "mfe_r": 2.865,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 74,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.114
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2806,
+        "entry_idx": 2807,
+        "exit_idx": 2813,
+        "entry_time": "2026-07-08 04:00:00+00:00",
+        "exit_time": "2026-07-09 04:00:00+00:00",
+        "entry_ns": 1783483200000000,
+        "exit_ns": 1783569600000000,
+        "entry_price": 6.384765,
+        "exit_price": 6.676788,
+        "net_pnl_usd": -28.0727,
+        "roe_pct": -28.073,
+        "net_r": -1.0506,
+        "mfe_r": 0.259,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 7,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.801
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 2827,
+        "entry_idx": 2828,
+        "exit_idx": 2839,
+        "entry_time": "2026-07-11 16:00:00+00:00",
+        "exit_time": "2026-07-13 12:00:00+00:00",
+        "entry_ns": 1783785600000000,
+        "exit_ns": 1783944000000000,
+        "entry_price": 1814.472822,
+        "exit_price": 1763.133873,
+        "net_pnl_usd": -26.354,
+        "roe_pct": -26.354,
+        "net_r": -1.0622,
+        "mfe_r": 0.67,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.116
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2831,
+        "entry_idx": 2832,
+        "exit_idx": 2838,
+        "entry_time": "2026-07-12 08:00:00+00:00",
+        "exit_time": "2026-07-13 08:00:00+00:00",
+        "entry_ns": 1783843200000000,
+        "exit_ns": 1783929600000000,
+        "entry_price": 6.370769,
+        "exit_price": 6.620799,
+        "net_pnl_usd": -28.3222,
+        "roe_pct": -28.322,
+        "net_r": -1.0633,
+        "mfe_r": 0.024,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 7,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.313
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2840,
+        "entry_idx": 2841,
+        "exit_idx": 2845,
+        "entry_time": "2026-07-13 20:00:00+00:00",
+        "exit_time": "2026-07-14 12:00:00+00:00",
+        "entry_ns": 1783972800000000,
+        "exit_ns": 1784030400000000,
+        "entry_price": 0.720648,
+        "exit_price": 0.747598,
+        "net_pnl_usd": -26.8638,
+        "roe_pct": -26.864,
+        "net_r": -1.06,
+        "mfe_r": 0.527,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 5,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.015
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 2845,
+        "entry_idx": 2846,
+        "exit_idx": 2860,
+        "entry_time": "2026-07-14 16:00:00+00:00",
+        "exit_time": "2026-07-17 00:00:00+00:00",
+        "entry_ns": 1784044800000000,
+        "exit_ns": 1784246400000000,
+        "entry_price": 1874.744874,
+        "exit_price": 1851.37965,
+        "net_pnl_usd": -11.0198,
+        "roe_pct": -11.02,
+        "net_r": -0.4435,
+        "mfe_r": 1.237,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 15,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.906
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 2878,
+        "entry_idx": 2879,
+        "exit_idx": 2899,
+        "entry_time": "2026-07-20 04:00:00+00:00",
+        "exit_time": "2026-07-23 12:00:00+00:00",
+        "entry_ns": 1784520000000000,
+        "exit_ns": 1784808000000000,
+        "entry_price": 76.736848,
+        "exit_price": 76.303285,
+        "net_pnl_usd": -6.5197,
+        "roe_pct": -6.52,
+        "net_r": -0.2595,
+        "mfe_r": 1.107,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 21,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.042
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 2880,
+        "entry_idx": 2881,
+        "exit_idx": 2899,
+        "entry_time": "2026-07-20 12:00:00+00:00",
+        "exit_time": "2026-07-23 12:00:00+00:00",
+        "entry_ns": 1784548800000000,
+        "exit_ns": 1784808000000000,
+        "entry_price": 1892.808486,
+        "exit_price": 1894.111102,
+        "net_pnl_usd": -0.3505,
+        "roe_pct": -0.35,
+        "net_r": -0.0137,
+        "mfe_r": 1.359,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 19,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.051
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 8,
+        "signal_idx": 2899,
+        "entry_idx": 2900,
+        "exit_idx": 2911,
+        "entry_time": "2026-07-23 16:00:00+00:00",
+        "exit_time": "2026-07-25 12:00:00+00:00",
+        "entry_ns": 1784822400000000,
+        "exit_ns": 1784980800000000,
+        "entry_price": 0.069686,
+        "exit_price": 0.071205,
+        "net_pnl_usd": -18.3476,
+        "roe_pct": -18.348,
+        "net_r": -0.7485,
+        "mfe_r": 0.766,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.218
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2900,
+        "entry_idx": 2901,
+        "exit_idx": 2911,
+        "entry_time": "2026-07-23 20:00:00+00:00",
+        "exit_time": "2026-07-25 12:00:00+00:00",
+        "entry_ns": 1784836800000000,
+        "exit_ns": 1784980800000000,
+        "entry_price": 6.276802,
+        "exit_price": 6.506644,
+        "net_pnl_usd": -26.739,
+        "roe_pct": -26.739,
+        "net_r": -1.0782,
+        "mfe_r": 0.656,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.998
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 11,
+        "signal_idx": 2919,
+        "entry_idx": 2920,
+        "exit_idx": 2925,
+        "entry_time": "2026-07-27 00:00:00+00:00",
+        "exit_time": "2026-07-27 20:00:00+00:00",
+        "entry_ns": 1785110400000000,
+        "exit_ns": 1785182400000000,
+        "entry_price": 1954.19076,
+        "exit_price": 1908.209594,
+        "net_pnl_usd": -27.052,
+        "roe_pct": -27.052,
+        "net_r": -1.0905,
+        "mfe_r": 0.631,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.175
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 8,
+        "signal_idx": 2923,
+        "entry_idx": 2924,
+        "exit_idx": 2941,
+        "entry_time": "2026-07-27 16:00:00+00:00",
+        "exit_time": "2026-07-30 12:00:00+00:00",
+        "entry_ns": 1785168000000000,
+        "exit_ns": 1785412800000000,
+        "entry_price": 0.698355,
+        "exit_price": 0.699645,
+        "net_pnl_usd": -2.1946,
+        "roe_pct": -2.195,
+        "net_r": -0.0879,
+        "mfe_r": 1.2,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 18,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.257
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 11,
+        "signal_idx": 2925,
+        "entry_idx": 2926,
+        "exit_idx": 2933,
+        "entry_time": "2026-07-28 00:00:00+00:00",
+        "exit_time": "2026-07-29 04:00:00+00:00",
+        "entry_ns": 1785196800000000,
+        "exit_ns": 1785297600000000,
+        "entry_price": 1.064927,
+        "exit_price": 1.090922,
+        "net_pnl_usd": -28.0175,
+        "roe_pct": -28.017,
+        "net_r": -1.0963,
+        "mfe_r": 0.826,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 8,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.544
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2954,
+        "entry_idx": 2955,
+        "exit_idx": 2957,
+        "entry_time": "2026-08-01 20:00:00+00:00",
+        "exit_time": "2026-08-02 04:00:00+00:00",
+        "entry_ns": 1785614400000000,
+        "exit_ns": 1785643200000000,
+        "entry_price": 6.122856,
+        "exit_price": 6.357684,
+        "net_pnl_usd": -27.6256,
+        "roe_pct": -27.626,
+        "net_r": -1.062,
+        "mfe_r": 0.096,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.591
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 2954,
+        "entry_idx": 2955,
+        "exit_idx": 2956,
+        "entry_time": "2026-08-01 20:00:00+00:00",
+        "exit_time": "2026-08-02 00:00:00+00:00",
+        "entry_ns": 1785614400000000,
+        "exit_ns": 1785628800000000,
+        "entry_price": 71.185076,
+        "exit_price": 73.159383,
+        "net_pnl_usd": -25.8157,
+        "roe_pct": -25.816,
+        "net_r": -1.0802,
+        "mfe_r": 0.024,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.111
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 2978,
+        "entry_idx": 2979,
+        "exit_idx": 3003,
+        "entry_time": "2026-08-05 20:00:00+00:00",
+        "exit_time": "2026-08-09 20:00:00+00:00",
+        "entry_ns": 1785960000000000,
+        "exit_ns": 1786305600000000,
+        "entry_price": 1916.473218,
+        "exit_price": 1909.188086,
+        "net_pnl_usd": -5.068,
+        "roe_pct": -5.068,
+        "net_r": -0.1991,
+        "mfe_r": 0.544,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 25,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.721
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 19,
+        "signal_idx": 2979,
+        "entry_idx": 2980,
+        "exit_idx": 3003,
+        "entry_time": "2026-08-06 00:00:00+00:00",
+        "exit_time": "2026-08-09 20:00:00+00:00",
+        "entry_ns": 1785974400000000,
+        "exit_ns": 1786305600000000,
+        "entry_price": 4269.75378,
+        "exit_price": 4326.364554,
+        "net_pnl_usd": 23.6655,
+        "roe_pct": 23.665,
+        "net_r": 0.9337,
+        "mfe_r": 1.598,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 24,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.362
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 11,
+        "signal_idx": 2980,
+        "entry_idx": 2981,
+        "exit_idx": 2995,
+        "entry_time": "2026-08-06 04:00:00+00:00",
+        "exit_time": "2026-08-08 12:00:00+00:00",
+        "entry_ns": 1785988800000000,
+        "exit_ns": 1786190400000000,
+        "entry_price": 1.042535,
+        "exit_price": 1.045266,
+        "net_pnl_usd": -3.8595,
+        "roe_pct": -3.86,
+        "net_r": -0.1557,
+        "mfe_r": 1.299,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 15,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.953
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 22,
+        "signal_idx": 3008,
+        "entry_idx": 3009,
+        "exit_idx": 3026,
+        "entry_time": "2026-08-10 20:00:00+00:00",
+        "exit_time": "2026-08-13 16:00:00+00:00",
+        "entry_ns": 1786392000000000,
+        "exit_ns": 1786636800000000,
+        "entry_price": 4379.065638,
+        "exit_price": 4346.760474,
+        "net_pnl_usd": -17.6248,
+        "roe_pct": -17.625,
+        "net_r": -0.7011,
+        "mfe_r": 1.232,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 18,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.695
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 11,
+        "signal_idx": 3009,
+        "entry_idx": 3010,
+        "exit_idx": 3061,
+        "entry_time": "2026-08-11 00:00:00+00:00",
+        "exit_time": "2026-08-19 12:00:00+00:00",
+        "entry_ns": 1786406400000000,
+        "exit_ns": 1787140800000000,
+        "entry_price": 1.011246,
+        "exit_price": 1.035891,
+        "net_pnl_usd": -27.6443,
+        "roe_pct": -27.644,
+        "net_r": -1.0835,
+        "mfe_r": 1.145,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 52,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.034
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 3013,
+        "entry_idx": 3014,
+        "exit_idx": 3019,
+        "entry_time": "2026-08-11 16:00:00+00:00",
+        "exit_time": "2026-08-12 12:00:00+00:00",
+        "entry_ns": 1786464000000000,
+        "exit_ns": 1786536000000000,
+        "entry_price": 6.207827,
+        "exit_price": 6.440215,
+        "net_pnl_usd": -26.9499,
+        "roe_pct": -26.95,
+        "net_r": -1.0623,
+        "mfe_r": 0.106,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.316
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 11,
+        "signal_idx": 3045,
+        "entry_idx": 3046,
+        "exit_idx": 3061,
+        "entry_time": "2026-08-17 00:00:00+00:00",
+        "exit_time": "2026-08-19 12:00:00+00:00",
+        "entry_ns": 1786924800000000,
+        "exit_ns": 1787140800000000,
+        "entry_price": 0.670565,
+        "exit_price": 0.686111,
+        "net_pnl_usd": -26.5128,
+        "roe_pct": -26.513,
+        "net_r": -1.0952,
+        "mfe_r": 2.478,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 16,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.068
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 17,
+        "signal_idx": 3046,
+        "entry_idx": 3047,
+        "exit_idx": 3116,
+        "entry_time": "2026-08-17 04:00:00+00:00",
+        "exit_time": "2026-08-28 16:00:00+00:00",
+        "entry_ns": 1786939200000000,
+        "exit_ns": 1787932800000000,
+        "entry_price": 1900.58004,
+        "exit_price": 2433.933116,
+        "net_pnl_usd": 471.419,
+        "roe_pct": 471.419,
+        "net_r": 18.6344,
+        "mfe_r": 23.541,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 70,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.551
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 20,
+        "signal_idx": 3061,
+        "entry_idx": 3062,
+        "exit_idx": 3103,
+        "entry_time": "2026-08-19 16:00:00+00:00",
+        "exit_time": "2026-08-26 12:00:00+00:00",
+        "entry_ns": 1787155200000000,
+        "exit_ns": 1787745600000000,
+        "entry_price": 4484.526726,
+        "exit_price": 4588.162184,
+        "net_pnl_usd": 43.2604,
+        "roe_pct": 43.26,
+        "net_r": 1.6912,
+        "mfe_r": 3.542,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 42,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.906
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "leverage": 5,
+        "signal_idx": 3148,
+        "entry_idx": 3149,
+        "exit_idx": 3187,
+        "entry_time": "2026-09-03 04:00:00+00:00",
+        "exit_time": "2026-09-09 12:00:00+00:00",
+        "entry_ns": 1788408000000000,
+        "exit_ns": 1788955200000000,
+        "entry_price": 0.767969,
+        "exit_price": 0.793922,
+        "net_pnl_usd": 15.7185,
+        "roe_pct": 15.718,
+        "net_r": 0.5992,
+        "mfe_r": 1.894,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 39,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.179
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "LONG",
+        "leverage": 6,
+        "signal_idx": 3151,
+        "entry_idx": 3152,
+        "exit_idx": 3157,
+        "entry_time": "2026-09-03 16:00:00+00:00",
+        "exit_time": "2026-09-04 12:00:00+00:00",
+        "entry_ns": 1788451200000000,
+        "exit_ns": 1788523200000000,
+        "entry_price": 0.089221,
+        "exit_price": 0.085586,
+        "net_pnl_usd": -25.1079,
+        "roe_pct": -25.108,
+        "net_r": -1.0556,
+        "mfe_r": 0.212,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 2.963
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "LONG",
+        "leverage": 6,
+        "signal_idx": 3164,
+        "entry_idx": 3165,
+        "exit_idx": 3188,
+        "entry_time": "2026-09-05 20:00:00+00:00",
+        "exit_time": "2026-09-09 16:00:00+00:00",
+        "entry_ns": 1788638400000000,
+        "exit_ns": 1788969600000000,
+        "entry_price": 0.090782,
+        "exit_price": 0.086704,
+        "net_pnl_usd": -28.1101,
+        "roe_pct": -28.11,
+        "net_r": -1.0693,
+        "mfe_r": 0.301,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 24,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.392
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 3199,
+        "entry_idx": 3200,
+        "exit_idx": 3210,
+        "entry_time": "2026-09-11 16:00:00+00:00",
+        "exit_time": "2026-09-13 08:00:00+00:00",
+        "entry_ns": 1789142400000000,
+        "exit_ns": 1789286400000000,
+        "entry_price": 2558.521602,
+        "exit_price": 2469.934905,
+        "net_pnl_usd": -25.0152,
+        "roe_pct": -25.015,
+        "net_r": -1.0617,
+        "mfe_r": 0.279,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.819
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 24,
+        "signal_idx": 3216,
+        "entry_idx": 3217,
+        "exit_idx": 3226,
+        "entry_time": "2026-09-14 12:00:00+00:00",
+        "exit_time": "2026-09-16 00:00:00+00:00",
+        "entry_ns": 1789387200000000,
+        "exit_ns": 1789516800000000,
+        "entry_price": 4293.151198,
+        "exit_price": 4341.386037,
+        "net_pnl_usd": -28.5848,
+        "roe_pct": -28.585,
+        "net_r": -1.1405,
+        "mfe_r": 0.674,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 10,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.268
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 3218,
+        "entry_idx": 3219,
+        "exit_idx": 3221,
+        "entry_time": "2026-09-14 20:00:00+00:00",
+        "exit_time": "2026-09-15 04:00:00+00:00",
+        "entry_ns": 1789416000000000,
+        "exit_ns": 1789444800000000,
+        "entry_price": 1.464212,
+        "exit_price": 1.408663,
+        "net_pnl_usd": -27.2568,
+        "roe_pct": -27.257,
+        "net_r": -1.0567,
+        "mfe_r": 0.508,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.16
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 3238,
+        "entry_idx": 3239,
+        "exit_idx": 3271,
+        "entry_time": "2026-09-18 04:00:00+00:00",
+        "exit_time": "2026-09-23 12:00:00+00:00",
+        "entry_ns": 1789704000000000,
+        "exit_ns": 1790164800000000,
+        "entry_price": 7.949781,
+        "exit_price": 10.221421,
+        "net_pnl_usd": 198.3297,
+        "roe_pct": 198.33,
+        "net_r": 7.5218,
+        "mfe_r": 12.831,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 33,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.982
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 3239,
+        "entry_idx": 3240,
+        "exit_idx": 3271,
+        "entry_time": "2026-09-18 08:00:00+00:00",
+        "exit_time": "2026-09-23 12:00:00+00:00",
+        "entry_ns": 1789718400000000,
+        "exit_ns": 1790164800000000,
+        "entry_price": 105.797016,
+        "exit_price": 113.750174,
+        "net_pnl_usd": 51.0447,
+        "roe_pct": 51.045,
+        "net_r": 2.0735,
+        "mfe_r": 3.815,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 32,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.306
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 22,
+        "signal_idx": 3263,
+        "entry_idx": 3264,
+        "exit_idx": 3266,
+        "entry_time": "2026-09-22 08:00:00+00:00",
+        "exit_time": "2026-09-22 16:00:00+00:00",
+        "entry_ns": 1790064000000000,
+        "exit_ns": 1790092800000000,
+        "entry_price": 4301.129602,
+        "exit_price": 4352.274067,
+        "net_pnl_usd": -28.0301,
+        "roe_pct": -28.03,
+        "net_r": -1.1301,
+        "mfe_r": 0.18,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.77
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 20,
+        "signal_idx": 3271,
+        "entry_idx": 3272,
+        "exit_idx": 3311,
+        "entry_time": "2026-09-23 16:00:00+00:00",
+        "exit_time": "2026-09-30 04:00:00+00:00",
+        "entry_ns": 1790179200000000,
+        "exit_ns": 1790740800000000,
+        "entry_price": 4278.564116,
+        "exit_price": 4200.84,
+        "net_pnl_usd": 35.9355,
+        "roe_pct": 35.936,
+        "net_r": 1.4347,
+        "mfe_r": 2.951,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 40,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.489
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "leverage": 3,
+        "signal_idx": 3282,
+        "entry_idx": 3283,
+        "exit_idx": 3304,
+        "entry_time": "2026-09-25 12:00:00+00:00",
+        "exit_time": "2026-09-29 00:00:00+00:00",
+        "entry_ns": 1790337600000000,
+        "exit_ns": 1790640000000000,
+        "entry_price": 1.139299,
+        "exit_price": 1.11471,
+        "net_pnl_usd": -6.9273,
+        "roe_pct": -6.927,
+        "net_r": -0.3151,
+        "mfe_r": 1.888,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 22,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.382
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 6,
+        "signal_idx": 3282,
+        "entry_idx": 3283,
+        "exit_idx": 3299,
+        "entry_time": "2026-09-25 12:00:00+00:00",
+        "exit_time": "2026-09-28 04:00:00+00:00",
+        "entry_ns": 1790337600000000,
+        "exit_ns": 1790568000000000,
+        "entry_price": 120.822273,
+        "exit_price": 117.948703,
+        "net_pnl_usd": -14.872,
+        "roe_pct": -14.872,
+        "net_r": -0.6367,
+        "mfe_r": 0.886,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 17,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.472
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "LONG",
+        "leverage": 3,
+        "signal_idx": 3305,
+        "entry_idx": 3306,
+        "exit_idx": 3326,
+        "entry_time": "2026-09-29 08:00:00+00:00",
+        "exit_time": "2026-10-02 16:00:00+00:00",
+        "entry_ns": 1790668800000000,
+        "exit_ns": 1790956800000000,
+        "entry_price": 11.455008,
+        "exit_price": 10.595177,
+        "net_pnl_usd": -22.9553,
+        "roe_pct": -22.955,
+        "net_r": -1.0341,
+        "mfe_r": 0.651,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 21,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.401
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 3306,
+        "entry_idx": 3307,
+        "exit_idx": 3311,
+        "entry_time": "2026-09-29 12:00:00+00:00",
+        "exit_time": "2026-09-30 04:00:00+00:00",
+        "entry_ns": 1790683200000000,
+        "exit_ns": 1790740800000000,
+        "entry_price": 2731.676226,
+        "exit_price": 2656.490653,
+        "net_pnl_usd": -25.6787,
+        "roe_pct": -25.679,
+        "net_r": -1.0572,
+        "mfe_r": 0.237,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 5,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.239
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 12,
+        "signal_idx": 3323,
+        "entry_idx": 3324,
+        "exit_idx": 3326,
+        "entry_time": "2026-10-02 08:00:00+00:00",
+        "exit_time": "2026-10-02 16:00:00+00:00",
+        "entry_ns": 1790928000000000,
+        "exit_ns": 1790956800000000,
+        "entry_price": 86081.51286,
+        "exit_price": 84161.088487,
+        "net_pnl_usd": -27.8658,
+        "roe_pct": -27.866,
+        "net_r": -1.0874,
+        "mfe_r": 0.635,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.47
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "leverage": 4,
+        "signal_idx": 3337,
+        "entry_idx": 3338,
+        "exit_idx": 3344,
+        "entry_time": "2026-10-04 16:00:00+00:00",
+        "exit_time": "2026-10-05 16:00:00+00:00",
+        "entry_ns": 1791129600000000,
+        "exit_ns": 1791216000000000,
+        "entry_price": 1.255539,
+        "exit_price": 1.176016,
+        "net_pnl_usd": -25.665,
+        "roe_pct": -25.665,
+        "net_r": -1.0306,
+        "mfe_r": 0.056,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 7,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.939
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "LONG",
+        "leverage": 6,
+        "signal_idx": 3347,
+        "entry_idx": 3348,
+        "exit_idx": 3359,
+        "entry_time": "2026-10-06 08:00:00+00:00",
+        "exit_time": "2026-10-08 04:00:00+00:00",
+        "entry_ns": 1791273600000000,
+        "exit_ns": 1791432000000000,
+        "entry_price": 11.338967,
+        "exit_price": 10.836264,
+        "net_pnl_usd": -27.316,
+        "roe_pct": -27.316,
+        "net_r": -1.053,
+        "mfe_r": 0.789,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.159
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 16,
+        "signal_idx": 3379,
+        "entry_idx": 3380,
+        "exit_idx": 3385,
+        "entry_time": "2026-10-11 16:00:00+00:00",
+        "exit_time": "2026-10-12 12:00:00+00:00",
+        "entry_ns": 1791734400000000,
+        "exit_ns": 1791806400000000,
+        "entry_price": 83885.57376,
+        "exit_price": 82544.796469,
+        "net_pnl_usd": -27.0439,
+        "roe_pct": -27.044,
+        "net_r": -1.1046,
+        "mfe_r": 0.354,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.575
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 8,
+        "signal_idx": 3386,
+        "entry_idx": 3387,
+        "exit_idx": 3424,
+        "entry_time": "2026-10-12 20:00:00+00:00",
+        "exit_time": "2026-10-19 00:00:00+00:00",
+        "entry_ns": 1791835200000000,
+        "exit_ns": 1792368000000000,
+        "entry_price": 1.363922,
+        "exit_price": 1.310258,
+        "net_pnl_usd": 30.6176,
+        "roe_pct": 30.618,
+        "net_r": 1.2538,
+        "mfe_r": 2.609,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 38,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.221
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 3387,
+        "entry_idx": 3388,
+        "exit_idx": 3396,
+        "entry_time": "2026-10-13 00:00:00+00:00",
+        "exit_time": "2026-10-14 08:00:00+00:00",
+        "entry_ns": 1791849600000000,
+        "exit_ns": 1791964800000000,
+        "entry_price": 0.082161,
+        "exit_price": 0.085366,
+        "net_pnl_usd": -27.8477,
+        "roe_pct": -27.848,
+        "net_r": -1.0522,
+        "mfe_r": 0.734,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 9,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.998
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 29,
+        "signal_idx": 3396,
+        "entry_idx": 3397,
+        "exit_idx": 3404,
+        "entry_time": "2026-10-14 12:00:00+00:00",
+        "exit_time": "2026-10-15 16:00:00+00:00",
+        "entry_ns": 1791979200000000,
+        "exit_ns": 1792080000000000,
+        "entry_price": 4142.731288,
+        "exit_price": 4176.715176,
+        "net_pnl_usd": -26.2013,
+        "roe_pct": -26.201,
+        "net_r": -1.0632,
+        "mfe_r": 1.64,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 8,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.208
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 3422,
+        "entry_idx": 3423,
+        "exit_idx": 3424,
+        "entry_time": "2026-10-18 20:00:00+00:00",
+        "exit_time": "2026-10-19 00:00:00+00:00",
+        "entry_ns": 1792353600000000,
+        "exit_ns": 1792368000000000,
+        "entry_price": 100.73473,
+        "exit_price": 104.67927,
+        "net_pnl_usd": -28.0294,
+        "roe_pct": -28.029,
+        "net_r": -1.0547,
+        "mfe_r": 0.08,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.026
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 30,
+        "signal_idx": 3427,
+        "entry_idx": 3428,
+        "exit_idx": 3464,
+        "entry_time": "2026-10-19 16:00:00+00:00",
+        "exit_time": "2026-10-25 16:00:00+00:00",
+        "entry_ns": 1792425600000000,
+        "exit_ns": 1792944000000000,
+        "entry_price": 4139.911852,
+        "exit_price": 4008.931626,
+        "net_pnl_usd": 94.008,
+        "roe_pct": 94.008,
+        "net_r": 3.8034,
+        "mfe_r": 4.619,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 37,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.087
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 13,
+        "signal_idx": 3438,
+        "entry_idx": 3439,
+        "exit_idx": 3444,
+        "entry_time": "2026-10-21 12:00:00+00:00",
+        "exit_time": "2026-10-22 08:00:00+00:00",
+        "entry_ns": 1792584000000000,
+        "exit_ns": 1792656000000000,
+        "entry_price": 83479.99266,
+        "exit_price": 81850.500447,
+        "net_pnl_usd": -26.7267,
+        "roe_pct": -26.727,
+        "net_r": -1.0807,
+        "mfe_r": 0.878,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 6,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.055
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "leverage": 5,
+        "signal_idx": 3439,
+        "entry_idx": 3440,
+        "exit_idx": 3443,
+        "entry_time": "2026-10-21 16:00:00+00:00",
+        "exit_time": "2026-10-22 04:00:00+00:00",
+        "entry_ns": 1792598400000000,
+        "exit_ns": 1792641600000000,
+        "entry_price": 1.049467,
+        "exit_price": 0.996082,
+        "net_pnl_usd": -25.8857,
+        "roe_pct": -25.886,
+        "net_r": -1.0383,
+        "mfe_r": 0.132,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 4,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.21
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "signal_idx": 3443,
+        "entry_idx": 3444,
+        "exit_idx": 3502,
+        "entry_time": "2026-10-22 08:00:00+00:00",
+        "exit_time": "2026-11-01 00:00:00+00:00",
+        "entry_ns": 1792656000000000,
+        "exit_ns": 1793491200000000,
+        "entry_price": 9.302743,
+        "exit_price": 8.652027,
+        "net_pnl_usd": 34.6407,
+        "roe_pct": 34.641,
+        "net_r": 1.3577,
+        "mfe_r": 2.759,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 59,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.017
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 3489,
+        "entry_idx": 3490,
+        "exit_idx": 3523,
+        "entry_time": "2026-10-30 00:00:00+00:00",
+        "exit_time": "2026-11-04 12:00:00+00:00",
+        "entry_ns": 1793318400000000,
+        "exit_ns": 1793793600000000,
+        "entry_price": 95.586533,
+        "exit_price": 96.723842,
+        "net_pnl_usd": -6.8094,
+        "roe_pct": -6.809,
+        "net_r": -0.2828,
+        "mfe_r": 1.509,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 34,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.82
+      }
+    ],
+    "reference": {
+      "source": "benchmark_argon_vs_carbon_results.json",
+      "oos_window": "2025-12-02 -> 2026-10-31",
+      "argon_static_oos": {
+        "total_trades": 130,
+        "win_rate_pct": 53.08,
+        "profit_factor": 0.923,
+        "expectancy_r": -0.0389,
+        "expectancy_usd": -0.98,
+        "total_net_pnl_usd": -126.77,
+        "max_drawdown_usd": 476.97,
+        "return_over_dd": -0.27,
+        "sharpe_annualized": -0.41,
+        "sortino_annualized": -0.2,
+        "avg_win_usd": 22.15,
+        "avg_loss_usd": 27.14,
+        "payoff_ratio": 0.82,
+        "oos_days": 333.3
+      },
+      "argon_walkforward_oos": {
+        "total_trades": 123,
+        "win_rate_pct": 47.15,
+        "profit_factor": 0.715,
+        "expectancy_r": -0.1755,
+        "expectancy_usd": -4.36,
+        "total_net_pnl_usd": -536.56,
+        "max_drawdown_usd": 677.67,
+        "return_over_dd": -0.79,
+        "sharpe_annualized": -1.62,
+        "sortino_annualized": -0.73,
+        "avg_win_usd": 23.2,
+        "avg_loss_usd": 28.95,
+        "payoff_ratio": 0.8,
+        "oos_days": 333.3
+      },
+      "carbon_v2_walkforward_oos": {
+        "total_trades": 76,
+        "win_rate_pct": 44.74,
+        "profit_factor": 1.26,
+        "expectancy_r": 0.112,
+        "expectancy_usd": 3.25,
+        "total_net_pnl_usd": 247.26,
+        "max_drawdown_usd": 249.52,
+        "return_over_dd": 0.99,
+        "sharpe_annualized": 0.88,
+        "sortino_annualized": 0.47,
+        "avg_win_usd": 35.26,
+        "avg_loss_usd": 22.65,
+        "payoff_ratio": 1.56,
+        "oos_days": 333.3
+      },
+      "carbon_v2_equity_curve": [
+        {
+          "date": "2025-12-11",
+          "pnl": 0.0
+        },
+        {
+          "date": "2025-12-14",
+          "pnl": 9.78
+        },
+        {
+          "date": "2025-12-17",
+          "pnl": 63.17
+        },
+        {
+          "date": "2025-12-20",
+          "pnl": 29.29
+        },
+        {
+          "date": "2025-12-23",
+          "pnl": 9.81
+        },
+        {
+          "date": "2025-12-26",
+          "pnl": -54.66
+        },
+        {
+          "date": "2025-12-29",
+          "pnl": -58.13
+        },
+        {
+          "date": "2026-01-01",
+          "pnl": -126.11
+        },
+        {
+          "date": "2026-01-04",
+          "pnl": -126.11
+        },
+        {
+          "date": "2026-01-07",
+          "pnl": -126.11
+        },
+        {
+          "date": "2026-01-10",
+          "pnl": -126.11
+        },
+        {
+          "date": "2026-01-13",
+          "pnl": -126.11
+        },
+        {
+          "date": "2026-01-16",
+          "pnl": -126.78
+        },
+        {
+          "date": "2026-01-19",
+          "pnl": -126.78
+        },
+        {
+          "date": "2026-01-22",
+          "pnl": -126.78
+        },
+        {
+          "date": "2026-01-25",
+          "pnl": -126.78
+        },
+        {
+          "date": "2026-01-28",
+          "pnl": -126.78
+        },
+        {
+          "date": "2026-01-31",
+          "pnl": 55.89
+        },
+        {
+          "date": "2026-02-03",
+          "pnl": 148.64
+        },
+        {
+          "date": "2026-02-06",
+          "pnl": 186.6
+        },
+        {
+          "date": "2026-02-09",
+          "pnl": 186.6
+        },
+        {
+          "date": "2026-02-12",
+          "pnl": 152.12
+        },
+        {
+          "date": "2026-02-15",
+          "pnl": 121.98
+        },
+        {
+          "date": "2026-02-18",
+          "pnl": 121.98
+        },
+        {
+          "date": "2026-02-21",
+          "pnl": 86.39
+        },
+        {
+          "date": "2026-02-24",
+          "pnl": 128.38
+        },
+        {
+          "date": "2026-02-27",
+          "pnl": 93.76
+        },
+        {
+          "date": "2026-03-02",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-05",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-08",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-11",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-14",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-17",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-20",
+          "pnl": 50.43
+        },
+        {
+          "date": "2026-03-23",
+          "pnl": 66.04
+        },
+        {
+          "date": "2026-03-26",
+          "pnl": 66.04
+        },
+        {
+          "date": "2026-03-29",
+          "pnl": 66.04
+        },
+        {
+          "date": "2026-04-01",
+          "pnl": 49.27
+        },
+        {
+          "date": "2026-04-04",
+          "pnl": 49.27
+        },
+        {
+          "date": "2026-04-07",
+          "pnl": 21.38
+        },
+        {
+          "date": "2026-04-10",
+          "pnl": 21.38
+        },
+        {
+          "date": "2026-04-13",
+          "pnl": -2.1
+        },
+        {
+          "date": "2026-04-16",
+          "pnl": -2.1
+        },
+        {
+          "date": "2026-04-19",
+          "pnl": 22.69
+        },
+        {
+          "date": "2026-04-22",
+          "pnl": 22.69
+        },
+        {
+          "date": "2026-04-25",
+          "pnl": 0.42
+        },
+        {
+          "date": "2026-04-28",
+          "pnl": 0.42
+        },
+        {
+          "date": "2026-05-01",
+          "pnl": -26.37
+        },
+        {
+          "date": "2026-05-04",
+          "pnl": -49.49
+        },
+        {
+          "date": "2026-05-07",
+          "pnl": -62.92
+        },
+        {
+          "date": "2026-05-10",
+          "pnl": -62.92
+        },
+        {
+          "date": "2026-05-13",
+          "pnl": -51.77
+        },
+        {
+          "date": "2026-05-16",
+          "pnl": -51.77
+        },
+        {
+          "date": "2026-05-19",
+          "pnl": -51.77
+        },
+        {
+          "date": "2026-05-22",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-05-25",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-05-28",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-05-31",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-06-03",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-06-06",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-06-09",
+          "pnl": -25.09
+        },
+        {
+          "date": "2026-06-12",
+          "pnl": 14.53
+        },
+        {
+          "date": "2026-06-15",
+          "pnl": 14.53
+        },
+        {
+          "date": "2026-06-18",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-06-21",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-06-24",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-06-27",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-06-30",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-03",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-06",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-09",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-12",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-15",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-18",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-21",
+          "pnl": 13.09
+        },
+        {
+          "date": "2026-07-24",
+          "pnl": -12.68
+        },
+        {
+          "date": "2026-07-27",
+          "pnl": -61.36
+        },
+        {
+          "date": "2026-07-30",
+          "pnl": -61.36
+        },
+        {
+          "date": "2026-08-02",
+          "pnl": -61.36
+        },
+        {
+          "date": "2026-08-05",
+          "pnl": -61.36
+        },
+        {
+          "date": "2026-08-08",
+          "pnl": -61.36
+        },
+        {
+          "date": "2026-08-11",
+          "pnl": -42.54
+        },
+        {
+          "date": "2026-08-14",
+          "pnl": -2.85
+        },
+        {
+          "date": "2026-08-17",
+          "pnl": 22.29
+        },
+        {
+          "date": "2026-08-20",
+          "pnl": 75.18
+        },
+        {
+          "date": "2026-08-23",
+          "pnl": 75.18
+        },
+        {
+          "date": "2026-08-26",
+          "pnl": 75.18
+        },
+        {
+          "date": "2026-08-29",
+          "pnl": 75.18
+        },
+        {
+          "date": "2026-09-01",
+          "pnl": 75.18
+        },
+        {
+          "date": "2026-09-04",
+          "pnl": 130.89
+        },
+        {
+          "date": "2026-09-07",
+          "pnl": 130.89
+        },
+        {
+          "date": "2026-09-10",
+          "pnl": 118.58
+        },
+        {
+          "date": "2026-09-13",
+          "pnl": 106.38
+        },
+        {
+          "date": "2026-09-16",
+          "pnl": 135.28
+        },
+        {
+          "date": "2026-09-19",
+          "pnl": 182.98
+        },
+        {
+          "date": "2026-09-22",
+          "pnl": 182.98
+        },
+        {
+          "date": "2026-09-25",
+          "pnl": 215.5
+        },
+        {
+          "date": "2026-09-28",
+          "pnl": 186.28
+        },
+        {
+          "date": "2026-10-01",
+          "pnl": 178.36
+        },
+        {
+          "date": "2026-10-04",
+          "pnl": 180.41
+        },
+        {
+          "date": "2026-10-07",
+          "pnl": 154.14
+        },
+        {
+          "date": "2026-10-10",
+          "pnl": 99.6
+        },
+        {
+          "date": "2026-10-13",
+          "pnl": 156.0
+        },
+        {
+          "date": "2026-10-16",
+          "pnl": 174.68
+        },
+        {
+          "date": "2026-10-19",
+          "pnl": 153.4
+        },
+        {
+          "date": "2026-10-22",
+          "pnl": 208.93
+        },
+        {
+          "date": "2026-10-25",
+          "pnl": 250.84
+        },
+        {
+          "date": "2026-10-28",
+          "pnl": 250.84
+        },
+        {
+          "date": "2026-10-31",
+          "pnl": 250.84
+        },
+        {
+          "date": "2026-11-02",
+          "pnl": 247.26
+        }
+      ]
+    }
+  },
+  "1h": {
+    "oos_window": "2026-05-28 -> 2026-11-10",
+    "oos_days": 166.6,
+    "simulator_equivalence": {
+      "passed": true,
+      "carbon_trades_repriced": 985,
+      "max_abs_pnl_diff_usd": 0.0
+    },
+    "causality_check": {
+      "passed": true,
+      "points_verified": 18,
+      "max_abs_diff": 0.0
+    },
+    "krypton_v3_oos": {
+      "total_trades": 55,
+      "win_rate_pct": 27.27,
+      "profit_factor": 1.798,
+      "expectancy_r": 0.6028,
+      "expectancy_usd": 14.93,
+      "total_net_pnl_usd": 821.11,
+      "max_drawdown_usd": 476.73,
+      "return_over_dd": 1.72,
+      "sharpe_annualized": 1.68,
+      "sortino_annualized": 2.54,
+      "avg_win_usd": 123.33,
+      "avg_loss_usd": 25.72,
+      "payoff_ratio": 4.79,
+      "oos_days": 166.6,
+      "equity_curve": [
+        {
+          "date": "2026-05-28",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-05-29",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-05-30",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-05-31",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-01",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-02",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-03",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-04",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-05",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-06",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-07",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-08",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-09",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-10",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-11",
+          "pnl": -28.77
+        },
+        {
+          "date": "2026-06-12",
+          "pnl": 174.01
+        },
+        {
+          "date": "2026-06-13",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-14",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-15",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-16",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-17",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-18",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-19",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-20",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-21",
+          "pnl": 243.66
+        },
+        {
+          "date": "2026-06-22",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-23",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-24",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-25",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-26",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-27",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-28",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-29",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-06-30",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-07-01",
+          "pnl": 236.94
+        },
+        {
+          "date": "2026-07-02",
+          "pnl": 326.4
+        },
+        {
+          "date": "2026-07-03",
+          "pnl": 326.4
+        },
+        {
+          "date": "2026-07-04",
+          "pnl": 326.4
+        },
+        {
+          "date": "2026-07-05",
+          "pnl": 300.23
+        },
+        {
+          "date": "2026-07-06",
+          "pnl": 300.23
+        },
+        {
+          "date": "2026-07-07",
+          "pnl": 300.23
+        },
+        {
+          "date": "2026-07-08",
+          "pnl": 300.23
+        },
+        {
+          "date": "2026-07-09",
+          "pnl": 248.67
+        },
+        {
+          "date": "2026-07-10",
+          "pnl": 248.67
+        },
+        {
+          "date": "2026-07-11",
+          "pnl": 248.67
+        },
+        {
+          "date": "2026-07-12",
+          "pnl": 248.67
+        },
+        {
+          "date": "2026-07-13",
+          "pnl": 248.67
+        },
+        {
+          "date": "2026-07-14",
+          "pnl": 190.65
+        },
+        {
+          "date": "2026-07-15",
+          "pnl": 190.65
+        },
+        {
+          "date": "2026-07-16",
+          "pnl": 190.65
+        },
+        {
+          "date": "2026-07-17",
+          "pnl": 134.01
+        },
+        {
+          "date": "2026-07-18",
+          "pnl": 134.01
+        },
+        {
+          "date": "2026-07-19",
+          "pnl": 134.01
+        },
+        {
+          "date": "2026-07-20",
+          "pnl": 134.01
+        },
+        {
+          "date": "2026-07-21",
+          "pnl": 134.01
+        },
+        {
+          "date": "2026-07-22",
+          "pnl": 134.01
+        },
+        {
+          "date": "2026-07-23",
+          "pnl": 106.66
+        },
+        {
+          "date": "2026-07-24",
+          "pnl": 106.66
+        },
+        {
+          "date": "2026-07-25",
+          "pnl": 51.28
+        },
+        {
+          "date": "2026-07-26",
+          "pnl": 51.28
+        },
+        {
+          "date": "2026-07-27",
+          "pnl": 51.28
+        },
+        {
+          "date": "2026-07-28",
+          "pnl": 51.28
+        },
+        {
+          "date": "2026-07-29",
+          "pnl": 23.86
+        },
+        {
+          "date": "2026-07-30",
+          "pnl": -3.88
+        },
+        {
+          "date": "2026-07-31",
+          "pnl": -3.88
+        },
+        {
+          "date": "2026-08-01",
+          "pnl": -3.88
+        },
+        {
+          "date": "2026-08-02",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-03",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-04",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-05",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-06",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-07",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-08",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-09",
+          "pnl": -56.98
+        },
+        {
+          "date": "2026-08-10",
+          "pnl": -84.78
+        },
+        {
+          "date": "2026-08-11",
+          "pnl": -84.78
+        },
+        {
+          "date": "2026-08-12",
+          "pnl": -112.8
+        },
+        {
+          "date": "2026-08-13",
+          "pnl": -112.8
+        },
+        {
+          "date": "2026-08-14",
+          "pnl": -103.75
+        },
+        {
+          "date": "2026-08-15",
+          "pnl": -103.75
+        },
+        {
+          "date": "2026-08-16",
+          "pnl": -103.75
+        },
+        {
+          "date": "2026-08-17",
+          "pnl": -123.65
+        },
+        {
+          "date": "2026-08-18",
+          "pnl": -150.33
+        },
+        {
+          "date": "2026-08-19",
+          "pnl": -116.32
+        },
+        {
+          "date": "2026-08-20",
+          "pnl": -116.32
+        },
+        {
+          "date": "2026-08-21",
+          "pnl": -116.32
+        },
+        {
+          "date": "2026-08-22",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-23",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-24",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-25",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-26",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-27",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-28",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-29",
+          "pnl": 181.65
+        },
+        {
+          "date": "2026-08-30",
+          "pnl": 153.52
+        },
+        {
+          "date": "2026-08-31",
+          "pnl": 153.52
+        },
+        {
+          "date": "2026-09-01",
+          "pnl": 153.52
+        },
+        {
+          "date": "2026-09-02",
+          "pnl": 621.43
+        },
+        {
+          "date": "2026-09-03",
+          "pnl": 621.43
+        },
+        {
+          "date": "2026-09-04",
+          "pnl": 565.87
+        },
+        {
+          "date": "2026-09-05",
+          "pnl": 537.99
+        },
+        {
+          "date": "2026-09-06",
+          "pnl": 537.99
+        },
+        {
+          "date": "2026-09-07",
+          "pnl": 537.99
+        },
+        {
+          "date": "2026-09-08",
+          "pnl": 537.99
+        },
+        {
+          "date": "2026-09-09",
+          "pnl": 509.08
+        },
+        {
+          "date": "2026-09-10",
+          "pnl": 509.08
+        },
+        {
+          "date": "2026-09-11",
+          "pnl": 481.23
+        },
+        {
+          "date": "2026-09-12",
+          "pnl": 481.23
+        },
+        {
+          "date": "2026-09-13",
+          "pnl": 481.23
+        },
+        {
+          "date": "2026-09-14",
+          "pnl": 454.58
+        },
+        {
+          "date": "2026-09-15",
+          "pnl": 454.58
+        },
+        {
+          "date": "2026-09-16",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-17",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-18",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-19",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-20",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-21",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-22",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-23",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-24",
+          "pnl": 426.24
+        },
+        {
+          "date": "2026-09-25",
+          "pnl": 398.12
+        },
+        {
+          "date": "2026-09-26",
+          "pnl": 398.12
+        },
+        {
+          "date": "2026-09-27",
+          "pnl": 398.12
+        },
+        {
+          "date": "2026-09-28",
+          "pnl": 398.12
+        },
+        {
+          "date": "2026-09-29",
+          "pnl": 501.34
+        },
+        {
+          "date": "2026-09-30",
+          "pnl": 473.95
+        },
+        {
+          "date": "2026-10-01",
+          "pnl": 473.95
+        },
+        {
+          "date": "2026-10-02",
+          "pnl": 740.36
+        },
+        {
+          "date": "2026-10-03",
+          "pnl": 740.36
+        },
+        {
+          "date": "2026-10-04",
+          "pnl": 740.36
+        },
+        {
+          "date": "2026-10-05",
+          "pnl": 740.36
+        },
+        {
+          "date": "2026-10-06",
+          "pnl": 790.21
+        },
+        {
+          "date": "2026-10-07",
+          "pnl": 760.89
+        },
+        {
+          "date": "2026-10-08",
+          "pnl": 760.89
+        },
+        {
+          "date": "2026-10-09",
+          "pnl": 760.89
+        },
+        {
+          "date": "2026-10-10",
+          "pnl": 760.89
+        },
+        {
+          "date": "2026-10-11",
+          "pnl": 760.89
+        },
+        {
+          "date": "2026-10-12",
+          "pnl": 760.89
+        },
+        {
+          "date": "2026-10-13",
+          "pnl": 734.51
+        },
+        {
+          "date": "2026-10-14",
+          "pnl": 734.51
+        },
+        {
+          "date": "2026-10-15",
+          "pnl": 676.84
+        },
+        {
+          "date": "2026-10-16",
+          "pnl": 676.84
+        },
+        {
+          "date": "2026-10-17",
+          "pnl": 676.84
+        },
+        {
+          "date": "2026-10-18",
+          "pnl": 622.34
+        },
+        {
+          "date": "2026-10-19",
+          "pnl": 622.34
+        },
+        {
+          "date": "2026-10-20",
+          "pnl": 622.34
+        },
+        {
+          "date": "2026-10-21",
+          "pnl": 622.34
+        },
+        {
+          "date": "2026-10-22",
+          "pnl": 594.72
+        },
+        {
+          "date": "2026-10-23",
+          "pnl": 594.72
+        },
+        {
+          "date": "2026-10-24",
+          "pnl": 594.72
+        },
+        {
+          "date": "2026-10-25",
+          "pnl": 594.72
+        },
+        {
+          "date": "2026-10-26",
+          "pnl": 594.72
+        },
+        {
+          "date": "2026-10-27",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-10-28",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-10-29",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-10-30",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-10-31",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-11-01",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-11-02",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-11-03",
+          "pnl": 626.25
+        },
+        {
+          "date": "2026-11-04",
+          "pnl": 631.72
+        },
+        {
+          "date": "2026-11-05",
+          "pnl": 631.72
+        },
+        {
+          "date": "2026-11-06",
+          "pnl": 631.72
+        },
+        {
+          "date": "2026-11-07",
+          "pnl": 631.72
+        },
+        {
+          "date": "2026-11-08",
+          "pnl": 631.72
+        },
+        {
+          "date": "2026-11-09",
+          "pnl": 631.72
+        },
+        {
+          "date": "2026-11-10",
+          "pnl": 821.11
+        }
+      ]
+    },
+    "krypton_v3_oos_2x_costs": {
+      "total_trades": 55,
+      "win_rate_pct": 27.27,
+      "profit_factor": 1.606,
+      "expectancy_r": 0.5036,
+      "expectancy_usd": 12.44,
+      "total_net_pnl_usd": 684.44,
+      "max_drawdown_usd": 524.9,
+      "return_over_dd": 1.3,
+      "sharpe_annualized": 1.41,
+      "sortino_annualized": 1.94,
+      "avg_win_usd": 120.87,
+      "avg_loss_usd": 28.22,
+      "payoff_ratio": 4.28,
+      "oos_days": 166.6
+    },
+    "krypton_bootstrap": {
+      "p_total_pnl_gt_0": 0.882,
+      "pnl_ci90_low": -248.19,
+      "pnl_ci90_high": 2040.03,
+      "exp_r_ci90_low": -0.178,
+      "exp_r_ci90_high": 1.495,
+      "t_stat_mean_r": 1.16
+    },
+    "krypton_per_symbol": {
+      "AVAXUSDT": {
+        "total_trades": 6,
+        "win_rate_pct": 33.33,
+        "profit_factor": 2.806,
+        "expectancy_r": 1.2777,
+        "expectancy_usd": 32.73,
+        "total_net_pnl_usd": 196.41,
+        "max_drawdown_usd": 108.77,
+        "return_over_dd": 1.81,
+        "sharpe_annualized": 1.15,
+        "sortino_annualized": 1.15,
+        "avg_win_usd": 152.59,
+        "avg_loss_usd": 27.19,
+        "payoff_ratio": 5.61,
+        "oos_days": 166.6
+      },
+      "BTCUSDT": {
+        "total_trades": 7,
+        "win_rate_pct": 14.29,
+        "profit_factor": 1.284,
+        "expectancy_r": 0.2207,
+        "expectancy_usd": 6.41,
+        "total_net_pnl_usd": 44.85,
+        "max_drawdown_usd": 157.93,
+        "return_over_dd": 0.28,
+        "sharpe_annualized": 0.33,
+        "sortino_annualized": 0.22,
+        "avg_win_usd": 202.78,
+        "avg_loss_usd": 26.32,
+        "payoff_ratio": 7.7,
+        "oos_days": 166.6
+      },
+      "DOGEUSDT": {
+        "total_trades": 7,
+        "win_rate_pct": 28.57,
+        "profit_factor": 1.06,
+        "expectancy_r": 0.0614,
+        "expectancy_usd": 0.99,
+        "total_net_pnl_usd": 6.9,
+        "max_drawdown_usd": 109.72,
+        "return_over_dd": 0.06,
+        "sharpe_annualized": 0.11,
+        "sortino_annualized": 0.04,
+        "avg_win_usd": 60.84,
+        "avg_loss_usd": 22.96,
+        "payoff_ratio": 2.65,
+        "oos_days": 166.6
+      },
+      "ETHUSDT": {
+        "total_trades": 5,
+        "win_rate_pct": 20.0,
+        "profit_factor": 4.201,
+        "expectancy_r": 2.912,
+        "expectancy_usd": 71.31,
+        "total_net_pnl_usd": 356.53,
+        "max_drawdown_usd": 56.08,
+        "return_over_dd": 6.36,
+        "sharpe_annualized": 1.5,
+        "sortino_annualized": 2.6,
+        "avg_win_usd": 467.9,
+        "avg_loss_usd": 27.84,
+        "payoff_ratio": 16.8,
+        "oos_days": 166.6
+      },
+      "SOLUSDT": {
+        "total_trades": 7,
+        "win_rate_pct": 28.57,
+        "profit_factor": 3.51,
+        "expectancy_r": 1.6358,
+        "expectancy_usd": 40.98,
+        "total_net_pnl_usd": 286.89,
+        "max_drawdown_usd": 80.69,
+        "return_over_dd": 3.56,
+        "sharpe_annualized": 1.54,
+        "sortino_annualized": 1.81,
+        "avg_win_usd": 200.59,
+        "avg_loss_usd": 22.86,
+        "payoff_ratio": 8.77,
+        "oos_days": 166.6
+      },
+      "SUIUSDT": {
+        "total_trades": 5,
+        "win_rate_pct": 20.0,
+        "profit_factor": 0.848,
+        "expectancy_r": -0.0756,
+        "expectancy_usd": -2.49,
+        "total_net_pnl_usd": -12.45,
+        "max_drawdown_usd": 82.1,
+        "return_over_dd": -0.15,
+        "sharpe_annualized": -0.28,
+        "sortino_annualized": -0.1,
+        "avg_win_usd": 69.65,
+        "avg_loss_usd": 20.52,
+        "payoff_ratio": 3.39,
+        "oos_days": 166.6
+      },
+      "XAUUSDT": {
+        "total_trades": 10,
+        "win_rate_pct": 30.0,
+        "profit_factor": 0.442,
+        "expectancy_r": -0.4547,
+        "expectancy_usd": -11.42,
+        "total_net_pnl_usd": -114.17,
+        "max_drawdown_usd": 145.7,
+        "return_over_dd": -0.78,
+        "sharpe_annualized": -1.81,
+        "sortino_annualized": -0.49,
+        "avg_win_usd": 30.15,
+        "avg_loss_usd": 29.23,
+        "payoff_ratio": 1.03,
+        "oos_days": 166.6
+      },
+      "XRPUSDT": {
+        "total_trades": 8,
+        "win_rate_pct": 37.5,
+        "profit_factor": 1.416,
+        "expectancy_r": 0.3031,
+        "expectancy_usd": 7.02,
+        "total_net_pnl_usd": 56.16,
+        "max_drawdown_usd": 101.02,
+        "return_over_dd": 0.56,
+        "sharpe_annualized": 0.6,
+        "sortino_annualized": 0.28,
+        "avg_win_usd": 63.73,
+        "avg_loss_usd": 27.0,
+        "payoff_ratio": 2.36,
+        "oos_days": 166.6
+      }
+    },
+    "krypton_per_side": {
+      "LONG": {
+        "total_trades": 19,
+        "win_rate_pct": 26.32,
+        "profit_factor": 3.026,
+        "expectancy_r": 1.6661,
+        "expectancy_usd": 41.31,
+        "total_net_pnl_usd": 784.97,
+        "max_drawdown_usd": 166.84,
+        "return_over_dd": 4.7,
+        "sharpe_annualized": 2.26,
+        "sortino_annualized": 4.37,
+        "avg_win_usd": 234.47,
+        "avg_loss_usd": 27.67,
+        "payoff_ratio": 8.47,
+        "oos_days": 166.6
+      },
+      "SHORT": {
+        "total_trades": 36,
+        "win_rate_pct": 27.78,
+        "profit_factor": 1.056,
+        "expectancy_r": 0.0415,
+        "expectancy_usd": 1.0,
+        "total_net_pnl_usd": 36.14,
+        "max_drawdown_usd": 516.66,
+        "return_over_dd": 0.07,
+        "sharpe_annualized": 0.15,
+        "sortino_annualized": 0.11,
+        "avg_win_usd": 67.76,
+        "avg_loss_usd": 24.67,
+        "payoff_ratio": 2.75,
+        "oos_days": 166.6
+      }
+    },
+    "krypton_exit_reasons": {
+      "CHANNEL_EXIT": 15,
+      "STOP_LOSS": 36,
+      "TIME_STOP": 2,
+      "TRAIL_STOP": 2
+    },
+    "krypton_trades": [
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 27,
+        "signal_idx": 2000,
+        "entry_idx": 2001,
+        "exit_idx": 2012,
+        "entry_time": "2026-05-28 03:00:00+00:00",
+        "exit_time": "2026-05-28 14:00:00+00:00",
+        "entry_ns": 1779937200000000,
+        "exit_ns": 1779976800000000,
+        "entry_price": 4398.240176,
+        "exit_price": 4441.280026,
+        "net_pnl_usd": -28.7731,
+        "roe_pct": -28.773,
+        "net_r": -1.1708,
+        "mfe_r": 0.664,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.672
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "leverage": 16,
+        "signal_idx": 2001,
+        "entry_idx": 2002,
+        "exit_idx": 2372,
+        "entry_time": "2026-05-28 04:00:00+00:00",
+        "exit_time": "2026-06-12 14:00:00+00:00",
+        "entry_ns": 1779940800000000,
+        "exit_ns": 1781272800000000,
+        "entry_price": 73209.75512,
+        "exit_price": 63983.7942,
+        "net_pnl_usd": 202.7827,
+        "roe_pct": 202.783,
+        "net_r": 7.8793,
+        "mfe_r": 11.999,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 371,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 2.184
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2084,
+        "entry_idx": 2085,
+        "exit_idx": 2394,
+        "entry_time": "2026-05-31 15:00:00+00:00",
+        "exit_time": "2026-06-13 12:00:00+00:00",
+        "entry_ns": 1780239600000000,
+        "exit_ns": 1781352000000000,
+        "entry_price": 0.875893,
+        "exit_price": 0.774571,
+        "net_pnl_usd": 69.647,
+        "roe_pct": 69.647,
+        "net_r": 2.9108,
+        "mfe_r": 6.147,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 310,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.245
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 2507,
+        "entry_idx": 2508,
+        "exit_idx": 2610,
+        "entry_time": "2026-06-18 06:00:00+00:00",
+        "exit_time": "2026-06-22 12:00:00+00:00",
+        "entry_ns": 1781762400000000,
+        "exit_ns": 1782129600000000,
+        "entry_price": 0.084201,
+        "exit_price": 0.0846,
+        "net_pnl_usd": -5.077,
+        "roe_pct": -5.077,
+        "net_r": -0.1953,
+        "mfe_r": 0.995,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 103,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.136
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 6,
+        "signal_idx": 2515,
+        "entry_idx": 2516,
+        "exit_idx": 2609,
+        "entry_time": "2026-06-18 14:00:00+00:00",
+        "exit_time": "2026-06-22 11:00:00+00:00",
+        "entry_ns": 1781791200000000,
+        "exit_ns": 1782126000000000,
+        "entry_price": 0.737442,
+        "exit_price": 0.738658,
+        "net_pnl_usd": -1.6408,
+        "roe_pct": -1.641,
+        "net_r": -0.0657,
+        "mfe_r": 1.616,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 94,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.039
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 10,
+        "signal_idx": 2626,
+        "entry_idx": 2627,
+        "exit_idx": 2849,
+        "entry_time": "2026-06-23 05:00:00+00:00",
+        "exit_time": "2026-07-02 11:00:00+00:00",
+        "entry_ns": 1782190800000000,
+        "exit_ns": 1782990000000000,
+        "entry_price": 1.116509,
+        "exit_price": 1.083979,
+        "net_pnl_usd": 26.4923,
+        "roe_pct": 26.492,
+        "net_r": 1.086,
+        "mfe_r": 3.98,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 223,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.154
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 10,
+        "signal_idx": 2628,
+        "entry_idx": 2629,
+        "exit_idx": 2851,
+        "entry_time": "2026-06-23 07:00:00+00:00",
+        "exit_time": "2026-07-02 13:00:00+00:00",
+        "entry_ns": 1782198000000000,
+        "exit_ns": 1782997200000000,
+        "entry_price": 0.080162,
+        "exit_price": 0.075066,
+        "net_pnl_usd": 62.9722,
+        "roe_pct": 62.972,
+        "net_r": 2.6251,
+        "mfe_r": 5.565,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 223,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.467
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 2890,
+        "entry_idx": 2891,
+        "exit_idx": 2911,
+        "entry_time": "2026-07-04 05:00:00+00:00",
+        "exit_time": "2026-07-05 01:00:00+00:00",
+        "entry_ns": 1783141200000000,
+        "exit_ns": 1783213200000000,
+        "entry_price": 83.469204,
+        "exit_price": 80.831921,
+        "net_pnl_usd": -26.1753,
+        "roe_pct": -26.175,
+        "net_r": -1.0616,
+        "mfe_r": 0.039,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 21,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.245
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 8,
+        "signal_idx": 2983,
+        "entry_idx": 2984,
+        "exit_idx": 3012,
+        "entry_time": "2026-07-08 02:00:00+00:00",
+        "exit_time": "2026-07-09 06:00:00+00:00",
+        "entry_ns": 1783476000000000,
+        "exit_ns": 1783576800000000,
+        "entry_price": 6.490727,
+        "exit_price": 6.70045,
+        "net_pnl_usd": -26.6891,
+        "roe_pct": -26.689,
+        "net_r": -1.0718,
+        "mfe_r": 0.89,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 29,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.936
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 2990,
+        "entry_idx": 2991,
+        "exit_idx": 3010,
+        "entry_time": "2026-07-08 09:00:00+00:00",
+        "exit_time": "2026-07-09 04:00:00+00:00",
+        "entry_ns": 1783501200000000,
+        "exit_ns": 1783569600000000,
+        "entry_price": 0.702354,
+        "exit_price": 0.726681,
+        "net_pnl_usd": -24.8738,
+        "roe_pct": -24.874,
+        "net_r": -1.0525,
+        "mfe_r": 0.285,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 20,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.569
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 33,
+        "signal_idx": 3116,
+        "entry_idx": 3117,
+        "exit_idx": 3138,
+        "entry_time": "2026-07-13 15:00:00+00:00",
+        "exit_time": "2026-07-14 12:00:00+00:00",
+        "entry_ns": 1783954800000000,
+        "exit_ns": 1784030400000000,
+        "entry_price": 4012.187402,
+        "exit_price": 4046.792489,
+        "net_pnl_usd": -31.4655,
+        "roe_pct": -31.466,
+        "net_r": -1.2463,
+        "mfe_r": 1.027,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 22,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.572
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 12,
+        "signal_idx": 3119,
+        "entry_idx": 3120,
+        "exit_idx": 3138,
+        "entry_time": "2026-07-13 18:00:00+00:00",
+        "exit_time": "2026-07-14 12:00:00+00:00",
+        "entry_ns": 1783965600000000,
+        "exit_ns": 1784030400000000,
+        "entry_price": 1.05813,
+        "exit_price": 1.080531,
+        "net_pnl_usd": -26.5516,
+        "roe_pct": -26.552,
+        "net_r": -1.105,
+        "mfe_r": 0.261,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 19,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.892
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 12,
+        "signal_idx": 3138,
+        "entry_idx": 3139,
+        "exit_idx": 3203,
+        "entry_time": "2026-07-14 13:00:00+00:00",
+        "exit_time": "2026-07-17 05:00:00+00:00",
+        "entry_ns": 1784034000000000,
+        "exit_ns": 1784264400000000,
+        "entry_price": 1861.07214,
+        "exit_price": 1819.727826,
+        "net_pnl_usd": -28.276,
+        "roe_pct": -28.276,
+        "net_r": -1.1011,
+        "mfe_r": 2.151,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 65,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.957
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 25,
+        "signal_idx": 3210,
+        "entry_idx": 3211,
+        "exit_idx": 3213,
+        "entry_time": "2026-07-17 13:00:00+00:00",
+        "exit_time": "2026-07-17 15:00:00+00:00",
+        "entry_ns": 1784293200000000,
+        "exit_ns": 1784300400000000,
+        "entry_price": 3963.487144,
+        "exit_price": 4004.877087,
+        "net_pnl_usd": -28.357,
+        "roe_pct": -28.357,
+        "net_r": -1.1318,
+        "mfe_r": 0.128,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.353
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 17,
+        "signal_idx": 3301,
+        "entry_idx": 3302,
+        "exit_idx": 3354,
+        "entry_time": "2026-07-21 08:00:00+00:00",
+        "exit_time": "2026-07-23 12:00:00+00:00",
+        "entry_ns": 1784620800000000,
+        "exit_ns": 1784808000000000,
+        "entry_price": 66180.03336,
+        "exit_price": 65190.491046,
+        "net_pnl_usd": -27.3514,
+        "roe_pct": -27.351,
+        "net_r": -1.1194,
+        "mfe_r": 0.782,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 53,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.621
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 12,
+        "signal_idx": 3355,
+        "entry_idx": 3356,
+        "exit_idx": 3406,
+        "entry_time": "2026-07-23 14:00:00+00:00",
+        "exit_time": "2026-07-25 16:00:00+00:00",
+        "entry_ns": 1784815200000000,
+        "exit_ns": 1784995200000000,
+        "entry_price": 0.070215,
+        "exit_price": 0.071751,
+        "net_pnl_usd": -27.6378,
+        "roe_pct": -27.638,
+        "net_r": -1.1034,
+        "mfe_r": 1.477,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 51,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.471
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 10,
+        "signal_idx": 3359,
+        "entry_idx": 3360,
+        "exit_idx": 3403,
+        "entry_time": "2026-07-23 18:00:00+00:00",
+        "exit_time": "2026-07-25 13:00:00+00:00",
+        "entry_ns": 1784829600000000,
+        "exit_ns": 1784984400000000,
+        "entry_price": 6.319787,
+        "exit_price": 6.48512,
+        "net_pnl_usd": -27.742,
+        "roe_pct": -27.742,
+        "net_r": -1.1105,
+        "mfe_r": 1.196,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 44,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.836
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 15,
+        "signal_idx": 3460,
+        "entry_idx": 3461,
+        "exit_idx": 3491,
+        "entry_time": "2026-07-27 23:00:00+00:00",
+        "exit_time": "2026-07-29 05:00:00+00:00",
+        "entry_ns": 1785193200000000,
+        "exit_ns": 1785301200000000,
+        "entry_price": 1.065927,
+        "exit_price": 1.084194,
+        "net_pnl_usd": -27.4268,
+        "roe_pct": -27.427,
+        "net_r": -1.1167,
+        "mfe_r": 1.228,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 31,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 3.094
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 13,
+        "signal_idx": 3463,
+        "entry_idx": 3464,
+        "exit_idx": 3523,
+        "entry_time": "2026-07-28 02:00:00+00:00",
+        "exit_time": "2026-07-30 13:00:00+00:00",
+        "entry_ns": 1785204000000000,
+        "exit_ns": 1785416400000000,
+        "entry_price": 73.124398,
+        "exit_price": 74.617576,
+        "net_pnl_usd": -27.7377,
+        "roe_pct": -27.738,
+        "net_r": -1.0875,
+        "mfe_r": 0.602,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 60,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.46
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 13,
+        "signal_idx": 3575,
+        "entry_idx": 3576,
+        "exit_idx": 3584,
+        "entry_time": "2026-08-01 18:00:00+00:00",
+        "exit_time": "2026-08-02 02:00:00+00:00",
+        "entry_ns": 1785607200000000,
+        "exit_ns": 1785636000000000,
+        "entry_price": 71.854842,
+        "exit_price": 73.266869,
+        "net_pnl_usd": -26.7805,
+        "roe_pct": -26.78,
+        "net_r": -1.0939,
+        "mfe_r": 0.994,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 9,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.842
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 10,
+        "signal_idx": 3575,
+        "entry_idx": 3576,
+        "exit_idx": 3586,
+        "entry_time": "2026-08-01 18:00:00+00:00",
+        "exit_time": "2026-08-02 04:00:00+00:00",
+        "entry_ns": 1785607200000000,
+        "exit_ns": 1785643200000000,
+        "entry_price": 6.297795,
+        "exit_price": 6.456553,
+        "net_pnl_usd": -26.321,
+        "roe_pct": -26.321,
+        "net_r": -1.0953,
+        "mfe_r": 1.75,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.099
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 15,
+        "signal_idx": 3696,
+        "entry_idx": 3697,
+        "exit_idx": 4002,
+        "entry_time": "2026-08-06 19:00:00+00:00",
+        "exit_time": "2026-08-19 12:00:00+00:00",
+        "entry_ns": 1786042800000000,
+        "exit_ns": 1787140800000000,
+        "entry_price": 1.034838,
+        "exit_price": 1.011254,
+        "net_pnl_usd": 34.0069,
+        "roe_pct": 34.007,
+        "net_r": 1.3434,
+        "mfe_r": 2.888,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 306,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.601
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "LONG",
+        "leverage": 25,
+        "signal_idx": 3710,
+        "entry_idx": 3711,
+        "exit_idx": 3871,
+        "entry_time": "2026-08-07 09:00:00+00:00",
+        "exit_time": "2026-08-14 01:00:00+00:00",
+        "entry_ns": 1786093200000000,
+        "exit_ns": 1786669200000000,
+        "entry_price": 4300.86,
+        "exit_price": 4319.395948,
+        "net_pnl_usd": 9.054,
+        "roe_pct": 9.054,
+        "net_r": 0.3578,
+        "mfe_r": 3.213,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 161,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.377
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 15,
+        "signal_idx": 3714,
+        "entry_idx": 3715,
+        "exit_idx": 3787,
+        "entry_time": "2026-08-07 13:00:00+00:00",
+        "exit_time": "2026-08-10 13:00:00+00:00",
+        "entry_ns": 1786107600000000,
+        "exit_ns": 1786366800000000,
+        "entry_price": 1931.656254,
+        "exit_price": 1898.362612,
+        "net_pnl_usd": -27.8022,
+        "roe_pct": -27.802,
+        "net_r": -1.11,
+        "mfe_r": 0.186,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 73,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.379
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 11,
+        "signal_idx": 3812,
+        "entry_idx": 3813,
+        "exit_idx": 3834,
+        "entry_time": "2026-08-11 15:00:00+00:00",
+        "exit_time": "2026-08-12 12:00:00+00:00",
+        "entry_ns": 1786460400000000,
+        "exit_ns": 1786536000000000,
+        "entry_price": 6.245813,
+        "exit_price": 6.397746,
+        "net_pnl_usd": -28.0189,
+        "roe_pct": -28.019,
+        "net_r": -1.1003,
+        "mfe_r": 0.995,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 22,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.888
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "SHORT",
+        "leverage": 23,
+        "signal_idx": 3862,
+        "entry_idx": 3863,
+        "exit_idx": 3948,
+        "entry_time": "2026-08-13 17:00:00+00:00",
+        "exit_time": "2026-08-17 06:00:00+00:00",
+        "entry_ns": 1786640400000000,
+        "exit_ns": 1786946400000000,
+        "entry_price": 63126.27222,
+        "exit_price": 63645.82662,
+        "net_pnl_usd": -19.9014,
+        "roe_pct": -19.901,
+        "net_r": -0.7978,
+        "mfe_r": 0.938,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 86,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.318
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "SHORT",
+        "leverage": 13,
+        "signal_idx": 3968,
+        "entry_idx": 3969,
+        "exit_idx": 3980,
+        "entry_time": "2026-08-18 03:00:00+00:00",
+        "exit_time": "2026-08-18 14:00:00+00:00",
+        "entry_ns": 1787022000000000,
+        "exit_ns": 1787061600000000,
+        "entry_price": 0.647973,
+        "exit_price": 0.66072,
+        "net_pnl_usd": -26.6801,
+        "roe_pct": -26.68,
+        "net_r": -1.096,
+        "mfe_r": 0.781,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 4.525
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 18,
+        "signal_idx": 4002,
+        "entry_idx": 4003,
+        "exit_idx": 4067,
+        "entry_time": "2026-08-19 13:00:00+00:00",
+        "exit_time": "2026-08-22 05:00:00+00:00",
+        "entry_ns": 1787144400000000,
+        "exit_ns": 1787374800000000,
+        "entry_price": 78.39743,
+        "exit_price": 91.503301,
+        "net_pnl_usd": 297.9712,
+        "roe_pct": 297.971,
+        "net_r": 11.9645,
+        "mfe_r": 22.534,
+        "risk_scale": 1.0,
+        "exit_reason": "TRAIL_STOP",
+        "bars_held": 65,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.991
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 21,
+        "signal_idx": 4002,
+        "entry_idx": 4003,
+        "exit_idx": 4335,
+        "entry_time": "2026-08-19 13:00:00+00:00",
+        "exit_time": "2026-09-02 09:00:00+00:00",
+        "entry_ns": 1787144400000000,
+        "exit_ns": 1788339600000000,
+        "entry_price": 1936.717266,
+        "exit_price": 2374.954914,
+        "net_pnl_usd": 467.9047,
+        "roe_pct": 467.905,
+        "net_r": 18.9426,
+        "mfe_r": 27.641,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 333,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.86
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 4190,
+        "entry_idx": 4191,
+        "exit_idx": 4277,
+        "entry_time": "2026-08-27 09:00:00+00:00",
+        "exit_time": "2026-08-30 23:00:00+00:00",
+        "entry_ns": 1787821200000000,
+        "exit_ns": 1788130800000000,
+        "entry_price": 104.686628,
+        "exit_price": 100.595967,
+        "net_pnl_usd": -28.1243,
+        "roe_pct": -28.124,
+        "net_r": -1.0582,
+        "mfe_r": 1.488,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 87,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.042
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 14,
+        "signal_idx": 4369,
+        "entry_idx": 4370,
+        "exit_idx": 4386,
+        "entry_time": "2026-09-03 20:00:00+00:00",
+        "exit_time": "2026-09-04 12:00:00+00:00",
+        "entry_ns": 1788465600000000,
+        "exit_ns": 1788523200000000,
+        "entry_price": 81739.14456,
+        "exit_price": 80199.000536,
+        "net_pnl_usd": -27.8498,
+        "roe_pct": -27.85,
+        "net_r": -1.1138,
+        "mfe_r": 0.372,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 17,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.8
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "leverage": 8,
+        "signal_idx": 4369,
+        "entry_idx": 4370,
+        "exit_idx": 4386,
+        "entry_time": "2026-09-03 20:00:00+00:00",
+        "exit_time": "2026-09-04 12:00:00+00:00",
+        "entry_ns": 1788465600000000,
+        "exit_ns": 1788523200000000,
+        "entry_price": 1.471315,
+        "exit_price": 1.421966,
+        "net_pnl_usd": -27.7122,
+        "roe_pct": -27.712,
+        "net_r": -1.0682,
+        "mfe_r": 0.262,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 17,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.138
+      },
+      {
+        "symbol": "SUIUSDT",
+        "side": "LONG",
+        "leverage": 7,
+        "signal_idx": 4410,
+        "entry_idx": 4411,
+        "exit_idx": 4516,
+        "entry_time": "2026-09-05 13:00:00+00:00",
+        "exit_time": "2026-09-09 22:00:00+00:00",
+        "entry_ns": 1788613200000000,
+        "exit_ns": 1788991200000000,
+        "entry_price": 0.80028,
+        "exit_price": 0.768641,
+        "net_pnl_usd": -28.9051,
+        "roe_pct": -28.905,
+        "net_r": -1.0745,
+        "mfe_r": 1.431,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 106,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.302
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 4415,
+        "entry_idx": 4416,
+        "exit_idx": 4417,
+        "entry_time": "2026-09-05 18:00:00+00:00",
+        "exit_time": "2026-09-05 19:00:00+00:00",
+        "entry_ns": 1788631200000000,
+        "exit_ns": 1788634800000000,
+        "entry_price": 0.094233,
+        "exit_price": 0.091399,
+        "net_pnl_usd": -27.8805,
+        "roe_pct": -27.881,
+        "net_r": -1.0656,
+        "mfe_r": 0.189,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 4.632
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "LONG",
+        "leverage": 12,
+        "signal_idx": 4555,
+        "entry_idx": 4556,
+        "exit_idx": 4557,
+        "entry_time": "2026-09-11 14:00:00+00:00",
+        "exit_time": "2026-09-11 15:00:00+00:00",
+        "entry_ns": 1789135200000000,
+        "exit_ns": 1789138800000000,
+        "entry_price": 2628.745644,
+        "exit_price": 2570.092094,
+        "net_pnl_usd": -27.8548,
+        "roe_pct": -27.855,
+        "net_r": -1.0881,
+        "mfe_r": 0.664,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 4.933
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 33,
+        "signal_idx": 4623,
+        "entry_idx": 4624,
+        "exit_idx": 4665,
+        "entry_time": "2026-09-14 10:00:00+00:00",
+        "exit_time": "2026-09-16 03:00:00+00:00",
+        "entry_ns": 1789380000000000,
+        "exit_ns": 1789527600000000,
+        "entry_price": 4292.651298,
+        "exit_price": 4326.624705,
+        "net_pnl_usd": -28.3449,
+        "roe_pct": -28.345,
+        "net_r": -1.1387,
+        "mfe_r": 0.918,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 42,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.607
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 4632,
+        "entry_idx": 4633,
+        "exit_idx": 4636,
+        "entry_time": "2026-09-14 19:00:00+00:00",
+        "exit_time": "2026-09-14 22:00:00+00:00",
+        "entry_ns": 1789412400000000,
+        "exit_ns": 1789423200000000,
+        "entry_price": 1.477217,
+        "exit_price": 1.439191,
+        "net_pnl_usd": -26.6416,
+        "roe_pct": -26.642,
+        "net_r": -1.0691,
+        "mfe_r": 0.391,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 4,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 2.152
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "LONG",
+        "leverage": 9,
+        "signal_idx": 4713,
+        "entry_idx": 4714,
+        "exit_idx": 5064,
+        "entry_time": "2026-09-18 04:00:00+00:00",
+        "exit_time": "2026-10-02 18:00:00+00:00",
+        "entry_ns": 1789704000000000,
+        "exit_ns": 1790964000000000,
+        "entry_price": 7.949781,
+        "exit_price": 10.581295,
+        "net_pnl_usd": 294.231,
+        "roe_pct": 294.231,
+        "net_r": 11.6091,
+        "mfe_r": 18.123,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 351,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.487
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "LONG",
+        "leverage": 10,
+        "signal_idx": 4714,
+        "entry_idx": 4715,
+        "exit_idx": 4975,
+        "entry_time": "2026-09-18 05:00:00+00:00",
+        "exit_time": "2026-09-29 01:00:00+00:00",
+        "entry_ns": 1789707600000000,
+        "exit_ns": 1790643600000000,
+        "entry_price": 105.827027,
+        "exit_price": 117.029026,
+        "net_pnl_usd": 103.2128,
+        "roe_pct": 103.213,
+        "net_r": 4.0157,
+        "mfe_r": 7.045,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 261,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.022
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 28,
+        "signal_idx": 4862,
+        "entry_idx": 4863,
+        "exit_idx": 4888,
+        "entry_time": "2026-09-24 09:00:00+00:00",
+        "exit_time": "2026-09-25 10:00:00+00:00",
+        "entry_ns": 1790240400000000,
+        "exit_ns": 1790330400000000,
+        "entry_price": 4256.658498,
+        "exit_price": 4296.187478,
+        "net_pnl_usd": -28.1165,
+        "roe_pct": -28.116,
+        "net_r": -1.1245,
+        "mfe_r": 0.4,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 26,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.046
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 41,
+        "signal_idx": 4950,
+        "entry_idx": 4951,
+        "exit_idx": 5153,
+        "entry_time": "2026-09-28 01:00:00+00:00",
+        "exit_time": "2026-10-06 11:00:00+00:00",
+        "entry_ns": 1790557200000000,
+        "exit_ns": 1791284400000000,
+        "entry_price": 4229.333964,
+        "exit_price": 4178.265486,
+        "net_pnl_usd": 49.8538,
+        "roe_pct": 49.854,
+        "net_r": 2.0155,
+        "mfe_r": 4.499,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 203,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.325
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 16,
+        "signal_idx": 5010,
+        "entry_idx": 5011,
+        "exit_idx": 5012,
+        "entry_time": "2026-09-30 13:00:00+00:00",
+        "exit_time": "2026-09-30 14:00:00+00:00",
+        "entry_ns": 1790773200000000,
+        "exit_ns": 1790776800000000,
+        "entry_price": 85276.85196,
+        "exit_price": 83894.245556,
+        "net_pnl_usd": -27.381,
+        "roe_pct": -27.381,
+        "net_r": -1.1105,
+        "mfe_r": 0.271,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.082
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 16,
+        "signal_idx": 5050,
+        "entry_idx": 5051,
+        "exit_idx": 5061,
+        "entry_time": "2026-10-02 05:00:00+00:00",
+        "exit_time": "2026-10-02 15:00:00+00:00",
+        "entry_ns": 1790917200000000,
+        "exit_ns": 1790953200000000,
+        "entry_price": 86635.92372,
+        "exit_price": 85215.863214,
+        "net_pnl_usd": -27.8258,
+        "roe_pct": -27.826,
+        "net_r": -1.0929,
+        "mfe_r": 0.445,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 11,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 2.145
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 33,
+        "signal_idx": 5178,
+        "entry_idx": 5179,
+        "exit_idx": 5183,
+        "entry_time": "2026-10-07 13:00:00+00:00",
+        "exit_time": "2026-10-07 17:00:00+00:00",
+        "entry_ns": 1791378000000000,
+        "exit_ns": 1791392400000000,
+        "entry_price": 4099.959844,
+        "exit_price": 4132.904986,
+        "net_pnl_usd": -29.3221,
+        "roe_pct": -29.322,
+        "net_r": -1.1589,
+        "mfe_r": 0.129,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 5,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.312
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 5310,
+        "entry_idx": 5311,
+        "exit_idx": 5312,
+        "entry_time": "2026-10-13 01:00:00+00:00",
+        "exit_time": "2026-10-13 02:00:00+00:00",
+        "entry_ns": 1791853200000000,
+        "exit_ns": 1791856800000000,
+        "entry_price": 0.080972,
+        "exit_price": 0.083272,
+        "net_pnl_usd": -26.3823,
+        "roe_pct": -26.382,
+        "net_r": -1.0645,
+        "mfe_r": 0.01,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 2,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.027
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 37,
+        "signal_idx": 5346,
+        "entry_idx": 5347,
+        "exit_idx": 5358,
+        "entry_time": "2026-10-14 13:00:00+00:00",
+        "exit_time": "2026-10-15 00:00:00+00:00",
+        "entry_ns": 1791982800000000,
+        "exit_ns": 1792022400000000,
+        "entry_price": 4107.048426,
+        "exit_price": 4137.208294,
+        "net_pnl_usd": -30.2243,
+        "roe_pct": -30.224,
+        "net_r": -1.1969,
+        "mfe_r": 0.787,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 12,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.174
+      },
+      {
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "leverage": 11,
+        "signal_idx": 5360,
+        "entry_idx": 5361,
+        "exit_idx": 5373,
+        "entry_time": "2026-10-15 03:00:00+00:00",
+        "exit_time": "2026-10-15 15:00:00+00:00",
+        "entry_ns": 1792033200000000,
+        "exit_ns": 1792076400000000,
+        "entry_price": 2378.82414,
+        "exit_price": 2436.028669,
+        "net_pnl_usd": -27.44,
+        "roe_pct": -27.44,
+        "net_r": -1.0834,
+        "mfe_r": 1.019,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 13,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.209
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 5449,
+        "entry_idx": 5450,
+        "exit_idx": 5452,
+        "entry_time": "2026-10-18 20:00:00+00:00",
+        "exit_time": "2026-10-18 22:00:00+00:00",
+        "entry_ns": 1792353600000000,
+        "exit_ns": 1792360800000000,
+        "entry_price": 0.076313,
+        "exit_price": 0.078603,
+        "net_pnl_usd": -27.8144,
+        "roe_pct": -27.814,
+        "net_r": -1.0723,
+        "mfe_r": 0.047,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.859
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 10,
+        "signal_idx": 5449,
+        "entry_idx": 5450,
+        "exit_idx": 5452,
+        "entry_time": "2026-10-18 20:00:00+00:00",
+        "exit_time": "2026-10-18 22:00:00+00:00",
+        "entry_ns": 1792353600000000,
+        "exit_ns": 1792360800000000,
+        "entry_price": 1.259259,
+        "exit_price": 1.291738,
+        "net_pnl_usd": -26.6922,
+        "roe_pct": -26.692,
+        "net_r": -1.0844,
+        "mfe_r": 0.102,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 3,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.774
+      },
+      {
+        "symbol": "BTCUSDT",
+        "side": "LONG",
+        "leverage": 18,
+        "signal_idx": 5515,
+        "entry_idx": 5516,
+        "exit_idx": 5529,
+        "entry_time": "2026-10-21 14:00:00+00:00",
+        "exit_time": "2026-10-22 03:00:00+00:00",
+        "entry_ns": 1792591200000000,
+        "exit_ns": 1792638000000000,
+        "entry_price": 83807.45814,
+        "exit_price": 82608.213506,
+        "net_pnl_usd": -27.619,
+        "roe_pct": -27.619,
+        "net_r": -1.1001,
+        "mfe_r": 0.913,
+        "risk_scale": 1.0,
+        "exit_reason": "STOP_LOSS",
+        "bars_held": 14,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.268
+      },
+      {
+        "symbol": "XAUUSDT",
+        "side": "SHORT",
+        "leverage": 35,
+        "signal_idx": 5529,
+        "entry_idx": 5530,
+        "exit_idx": 5660,
+        "entry_time": "2026-10-22 04:00:00+00:00",
+        "exit_time": "2026-10-27 14:00:00+00:00",
+        "entry_ns": 1792641600000000,
+        "exit_ns": 1793109600000000,
+        "entry_price": 4096.43055,
+        "exit_price": 4057.96143,
+        "net_pnl_usd": 31.5298,
+        "roe_pct": 31.53,
+        "net_r": 1.248,
+        "mfe_r": 3.857,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 131,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 1.344
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "side": "SHORT",
+        "leverage": 7,
+        "signal_idx": 5534,
+        "entry_idx": 5535,
+        "exit_idx": 5853,
+        "entry_time": "2026-10-22 09:00:00+00:00",
+        "exit_time": "2026-11-04 15:00:00+00:00",
+        "entry_ns": 1792659600000000,
+        "exit_ns": 1793804400000000,
+        "entry_price": 9.199779,
+        "exit_price": 9.055142,
+        "net_pnl_usd": 10.948,
+        "roe_pct": 10.948,
+        "net_r": 0.4349,
+        "mfe_r": 3.647,
+        "risk_scale": 1.0,
+        "exit_reason": "TRAIL_STOP",
+        "bars_held": 319,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.481
+      },
+      {
+        "symbol": "SOLUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 5714,
+        "entry_idx": 5715,
+        "exit_idx": 5853,
+        "entry_time": "2026-10-29 21:00:00+00:00",
+        "exit_time": "2026-11-04 15:00:00+00:00",
+        "entry_ns": 1793307600000000,
+        "exit_ns": 1793804400000000,
+        "entry_price": 96.076362,
+        "exit_price": 96.723842,
+        "net_pnl_usd": -5.481,
+        "roe_pct": -5.481,
+        "net_r": -0.2282,
+        "mfe_r": 2.448,
+        "risk_scale": 1.0,
+        "exit_reason": "CHANNEL_EXIT",
+        "bars_held": 139,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 2.82
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 5877,
+        "entry_idx": 5878,
+        "exit_idx": 5998,
+        "entry_time": "2026-11-05 16:00:00+00:00",
+        "exit_time": "2026-11-10 16:00:00+00:00",
+        "entry_ns": 1793894400000000,
+        "exit_ns": 1794326400000000,
+        "entry_price": 0.071755,
+        "exit_price": 0.067063,
+        "net_pnl_usd": 58.7164,
+        "roe_pct": 58.716,
+        "net_r": 2.3061,
+        "mfe_r": 2.525,
+        "risk_scale": 1.0,
+        "exit_reason": "TIME_STOP",
+        "bars_held": 121,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.532
+      },
+      {
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 9,
+        "signal_idx": 5883,
+        "entry_idx": 5884,
+        "exit_idx": 5998,
+        "entry_time": "2026-11-05 22:00:00+00:00",
+        "exit_time": "2026-11-10 16:00:00+00:00",
+        "entry_ns": 1793916000000000,
+        "exit_ns": 1794326400000000,
+        "entry_price": 1.221372,
+        "exit_price": 1.044465,
+        "net_pnl_usd": 130.6816,
+        "roe_pct": 130.682,
+        "net_r": 5.4386,
+        "mfe_r": 5.866,
+        "risk_scale": 1.0,
+        "exit_reason": "TIME_STOP",
+        "bars_held": 115,
+        "archetype": "TREND_BREAKOUT",
+        "meta_pred_r": 0.607
+      }
+    ],
+    "reference": {
+      "source": "benchmark_argon_vs_carbon_results.json",
+      "oos_window": "2026-05-28 -> 2026-11-10",
+      "argon_static_oos": {
+        "total_trades": 260,
+        "win_rate_pct": 48.85,
+        "profit_factor": 0.658,
+        "expectancy_r": -0.2275,
+        "expectancy_usd": -5.28,
+        "total_net_pnl_usd": -1373.93,
+        "max_drawdown_usd": 1752.0,
+        "return_over_dd": -0.78,
+        "sharpe_annualized": -4.23,
+        "sortino_annualized": -3.34,
+        "avg_win_usd": 20.82,
+        "avg_loss_usd": 30.22,
+        "payoff_ratio": 0.69,
+        "oos_days": 166.6
+      },
+      "argon_walkforward_oos": {
+        "total_trades": 227,
+        "win_rate_pct": 47.14,
+        "profit_factor": 0.662,
+        "expectancy_r": -0.2253,
+        "expectancy_usd": -5.13,
+        "total_net_pnl_usd": -1164.8,
+        "max_drawdown_usd": 1439.18,
+        "return_over_dd": -0.81,
+        "sharpe_annualized": -4.02,
+        "sortino_annualized": -2.93,
+        "avg_win_usd": 21.34,
+        "avg_loss_usd": 28.74,
+        "payoff_ratio": 0.74,
+        "oos_days": 166.6
+      },
+      "carbon_v2_walkforward_oos": {
+        "total_trades": 105,
+        "win_rate_pct": 53.33,
+        "profit_factor": 0.823,
+        "expectancy_r": -0.0785,
+        "expectancy_usd": -2.13,
+        "total_net_pnl_usd": -223.8,
+        "max_drawdown_usd": 334.62,
+        "return_over_dd": -0.67,
+        "sharpe_annualized": -1.26,
+        "sortino_annualized": -0.74,
+        "avg_win_usd": 18.54,
+        "avg_loss_usd": 25.76,
+        "payoff_ratio": 0.72,
+        "oos_days": 166.6
+      },
+      "carbon_v2_equity_curve": [
+        {
+          "date": "2026-06-12",
+          "pnl": 0.59
+        },
+        {
+          "date": "2026-06-13",
+          "pnl": 0.59
+        },
+        {
+          "date": "2026-06-14",
+          "pnl": 0.59
+        },
+        {
+          "date": "2026-06-15",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-16",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-17",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-18",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-19",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-20",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-21",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-22",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-23",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-24",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-25",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-26",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-27",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-28",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-29",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-06-30",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-01",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-02",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-03",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-04",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-05",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-06",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-07",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-08",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-09",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-10",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-11",
+          "pnl": -51.98
+        },
+        {
+          "date": "2026-07-12",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-13",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-14",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-15",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-16",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-17",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-18",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-19",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-20",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-21",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-22",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-23",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-24",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-25",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-26",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-27",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-28",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-29",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-30",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-07-31",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-08-01",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-08-02",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-08-03",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-08-04",
+          "pnl": 2.5
+        },
+        {
+          "date": "2026-08-05",
+          "pnl": 21.32
+        },
+        {
+          "date": "2026-08-06",
+          "pnl": -7.35
+        },
+        {
+          "date": "2026-08-07",
+          "pnl": -39.08
+        },
+        {
+          "date": "2026-08-08",
+          "pnl": -36.21
+        },
+        {
+          "date": "2026-08-09",
+          "pnl": -56.55
+        },
+        {
+          "date": "2026-08-10",
+          "pnl": -18.22
+        },
+        {
+          "date": "2026-08-11",
+          "pnl": -64.67
+        },
+        {
+          "date": "2026-08-12",
+          "pnl": 9.98
+        },
+        {
+          "date": "2026-08-13",
+          "pnl": 13.65
+        },
+        {
+          "date": "2026-08-14",
+          "pnl": 31.02
+        },
+        {
+          "date": "2026-08-15",
+          "pnl": 69.67
+        },
+        {
+          "date": "2026-08-16",
+          "pnl": 69.67
+        },
+        {
+          "date": "2026-08-17",
+          "pnl": 90.97
+        },
+        {
+          "date": "2026-08-18",
+          "pnl": 62.88
+        },
+        {
+          "date": "2026-08-19",
+          "pnl": 62.88
+        },
+        {
+          "date": "2026-08-20",
+          "pnl": 62.88
+        },
+        {
+          "date": "2026-08-21",
+          "pnl": 62.88
+        },
+        {
+          "date": "2026-08-22",
+          "pnl": 62.88
+        },
+        {
+          "date": "2026-08-23",
+          "pnl": 72.32
+        },
+        {
+          "date": "2026-08-24",
+          "pnl": 35.08
+        },
+        {
+          "date": "2026-08-25",
+          "pnl": 14.23
+        },
+        {
+          "date": "2026-08-26",
+          "pnl": -18.63
+        },
+        {
+          "date": "2026-08-27",
+          "pnl": -59.25
+        },
+        {
+          "date": "2026-08-28",
+          "pnl": -41.33
+        },
+        {
+          "date": "2026-08-29",
+          "pnl": -41.33
+        },
+        {
+          "date": "2026-08-30",
+          "pnl": -2.63
+        },
+        {
+          "date": "2026-08-31",
+          "pnl": 19.59
+        },
+        {
+          "date": "2026-09-01",
+          "pnl": -10.27
+        },
+        {
+          "date": "2026-09-02",
+          "pnl": -35.26
+        },
+        {
+          "date": "2026-09-03",
+          "pnl": -12.46
+        },
+        {
+          "date": "2026-09-04",
+          "pnl": -13.3
+        },
+        {
+          "date": "2026-09-05",
+          "pnl": -13.3
+        },
+        {
+          "date": "2026-09-06",
+          "pnl": -34.62
+        },
+        {
+          "date": "2026-09-07",
+          "pnl": -62.01
+        },
+        {
+          "date": "2026-09-08",
+          "pnl": -89.47
+        },
+        {
+          "date": "2026-09-09",
+          "pnl": -89.47
+        },
+        {
+          "date": "2026-09-10",
+          "pnl": -112.53
+        },
+        {
+          "date": "2026-09-11",
+          "pnl": -124.88
+        },
+        {
+          "date": "2026-09-12",
+          "pnl": -138.1
+        },
+        {
+          "date": "2026-09-13",
+          "pnl": -171.04
+        },
+        {
+          "date": "2026-09-14",
+          "pnl": -115.26
+        },
+        {
+          "date": "2026-09-15",
+          "pnl": -83.12
+        },
+        {
+          "date": "2026-09-16",
+          "pnl": -83.12
+        },
+        {
+          "date": "2026-09-17",
+          "pnl": -83.12
+        },
+        {
+          "date": "2026-09-18",
+          "pnl": -110.06
+        },
+        {
+          "date": "2026-09-19",
+          "pnl": -110.06
+        },
+        {
+          "date": "2026-09-20",
+          "pnl": -173.77
+        },
+        {
+          "date": "2026-09-21",
+          "pnl": -230.66
+        },
+        {
+          "date": "2026-09-22",
+          "pnl": -230.66
+        },
+        {
+          "date": "2026-09-23",
+          "pnl": -242.37
+        },
+        {
+          "date": "2026-09-24",
+          "pnl": -206.04
+        },
+        {
+          "date": "2026-09-25",
+          "pnl": -208.9
+        },
+        {
+          "date": "2026-09-26",
+          "pnl": -208.9
+        },
+        {
+          "date": "2026-09-27",
+          "pnl": -208.9
+        },
+        {
+          "date": "2026-09-28",
+          "pnl": -120.89
+        },
+        {
+          "date": "2026-09-29",
+          "pnl": -107.45
+        },
+        {
+          "date": "2026-09-30",
+          "pnl": -107.45
+        },
+        {
+          "date": "2026-10-01",
+          "pnl": -90.44
+        },
+        {
+          "date": "2026-10-02",
+          "pnl": -83.08
+        },
+        {
+          "date": "2026-10-03",
+          "pnl": -46.86
+        },
+        {
+          "date": "2026-10-04",
+          "pnl": -46.86
+        },
+        {
+          "date": "2026-10-05",
+          "pnl": -46.86
+        },
+        {
+          "date": "2026-10-06",
+          "pnl": -46.86
+        },
+        {
+          "date": "2026-10-07",
+          "pnl": -78.21
+        },
+        {
+          "date": "2026-10-08",
+          "pnl": -151.57
+        },
+        {
+          "date": "2026-10-09",
+          "pnl": -129.96
+        },
+        {
+          "date": "2026-10-10",
+          "pnl": -129.96
+        },
+        {
+          "date": "2026-10-11",
+          "pnl": -129.96
+        },
+        {
+          "date": "2026-10-12",
+          "pnl": -120.1
+        },
+        {
+          "date": "2026-10-13",
+          "pnl": -120.1
+        },
+        {
+          "date": "2026-10-14",
+          "pnl": -120.1
+        },
+        {
+          "date": "2026-10-15",
+          "pnl": -120.1
+        },
+        {
+          "date": "2026-10-16",
+          "pnl": -94.67
+        },
+        {
+          "date": "2026-10-17",
+          "pnl": -94.67
+        },
+        {
+          "date": "2026-10-18",
+          "pnl": -119.89
+        },
+        {
+          "date": "2026-10-19",
+          "pnl": -119.89
+        },
+        {
+          "date": "2026-10-20",
+          "pnl": -119.89
+        },
+        {
+          "date": "2026-10-21",
+          "pnl": -119.89
+        },
+        {
+          "date": "2026-10-22",
+          "pnl": -119.89
+        },
+        {
+          "date": "2026-10-23",
+          "pnl": -144.79
+        },
+        {
+          "date": "2026-10-24",
+          "pnl": -144.79
+        },
+        {
+          "date": "2026-10-25",
+          "pnl": -142.27
+        },
+        {
+          "date": "2026-10-26",
+          "pnl": -142.27
+        },
+        {
+          "date": "2026-10-27",
+          "pnl": -142.27
+        },
+        {
+          "date": "2026-10-28",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-10-29",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-10-30",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-10-31",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-01",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-02",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-03",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-04",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-05",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-06",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-07",
+          "pnl": -126.94
+        },
+        {
+          "date": "2026-11-08",
+          "pnl": -229.7
+        },
+        {
+          "date": "2026-11-09",
+          "pnl": -223.8
+        }
+      ]
+    }
+  },
+  "extended": {
+    "4h": {
+      "development_2019_to_2025_11": {
+        "window": "2019-01-01 -> 2025-12-01",
+        "metrics": {
+          "total_trades": 667,
+          "win_rate_pct": 35.08,
+          "profit_factor": 1.791,
+          "expectancy_r": 0.4572,
+          "expectancy_usd": 11.38,
+          "total_net_pnl_usd": 7589.89,
+          "max_drawdown_usd": 544.37,
+          "return_over_dd": 13.94,
+          "sharpe_annualized": 1.5,
+          "sortino_annualized": 2.12,
+          "avg_win_usd": 73.43,
+          "avg_loss_usd": 22.15,
+          "payoff_ratio": 3.31,
+          "oos_days": 2.2
+        },
+        "yearly_pnl_usd": {
+          "2019": 71.35,
+          "2020": 1281.4,
+          "2021": 2372.88,
+          "2022": 358.52,
+          "2023": 1767.32,
+          "2024": 568.46,
+          "2025": 1169.97
+        },
+        "bootstrap": {
+          "p_total_pnl_gt_0": 1.0,
+          "pnl_ci90_low": 4464.25,
+          "pnl_ci90_high": 11038.38,
+          "exp_r_ci90_low": 0.269,
+          "exp_r_ci90_high": 0.662,
+          "t_stat_mean_r": 3.9
+        }
+      },
+      "holdout_2025_12_to_latest": {
+        "window": "2025-12-01 -> latest",
+        "metrics": {
+          "total_trades": 126,
+          "win_rate_pct": 23.02,
+          "profit_factor": 1.256,
+          "expectancy_r": 0.1798,
+          "expectancy_usd": 4.31,
+          "total_net_pnl_usd": 542.52,
+          "max_drawdown_usd": 567.21,
+          "return_over_dd": 0.96,
+          "sharpe_annualized": 0.68,
+          "sortino_annualized": 0.98,
+          "avg_win_usd": 91.69,
+          "avg_loss_usd": 21.82,
+          "payoff_ratio": 4.2,
+          "oos_days": 0.3
+        },
+        "yearly_pnl_usd": {
+          "2025": 88.69,
+          "2026": 453.83
+        },
+        "bootstrap": {
+          "p_total_pnl_gt_0": 0.75,
+          "pnl_ci90_low": -644.75,
+          "pnl_ci90_high": 1959.26,
+          "exp_r_ci90_low": -0.194,
+          "exp_r_ci90_high": 0.626,
+          "t_stat_mean_r": 0.72
+        }
+      }
+    },
+    "1h": {
+      "development_2019_to_2025_11": {
+        "window": "2019-01-01 -> 2025-12-01",
+        "metrics": {
+          "total_trades": 562,
+          "win_rate_pct": 28.29,
+          "profit_factor": 1.905,
+          "expectancy_r": 0.7227,
+          "expectancy_usd": 17.43,
+          "total_net_pnl_usd": 9792.95,
+          "max_drawdown_usd": 885.53,
+          "return_over_dd": 11.06,
+          "sharpe_annualized": 1.34,
+          "sortino_annualized": 2.38,
+          "avg_win_usd": 129.65,
+          "avg_loss_usd": 26.85,
+          "payoff_ratio": 4.83,
+          "oos_days": 2.2
+        },
+        "yearly_pnl_usd": {
+          "2019": -40.47,
+          "2020": 2209.31,
+          "2021": 2554.93,
+          "2022": -183.03,
+          "2023": 1822.04,
+          "2024": 1480.02,
+          "2025": 1950.15
+        },
+        "bootstrap": {
+          "p_total_pnl_gt_0": 1.0,
+          "pnl_ci90_low": 5256.24,
+          "pnl_ci90_high": 14462.26,
+          "exp_r_ci90_low": 0.394,
+          "exp_r_ci90_high": 1.06,
+          "t_stat_mean_r": 3.61
+        }
+      },
+      "holdout_2025_12_to_latest": {
+        "window": "2025-12-01 -> latest",
+        "metrics": {
+          "total_trades": 118,
+          "win_rate_pct": 21.19,
+          "profit_factor": 1.447,
+          "expectancy_r": 0.3627,
+          "expectancy_usd": 9.01,
+          "total_net_pnl_usd": 1063.21,
+          "max_drawdown_usd": 620.86,
+          "return_over_dd": 1.71,
+          "sharpe_annualized": 1.02,
+          "sortino_annualized": 1.69,
+          "avg_win_usd": 137.59,
+          "avg_loss_usd": 25.55,
+          "payoff_ratio": 5.38,
+          "oos_days": 0.3
+        },
+        "yearly_pnl_usd": {
+          "2025": -94.89,
+          "2026": 1158.1
+        },
+        "bootstrap": {
+          "p_total_pnl_gt_0": 0.846,
+          "pnl_ci90_low": -543.58,
+          "pnl_ci90_high": 2874.33,
+          "exp_r_ci90_low": -0.179,
+          "exp_r_ci90_high": 0.975,
+          "t_stat_mean_r": 1.02
+        }
+      }
+    }
+  }
+}

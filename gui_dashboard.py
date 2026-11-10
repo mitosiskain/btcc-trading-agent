@@ -245,7 +245,7 @@ class DashboardController:
         state_dir = Path(__file__).resolve().parent / "state"
         opt_profiles = {}
         for sym in self.config.watchlist:
-            oos = self.orchestrator.carbon_bridge.get_oos_asset_summary(sym, self.timeframe)
+            oos = self.orchestrator.engine_bridge.get_oos_asset_summary(sym, self.timeframe)
             opt_file = state_dir / f"optimized_{sym.lower()}_{self.timeframe}.json"
             used_custom = False
             if opt_file.exists():
@@ -302,8 +302,16 @@ class DashboardController:
             },
             "strategy_optimizers": {
                 "working": True,
-                "status": f"CARBON V2 PURGED META-ENSEMBLE ({self.timeframe.upper()})",
-                "detail": "4H OOS Verified: +$247.26 Net PnL (PF 1.26 • Absorption Reversal PF 1.97) + Maker-Limit Routing",
+                "status": (
+                    f"KRYPTON V3 TREND BREAKOUT ({self.timeframe.upper()})"
+                    if self.orchestrator.is_krypton
+                    else f"CARBON V2 PURGED META-ENSEMBLE ({self.timeframe.upper()})"
+                ),
+                "detail": (
+                    "Hold-out verified (benchmark_krypton.py): 4H PF 1.29 / +$592, 1H PF 1.80 / +$821 vs Carbon V2 +$247 / -$224"
+                    if self.orchestrator.is_krypton
+                    else "4H OOS Verified: +$247.26 Net PnL (PF 1.26 • Absorption Reversal PF 1.97) + Maker-Limit Routing"
+                ),
                 "profiles": opt_profiles,
             },
             "sentiment_agent": {
@@ -357,6 +365,7 @@ class DashboardController:
         try:
             self.pull_remote_portfolio_if_newer(min_interval_sec=45.0)
             self.orchestrator.execution._load_state()
+            kr_queue: List[Dict[str, Any]] = []  # Krypton ENTER NOW alerts, sent after the portfolio cap is applied
             for symbol in self.config.watchlist:
                 f_t0 = time.time()
                 sym_detector = self.orchestrator.get_detector_for_symbol(symbol, tf)
@@ -364,7 +373,9 @@ class DashboardController:
                 profile = DEFAULT_ASSETS.get(symbol)
 
                 try:
-                    df, btc_df = self.orchestrator.feed.fetch_enriched_ohlcv(symbol=symbol, interval=tf, limit=240)
+                    df, btc_df = self.orchestrator.feed.fetch_enriched_ohlcv(
+                        symbol=symbol, interval=tf, limit=self.orchestrator.scan_bars(tf)
+                    )
                     latency_ms = int((time.time() - f_t0) * 1000)
                     self.feed_health[symbol] = {
                         "ok": True,
@@ -403,24 +414,39 @@ class DashboardController:
                         pos.bars_held = max(0, int((datetime.now(timezone.utc) - opened_dt).total_seconds() // bar_sec))
                     except Exception:
                         pos.bars_held = 0
-                    exit_sig = sym_detector.check_position_exit_or_stall(
-                        df=df,
-                        idx=last_idx,
-                        symbol=symbol,
-                        side=pos.side,
-                        entry_price=pos.entry_price,
-                        stop_loss=pos.stop_loss,
-                        tp1_price=pos.tp1_price,
-                        tp2_price=pos.tp2_price,
-                        leverage=pos.leverage,
-                        margin_usd=pos.remaining_margin_usd,
-                        bars_held=pos.bars_held,
-                        tp1_already_hit=pos.tp1_hit,
-                        warning_already_sent=getattr(pos, "warning_sent", False),
-                        use_live_spot_only=True,
-                        trail_atr_mult=float(getattr(pos, "trail_atr_mult", 1.75)),
-                        peak_favorable_price=float(getattr(pos, "peak_favorable_price", 0.0)),
-                    )
+                    if self.orchestrator.is_krypton:
+                        # Krypton V3 exits: initial stop -> chandelier trail ratchet -> exit-channel close -> time stop
+                        exit_sig, trail_upd = self.orchestrator.krypton_bridge.check_position_exit(df, pos, tf)
+                        if trail_upd is not None:
+                            self.orchestrator.execution.touch_positions_version()
+                            self.orchestrator.execution._save_state()
+                            trail_key = f"trail_{symbol}_{trail_upd['new_sl']}"
+                            if trail_key not in self.sentiment_alert_cooldowns and self.orchestrator.telegram.is_configured:
+                                self.sentiment_alert_cooldowns[trail_key] = time.time()
+                                self.orchestrator.telegram.send_message(
+                                    f"🔒 *{symbol} {pos.side} — RAISE YOUR STOP*\n"
+                                    f"• Krypton trail moved SL `{fmt_price(trail_upd['old_sl'])}` → `{fmt_price(trail_upd['new_sl'])}`\n"
+                                    f"• _Update the stop on BTCC so the trend can keep running with locked-in risk._"
+                                )
+                    else:
+                        exit_sig = sym_detector.check_position_exit_or_stall(
+                            df=df,
+                            idx=last_idx,
+                            symbol=symbol,
+                            side=pos.side,
+                            entry_price=pos.entry_price,
+                            stop_loss=pos.stop_loss,
+                            tp1_price=pos.tp1_price,
+                            tp2_price=pos.tp2_price,
+                            leverage=pos.leverage,
+                            margin_usd=pos.remaining_margin_usd,
+                            bars_held=pos.bars_held,
+                            tp1_already_hit=pos.tp1_hit,
+                            warning_already_sent=getattr(pos, "warning_sent", False),
+                            use_live_spot_only=True,
+                            trail_atr_mult=float(getattr(pos, "trail_atr_mult", 1.75)),
+                            peak_favorable_price=float(getattr(pos, "peak_favorable_price", 0.0)),
+                        )
                     if exit_sig is not None:
                         closed_rec = self.orchestrator.execution.process_exit_signal(exit_sig)
                         exit_cd_key = f"exit_{symbol}_{exit_sig.reason}"
@@ -445,9 +471,11 @@ class DashboardController:
                         )
                         self.recent_alerts = self.recent_alerts[:25]
 
-                # 2. Evaluate Carbon V2 Orderflow + Purged Meta-Ensemble (Primary Quantitative Alpha Engine)
+                # 2. Evaluate the active alpha engine (Krypton V3 trend breakout by default; Carbon V2 via ENGINE_VERSION)
+                is_kr = self.orchestrator.is_krypton
+                eng_lbl = self.orchestrator.engine_label
                 curr_ema20 = float(df["ema20"].iloc[last_idx]) if "ema20" in df.columns else curr_price
-                carbon_res = self.orchestrator.carbon_bridge.evaluate_symbol_live(
+                carbon_res = self.orchestrator.engine_bridge.evaluate_symbol_live(
                     df=df, btc_df=btc_df, symbol=symbol, timeframe=tf
                 )
                 active_signal: Optional[ReversalSetupSignal] = carbon_res.active_signal
@@ -462,7 +490,15 @@ class DashboardController:
                 mtf_radar.pop("closeup_signal", None)
                 mtf_radar["pending_order_plan"] = carbon_res.pending_order_plan
                 mtf_radar["closeup_status"] = (
-                    f"⚡ CARBON V2 {c_tel['archetype']} ACTIVE (E[{c_tel['meta_pred_r']:+.2f}R] • Taker Δ {c_tel['delta_norm_pct']:+.1f}%)"
+                    (
+                        f"⚡ KRYPTON V3 TREND BREAKOUT {active_signal.trade_side} ACTIVE (trend {c_tel.get('trend')} • stop {fmt_price(active_signal.stop_loss)})"
+                        if active_signal is not None
+                        else f"👀 Krypton V3 {c_tel['archetype']}: {carbon_res.pending_order_plan['side']} if {tf} closes "
+                        f"{'above' if carbon_res.pending_order_plan['side'] == 'LONG' else 'below'} "
+                        f"${fmt_price(carbon_res.pending_order_plan['trigger_entry_price'])} ({c_tel['dist_to_trap_pct']:.2f}% away)"
+                    )
+                    if is_kr
+                    else f"⚡ CARBON V2 {c_tel['archetype']} ACTIVE (E[{c_tel['meta_pred_r']:+.2f}R] • Taker Δ {c_tel['delta_norm_pct']:+.1f}%)"
                     if active_signal is not None
                     else (
                         f"🎯 Carbon V2 Maker-Limit Trap {carbon_res.pending_order_plan['side']} @ "
@@ -529,14 +565,16 @@ class DashboardController:
 
                 # Compute Unified Carbon V2 Maker-Limit Trade Plan (Preserves Structural Sweep SL + Fractional Kelly Leverage!)
                 verdict_dict = None
-                if active_signal is not None:
+                # The Gemini veto ("VETO_CONTINUATION_RISK") is built for fading reversals; continuation is exactly
+                # what Krypton's trend breakouts want, so it is only applied to Carbon V2 signals.
+                if active_signal is not None and not is_kr:
                     verdict = self.orchestrator.sentiment_agent.evaluate_setup(active_signal)
                     verdict_dict = verdict.model_dump()
 
                 if active_signal is not None and (verdict_dict is None or verdict_dict.get("decision") != "VETO_CONTINUATION_RISK"):
                     u_side = active_signal.trade_side
                     u_mode = "ENTER NOW"
-                    u_order_style = "POST-ONLY MAKER LIMIT"
+                    u_order_style = "MARKET (CANDLE-CLOSE BREAKOUT)" if is_kr else "POST-ONLY MAKER LIMIT"
                     u_entry = float(active_signal.entry_price)
                     u_sl = float(active_signal.stop_loss)
                     u_tp1 = float(active_signal.tp1_price)
@@ -545,8 +583,8 @@ class DashboardController:
                 else:
                     plan = carbon_res.pending_order_plan
                     u_side = str(plan["side"])
-                    u_mode = "SET MAKER LIMIT TRAP"
-                    u_order_style = "RESTING MAKER LIMIT TRAP"
+                    u_mode = ("NO TREND — STAND ASIDE" if plan.get("order_type") != "ENTER_ON_CLOSE_BEYOND_LEVEL" else "WATCH BREAKOUT") if is_kr else "SET MAKER LIMIT TRAP"
+                    u_order_style = "ENTER ON CANDLE CLOSE BEYOND LEVEL" if is_kr else "RESTING MAKER LIMIT TRAP"
                     u_entry = float(plan["limit_entry_price"])
                     u_sl = float(plan["stop_loss"])
                     u_tp1 = float(plan["tp1_price"])
@@ -567,7 +605,16 @@ class DashboardController:
                 meta_er = float(c_tel["meta_pred_r"])
                 meta_wp = float(c_tel["meta_win_prob_pct"])
                 is_abs = "ABSORPTION" in str(c_tel["archetype"])
-                if u_mode == "ENTER NOW":
+                if is_kr:
+                    # Krypton V3: a live breakout is a full-strength system signal; the % only reflects context
+                    # alignment (macro trend + sentiment). The system's historical win rate is ~25-35% with large winners.
+                    if u_mode == "ENTER NOW":
+                        u_conf = int(round(max(80.0, min(95.0, 86.0 + macro_bonus + sent_bonus))))
+                    else:
+                        prox_bonus = max(0.0, 8.0 - float(c_tel["dist_to_trap_pct"]) * 2.0)
+                        base_w = 50.0 if u_mode == "WATCH BREAKOUT" else 35.0
+                        u_conf = int(round(max(30.0, min(70.0, base_w + prox_bonus + macro_bonus * 0.6 + sent_bonus * 0.6))))
+                elif u_mode == "ENTER NOW":
                     # Active meta-validated setup: 78% - 95%
                     raw_conf = 74.0 + min(14.0, max(0.0, meta_er * 32.0)) + (4.0 if is_abs else 0.0) + max(-3.0, min(5.0, (meta_wp - 50.0) * 0.35))
                     if tf not in ("4h", "1d", "1w", "1M"):
@@ -581,11 +628,21 @@ class DashboardController:
 
                 sent_lbl = f"{sentiment_overlap.get('dominant_pct', 50):.0f}% {'Bull' if sentiment_overlap.get('bias_side') == 'LONG' else 'Bear'}"
                 arch_short = "Absorption Reversal" if is_abs else ("Whale Breakout" if u_mode == "ENTER NOW" else "VWAP Flush Trap")
-                simple_why = (
-                    f"Carbon V2 {arch_short} (E[{meta_er:+.2f}R]) • "
-                    f"Taker Δ {c_tel['delta_norm_pct']:+.1f}% • Whale {c_tel['whale_print_ratio']:.2f}x • "
-                    f"Macro {dom_trend} • Sent {sent_lbl}"
-                )
+                if is_kr:
+                    exit_lvl = (carbon_res.pending_order_plan.get("exit_channel") if active_signal is None else None)
+                    if active_signal is not None:
+                        exit_lvl = c_tel.get("exit_channel_long") if u_side == "LONG" else c_tel.get("exit_channel_short")
+                    simple_why = (
+                        f"Krypton V3 {'trend breakout' if u_mode == 'ENTER NOW' else c_tel['archetype'].replace('_', ' ').lower()} "
+                        f"(trend {c_tel.get('trend')}, hold-out E[{meta_er:+.2f}R]/trade) • No fixed TP: trail stop + "
+                        f"exit on {tf} close beyond ${fmt_price(float(exit_lvl or 0))} • Macro {dom_trend} • Sent {sent_lbl}"
+                    )
+                else:
+                    simple_why = (
+                        f"Carbon V2 {arch_short} (E[{meta_er:+.2f}R]) • "
+                        f"Taker Δ {c_tel['delta_norm_pct']:+.1f}% • Whale {c_tel['whale_print_ratio']:.2f}x • "
+                        f"Macro {dom_trend} • Sent {sent_lbl}"
+                    )
 
                 trade_plan = {
                     "side": u_side,
@@ -605,6 +662,14 @@ class DashboardController:
                     "simple_why": simple_why,
                     "meta_pred_r": meta_er,
                     "archetype": c_tel["archetype"],
+                    "engine": eng_lbl,
+                    "breakout_score": float(active_signal.impulse_atr_mult) if (is_kr and active_signal is not None) else 0.0,
+                    "entry_label": ("Market Entry (on close):" if u_mode == "ENTER NOW" else "Enter if candle closes beyond:") if is_kr else None,
+                    "tp1_label": "Milestone +3R (no auto-TP):" if is_kr else None,
+                    "tp2_label": "Milestone +6R (trail exit):" if is_kr else None,
+                    "mode_label": (
+                        ("⚡ KRYPTON V3 TREND BREAKOUT — ENTER NOW" if u_mode == "ENTER NOW" else f"👀 KRYPTON V3 — {u_mode}") if is_kr else None
+                    ),
                 }
 
                 rec_action = f"{u_side} {'📈' if u_side == 'LONG' else '📉'} — {u_conf}% CONFIDENCE ({u_mode})"
@@ -621,6 +686,10 @@ class DashboardController:
                 should_alert = (u_conf >= self.alert_confidence_threshold) and (
                     u_mode == "ENTER NOW" or flatline_met or u_conf >= self.alert_confidence_threshold
                 )
+                if is_kr and u_mode == "ENTER NOW":
+                    should_alert = True  # every live Krypton breakout is a system trade -> always alert (cooldown still applies)
+                if is_kr and symbol in self.orchestrator.execution.open_positions:
+                    should_alert = False  # open Krypton positions are managed by the exit monitor (trail / channel alerts)
                 if should_alert and self.orchestrator.telegram.is_configured:
                     open_pos = self.orchestrator.execution.open_positions.get(symbol)
                     alert_key = f"{symbol}_{tf}_{u_side}_{u_mode}_{'OPEN' if open_pos else 'NEW'}"
@@ -650,15 +719,30 @@ class DashboardController:
                             tg_markup = None
                             icon = "🟢" if u_side == "LONG" else "🔴"
                             entry_lbl = "Maker Limit Entry" if u_mode == "ENTER NOW" else "Resting Maker Trap"
-                            tg_msg = (
-                                f"{icon} *CARBON V2 SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'} ({u_conf}% Confidence)*\n"
-                                f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()})_\n"
-                                f"• *{entry_lbl}*: `{trade_plan['safe_entry_str']}` _(Post-Only 0.020% Fee)_\n"
-                                f"• *Take-Profit*: TP1 `{trade_plan['tp1_str']}` _(55%)_ | TP2 `{trade_plan['tp2_str']}` _(45% Chandelier Runner)_\n"
-                                f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${margin_usd:.0f} @ {u_lev}x Kelly Safe)_\n"
-                                f"• *Why*: _{simple_why}_"
-                            )
-                        self.orchestrator.telegram.send_message(tg_msg, reply_markup=tg_markup)
+                            if is_kr:
+                                ex_word = "below" if u_side == "LONG" else "above"
+                                tg_msg = (
+                                    f"{icon} *KRYPTON V3 SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'}*\n"
+                                    f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()} trend breakout)_\n"
+                                    f"• *Entry*: `{trade_plan['safe_entry_str']}` _(market — breakout confirmed on candle close)_\n"
+                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(= 1R • ${margin_usd:.0f} @ {u_lev}x)_\n"
+                                    f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a {tf} candle closes {ex_word} the exit channel\n"
+                                    f"• *Milestones*: +3R `{trade_plan['tp1_str']}` | +6R `{trade_plan['tp2_str']}` _(info only)_\n"
+                                    f"• _Expect ~25-35% winners; the edge comes from letting the big trends run._"
+                                )
+                            else:
+                                tg_msg = (
+                                    f"{icon} *CARBON V2 SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'} ({u_conf}% Confidence)*\n"
+                                    f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()})_\n"
+                                    f"• *{entry_lbl}*: `{trade_plan['safe_entry_str']}` _(Post-Only 0.020% Fee)_\n"
+                                    f"• *Take-Profit*: TP1 `{trade_plan['tp1_str']}` _(55%)_ | TP2 `{trade_plan['tp2_str']}` _(45% Chandelier Runner)_\n"
+                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${margin_usd:.0f} @ {u_lev}x Kelly Safe)_\n"
+                                    f"• *Why*: _{simple_why}_"
+                                )
+                        if is_kr and open_pos is None and u_mode == "ENTER NOW":
+                            kr_queue.append({"symbol": symbol, "msg": tg_msg, "key": alert_key})
+                        else:
+                            self.orchestrator.telegram.send_message(tg_msg, reply_markup=tg_markup)
 
                 self.asset_cards[symbol] = {
                     "symbol": symbol,
@@ -709,6 +793,9 @@ class DashboardController:
                     "sparkline": sparkline,
                 }
 
+            if self.orchestrator.is_krypton:
+                self._apply_krypton_portfolio_cap(kr_queue)
+
             self.orchestrator.execution._save_state()
             self._save_alert_cache()
             self.last_scan_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -716,11 +803,43 @@ class DashboardController:
             self.scan_count += 1
             self.export_static_cloud_dashboard()
             if (time.time() - self._last_git_push_ts) >= 180.0:
-                self.push_state_to_git_async("chore(state): auto-sync live Carbon V2 cloud state [skip ci]")
+                self.push_state_to_git_async(f"chore(state): auto-sync live {self.orchestrator.engine_label} cloud state [skip ci]")
         except Exception as scan_err:
             print(f"[SCAN ERROR] {scan_err}", flush=True)
         finally:
             self.is_scanning = False
+
+    def _apply_krypton_portfolio_cap(self, kr_queue: List[Dict[str, Any]]) -> None:
+        """
+        Mirror the benchmarked portfolio rule (max 3 concurrent, max 2 same side): rank live ENTER NOW breakouts
+        by breakout strength, mark the ones beyond the cap as skips, and only send Telegram alerts for the rest.
+        """
+        max_conc = int(getattr(self.config.risk, "max_concurrent_positions", 3))
+        max_side = int(getattr(self.config.risk, "max_same_side_positions", 2))
+        opens = self.orchestrator.execution.open_positions
+        n_open = len(opens)
+        side_ct = {"LONG": sum(1 for p in opens.values() if p.side == "LONG"), "SHORT": sum(1 for p in opens.values() if p.side == "SHORT")}
+        live = [
+            c for s, c in self.asset_cards.items()
+            if s not in opens and (c.get("trade_plan") or {}).get("entry_mode") == "ENTER NOW"
+        ]
+        live.sort(key=lambda c: -float(c["trade_plan"].get("breakout_score", 0.0)))
+        allowed = set()
+        for c in live:
+            tp = c["trade_plan"]
+            if n_open >= max_conc or side_ct.get(tp["side"], 0) >= max_side:
+                tp["portfolio_cap_skip"] = True
+                continue
+            tp["portfolio_cap_skip"] = False
+            allowed.add(c["symbol"])
+            n_open += 1
+            side_ct[tp["side"]] = side_ct.get(tp["side"], 0) + 1
+        for item in kr_queue:
+            if item["symbol"] in allowed:
+                self.orchestrator.telegram.send_message(item["msg"])
+            else:
+                # Do not burn the cooldown: if a slot frees up while the breakout is still valid, alert then.
+                self.sentiment_alert_cooldowns.pop(item["key"], None)
 
     def get_state_payload(self) -> Dict[str, Any]:
         open_pos_list = []
@@ -858,6 +977,24 @@ class DashboardController:
                 f"• *Your Active Targets*: TP1 `{fmt_price(open_pos.tp1_price)}` | TP2 `{fmt_price(open_pos.tp2_price)}` | SL `{fmt_price(open_pos.stop_loss)}`\n"
             )
         entry_lbl = "Maker Limit Entry" if mode == "ENTER NOW" else "Resting Maker Trap"
+        if self.orchestrator.is_krypton:
+            ex_word = "below" if side == "LONG" else "above"
+            entry_line = (
+                f"• *Market Entry*: `{tp.get('safe_entry_str')}` _(breakout confirmed on candle close)_\n"
+                if mode == "ENTER NOW"
+                else f"• *Trigger*: {side} only if a {self.timeframe} candle closes {'above' if side == 'LONG' else 'below'} `{tp.get('safe_entry_str')}`\n"
+            )
+            return (
+                f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} (Krypton V3)*\n"
+                f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}`)_\n"
+                + entry_line
+                + f"• *Stop-Loss (SL)*: `{tp.get('sl_str')}` _(1R • {tp.get('leverage', 5)}x)_\n"
+                f"• *Exit*: _no fixed TP_ — trail stop + close if a {self.timeframe} candle closes {ex_word} the exit channel "
+                f"_(milestones +3R `{tp.get('tp1_str')}` | +6R `{tp.get('tp2_str')}`)_\n"
+                f"• *Why*: _{tp.get('simple_why', '')}_"
+                + pos_block
+                + f"\n\n💡 _Tell me e.g. \"I went {side.lower()} on {sym.replace('USDT', '')} at {tp.get('safe_entry_str')} {tp.get('leverage', 5)}x\" when you enter!_"
+            )
         return (
             f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} ({conf}% Confidence)*\n"
             f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}`)_\n"
@@ -910,10 +1047,18 @@ class DashboardController:
             reverse=True,
         )
         tf_lbl = self.timeframe.upper()
-        lines = [
-            f"🎯 *BTCC CARBON V2 MAKER SIGNALS ({tf_lbl})*",
-            f"_Alert Threshold: {self.alert_confidence_threshold}%+ Conf • Post-Only Maker Limits (0.020% Fee):_\n",
-        ]
+        is_kr = self.orchestrator.is_krypton
+        lines = (
+            [
+                f"🎯 *BTCC KRYPTON V3 TREND SIGNALS ({tf_lbl})*",
+                f"_⚡ = live breakout (enter) • 👀 = enter only if a {self.timeframe} candle closes beyond the level • no fixed TP, trail exits:_\n",
+            ]
+            if is_kr
+            else [
+                f"🎯 *BTCC CARBON V2 MAKER SIGNALS ({tf_lbl})*",
+                f"_Alert Threshold: {self.alert_confidence_threshold}%+ Conf • Post-Only Maker Limits (0.020% Fee):_\n",
+            ]
+        )
         for c in cards[:top_n]:
             tp = c.get("trade_plan") or {}
             sym = c["symbol"]
@@ -925,6 +1070,22 @@ class DashboardController:
             lbl = f"{sym} (OPEN)" if is_open else sym
             arrow = "📈" if side == "LONG" else "📉"
             entry_tag = "Maker Entry" if mode == "ENTER NOW" else "Maker Trap"
+            if is_kr:
+                if mode == "ENTER NOW" or is_open:
+                    icon = "🟠" if is_open else "⚡"
+                elif "STAND ASIDE" in str(mode):
+                    icon = "⚪"
+                else:
+                    icon = "👀"
+                trig = "Entry" if mode == "ENTER NOW" else ("Trigger (close beyond)" if "STAND ASIDE" not in str(mode) else "No trend — level")
+                mode_txt = mode
+                if mode == "ENTER NOW" and tp.get("portfolio_cap_skip") and not is_open:
+                    icon, mode_txt = "⛔", "BREAKOUT — SKIP (max 3 open / 2 same side)"
+                lines.append(
+                    f"{icon} *{lbl}* — *{side} {arrow}* (`{mode_txt}`)\n"
+                    f"   {trig}: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}` | {tp.get('leverage', 5)}x)_ | SL: `{tp.get('sl_str')}`"
+                )
+                continue
             lines.append(
                 f"{icon} *{lbl}* — *{side} {arrow}* (*{conf}% Conf*)\n"
                 f"   {entry_tag}: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}` | {tp.get('leverage', 5)}x)_\n"
@@ -1810,8 +1971,8 @@ HTML_PAGE = """<!DOCTYPE html>
         <option value="1m">1m (Scalp — High Fee Hurdle)</option>
         <option value="5m">5m (Intraday — Maker Only)</option>
         <option value="15m">15m (Intraday — Maker Only)</option>
-        <option value="1h">1h (Maker-Limit Sweep Only)</option>
-        <option value="4h" selected>4h (Carbon V2 Swing &#11088; +1.26 PF OOS)</option>
+        <option value="1h">1h (Krypton V3 Trend &#11088; hold-out PF 1.80)</option>
+        <option value="4h" selected>4h (Krypton V3 Swing &#11088; hold-out PF 1.29)</option>
         <option value="1d">1d (Daily Macro Swing &#11088; Low Friction)</option>
         <option value="1w">1w (Weekly Macro Swing)</option>
         <option value="1M">1M (Monthly Macro Swing)</option>
@@ -1828,8 +1989,8 @@ HTML_PAGE = """<!DOCTYPE html>
 <div class="health-grid" id="healthGrid"></div>
 
 <div class="section-title">
-  <span>2. Carbon V2 Live Maker-Limit Signals &amp; Orderflow Traps</span>
-  <span style="font-size:0.78rem;text-transform:none;">Engine: 12-Col Taker Orderflow Climax &rarr; Purged Meta-Ensemble &rarr; Post-Only Maker Limit (0.020% Fee)</span>
+  <span>2. Live Trend Signals (Krypton V3) &amp; Breakout Watch Levels</span>
+  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA trend filter &rarr; ATR stop (1R) &rarr; chandelier trail &amp; exit-channel close (no fixed TP)</span>
 </div>
 <div class="cards-grid" id="cardsGrid"></div>
 
@@ -2030,7 +2191,8 @@ function renderDashboard(data) {
     const cvd6Pct = typeof ctel.cvd_6_pct === 'number' ? `${ctel.cvd_6_pct >= 0 ? '+' : ''}${ctel.cvd_6_pct.toFixed(1)}%` : 'n/a';
     const whaleRatio = typeof ctel.whale_print_ratio === 'number' ? `${ctel.whale_print_ratio.toFixed(2)}x` : 'n/a';
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
-    const entryLbl = isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:';
+    const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
+    const isKr = tp.engine === 'Krypton V3';
 
     return `
       <div class="asset-card rec-${c.rec_color}">
@@ -2045,7 +2207,7 @@ function renderDashboard(data) {
                 ${conf}% CONFIDENCE
               </span>
             </div>
-            <div class="sub-metrics">${isNow ? '&#9889; CARBON V2 MAKER LIMIT — ENTER NOW' : '&#127919; RESTING VWAP MAKER-LIMIT TRAP'} (${c.timeframe.toUpperCase()})</div>
+            <div class="sub-metrics">${tp.mode_label || (isNow ? '&#9889; CARBON V2 MAKER LIMIT — ENTER NOW' : '&#127919; RESTING VWAP MAKER-LIMIT TRAP')} (${c.timeframe.toUpperCase()})</div>
           </div>
           <div class="price-box">
             <div class="price-val">$${priceStr}</div>
@@ -2055,7 +2217,7 @@ function renderDashboard(data) {
 
         <div class="signal-levels" style="border-color:${isNow ? sideColor : 'var(--border)'};margin-top:4px;">
           <div style="grid-column:1 / -1;font-weight:800;color:${sideColor};font-size:0.8rem;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} ${isNow ? 'ACTIVE SETUP' : 'LIMIT TRAP'} (Click price to copy)</span>
+            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} ${isNow ? 'ACTIVE SETUP' : (isKr ? 'BREAKOUT WATCH' : 'LIMIT TRAP')} (Click price to copy)</span>
             <span style="color:${confColor};">${conf}% Conf</span>
           </div>
           <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Maker Limit Entry">
@@ -2065,10 +2227,10 @@ function renderDashboard(data) {
             <span>Stop-Loss (SL):</span> <strong style="color:var(--red)">$${slStr} &#128203;</strong>
           </div>
           <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1 (55% Partial)">
-            <span>TP1 (55% Partial):</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
+            <span>${tp.tp1_label || 'TP1 (55% Partial):'}</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
           </div>
           <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2 (45% Runner)">
-            <span>TP2 (45% Runner):</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
+            <span>${tp.tp2_label || 'TP2 (45% Runner):'}</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
           </div>
         </div>
 
@@ -2076,7 +2238,7 @@ function renderDashboard(data) {
           <div><span style="color:var(--muted);display:block;">Taker &Delta;</span><strong>${deltaPct}</strong></div>
           <div><span style="color:var(--muted);display:block;">6-Bar CVD</span><strong>${cvd6Pct}</strong></div>
           <div><span style="color:var(--muted);display:block;">Whale Print</span><strong>${whaleRatio}</strong></div>
-          <div><span style="color:var(--muted);display:block;">Meta E[R]</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
+          <div><span style="color:var(--muted);display:block;">${isKr ? 'Hold-out E[R]' : 'Meta E[R]'}</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
         </div>
 
         <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
@@ -2191,7 +2353,7 @@ function renderDashboard(data) {
 async function scanNow() {
   if (isStaticCloud) {
     await fetchState(true);
-    showCloudToast('&#9989; Synced latest live Carbon V2 state from GitHub Cloud!');
+    showCloudToast('&#9989; Synced latest live signal state from GitHub Cloud!');
     return;
   }
   await fetch('/api/scan', { method: 'POST' });
@@ -2212,7 +2374,7 @@ function openBtccDesktop(symbol, entryPrice) {
 
 async function toggleAutoScan() {
   if (isStaticCloud) {
-    showCloudToast('&#9729;&#65039; Auto-Sync pushes fresh Carbon V2 scans to this cloud page every 3 minutes 24/7.');
+    showCloudToast('&#9729;&#65039; Auto-Sync pushes fresh signal scans to this cloud page every 3 minutes 24/7.');
     return;
   }
   await fetch('/api/toggle-auto', { method: 'POST' });

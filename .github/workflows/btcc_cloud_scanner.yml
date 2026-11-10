@@ -54,6 +54,8 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: 'gemini-2.5-flash'
+          # Live alpha engine: KRYPTON_V3 (trend breakout, hold-out verified) | CARBON_V2 (previous engine)
+          ENGINE_VERSION: 'KRYPTON_V3'
           MARGIN_PER_TRADE_USD: '5.0'
           DEFAULT_LEVERAGE: '5'
           INPUT_DURATION: ${{ github.event.inputs.duration_minutes }}
