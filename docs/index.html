@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BTCC AI Trading Agent — Live Control Center</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #131b2e;
+    --panel-alt: #19233c;
+    --border: #263554;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --green: #10b981;
+    --green-bg: rgba(16, 185, 129, 0.14);
+    --red: #f43f5e;
+    --red-bg: rgba(244, 63, 94, 0.14);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.14);
+    --blue: #38bdf8;
+    --blue-bg: rgba(56, 189, 248, 0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    line-height: 1.45;
+    padding: 18px 24px 40px;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .brand h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    display: inline-block;
+  }
+  .brand p { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  button, select, input {
+    background: var(--panel-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+  button {
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  button:hover { border-color: var(--blue); background: #223052; }
+  button.primary { background: #0284c7; border-color: #38bdf8; color: #fff; }
+  button.primary:hover { background: #0369a1; }
+  button.success { background: #059669; border-color: #10b981; color: #fff; }
+  button.danger { background: #e11d48; border-color: #f43f5e; color: #fff; }
+
+  .section-title {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 18px 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* System Health Grid */
+  .health-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .health-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .health-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .badge {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .badge.ok { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16,185,129,0.35); }
+  .badge.warn { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,158,11,0.35); }
+  .badge.err { background: var(--red-bg); color: var(--red); border: 1px solid rgba(244,63,94,0.35); }
+  .health-status { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .health-detail { font-size: 0.78rem; color: var(--muted); }
+
+  /* Asset Recommendation Cards */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .asset-card {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .asset-card.rec-green { border-color: var(--green); box-shadow: 0 0 20px rgba(16, 185, 129, 0.12); }
+  .asset-card.rec-red { border-color: var(--red); box-shadow: 0 0 20px rgba(244, 63, 94, 0.12); }
+  .asset-card.rec-amber-short, .asset-card.rec-amber-long { border-color: var(--amber); }
+
+  .asset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .symbol-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cat-pill {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--panel-alt);
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .price-box { text-align: right; }
+  .price-val { font-size: 1.25rem; font-weight: 800; font-family: monospace; }
+  .sub-metrics { font-size: 0.76rem; color: var(--muted); }
+
+  .rec-banner {
+    padding: 10px 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .rec-banner.green { background: var(--green-bg); border: 1px solid var(--green); }
+  .rec-banner.red { background: var(--red-bg); border: 1px solid var(--red); }
+  .rec-banner.amber-short, .rec-banner.amber-long, .rec-banner.amber {
+    background: var(--amber-bg); border: 1px solid var(--amber);
+  }
+  .rec-banner.neutral { background: var(--panel-alt); border: 1px solid var(--border); }
+
+  .rec-action {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+  .rec-banner.green .rec-action { color: var(--green); }
+  .rec-banner.red .rec-action { color: var(--red); }
+  .rec-banner.amber-short .rec-action, .rec-banner.amber-long .rec-action { color: var(--amber); }
+  .rec-desc { font-size: 0.8rem; color: var(--text); }
+
+  .signal-levels {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px 12px;
+    font-size: 0.8rem;
+  }
+  .signal-levels div span { color: var(--muted); }
+  .signal-levels div strong { font-family: monospace; font-size: 0.88rem; }
+
+  .checklist {
+    background: var(--panel-alt);
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-size: 0.78rem;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .chk-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chk-pass { color: var(--green); font-weight: 700; }
+  .chk-wait { color: var(--muted); }
+
+  /* Two-Column Bottom Layout */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 1024px) {
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+  .panel-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 8px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  .pnl-pos { color: var(--green); font-weight: 700; font-family: monospace; }
+  .pnl-neg { color: var(--red); font-weight: 700; font-family: monospace; }
+
+  .track-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    align-items: center;
+  }
+  .track-form input, .track-form select { flex: 1; min-width: 95px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1><span class="pulse-dot" id="liveDot"></span> BTCC AI Trading Agent — Live Control Center</h1>
+    <p id="lastScanText">Initializing local scanner daemon...</p>
+  </div>
+  <div class="controls">
+    <label style="font-size:0.8rem;color:var(--muted);">Trade Margin:
+      <select id="marginSelect" onchange="changeRisk()">
+        <option value="2">$2 (Ultra-Micro)</option>
+        <option value="5" selected>$5 (Micro / Low-Risk)</option>
+        <option value="10">$10 (Small)</option>
+        <option value="25">$25 (Moderate)</option>
+        <option value="100">$100 (Standard)</option>
+      </select>
+    </label>
+    <label style="font-size:0.8rem;color:var(--muted);">Max Leverage:
+      <select id="levSelect" onchange="changeRisk()">
+        <option value="3">3x (Ultra-Low)</option>
+        <option value="5" selected>5x (Lowest Multiplier)</option>
+        <option value="10">10x (Conservative)</option>
+        <option value="20">20x (Low Risk)</option>
+        <option value="50">50x (Medium)</option>
+        <option value="100">100x (High)</option>
+      </select>
+    </label>
+    <label style="font-size:0.8rem;color:var(--muted);">Timeframe:
+      <select id="tfSelect" onchange="changeTimeframe(this.value)">
+        <option value="1m">1m (Scalp)</option>
+        <option value="5m">5m (Intraday)</option>
+        <option value="15m">15m (Intraday)</option>
+        <option value="1h">1h (Hourly — 65.7% WR)</option>
+        <option value="4h" selected>4h (Multi-Day Swing ⭐ 73.8% WR)</option>
+        <option value="1d">1d (Daily / 1-Wk Hold ⭐ 88.2% WR)</option>
+        <option value="1w">1w (Weekly Macro — 75.0% WR)</option>
+        <option value="1M">1M (Monthly Macro — 68.5% WR)</option>
+      </select>
+    </label>
+    <button class="primary" onclick="scanNow()">Scan All Now</button>
+    <button id="toggleAutoBtn" onclick="toggleAutoScan()">Auto-Scan: ON (15s)</button>
+  </div>
+</header>
+
+<div class="section-title">
+  <span>1. System Status & Component Diagnostics (What Is & Isn't Working)</span>
+</div>
+<div class="health-grid" id="healthGrid"></div>
+
+<div class="section-title">
+  <span>2. Live Buy / Sell Recommendations & Setup Checklist</span>
+  <span style="font-size:0.78rem;text-transform:none;">Strategy: Impulse Spike/Dump &rarr; Tight Flatline &rarr; Reversal Fade</span>
+</div>
+<div class="cards-grid" id="cardsGrid"></div>
+
+<div class="bottom-grid">
+  <div class="panel-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="font-size:1rem;">3. Active Positions & Profit-Flatline Stall Monitor</h3>
+      <span id="accountSummary" style="font-size:0.82rem;color:var(--muted);"></span>
+    </div>
+    <div id="positionsContainer"></div>
+
+    <div class="track-form">
+      <strong style="font-size:0.8rem;width:100%;color:var(--blue);">+ Manually Track a BTCC Trade (Monitors for Profit-Flatline Stall & TP/SL):</strong>
+      <select id="trkSymbol">
+        <option value="XRPUSDT">XRPUSDT</option>
+        <option value="DOGEUSDT">DOGEUSDT</option>
+        <option value="SUIUSDT">SUIUSDT</option>
+        <option value="SOLUSDT">SOLUSDT</option>
+        <option value="ETHUSDT">ETHUSDT</option>
+        <option value="BTCUSDT">BTCUSDT</option>
+        <option value="XAUUSDT">XAUUSDT (Gold)</option>
+        <option value="XAGUSDT">XAGUSDT (Silver)</option>
+        <option value="PEPEUSDT">PEPEUSDT</option>
+        <option value="AVAXUSDT">AVAXUSDT</option>
+        <option value="WIFUSDT">WIFUSDT</option>
+        <option value="INJUSDT">INJUSDT</option>
+        <option value="NVDAUSDT">NVDAUSDT</option>
+      </select>
+      <select id="trkSide">
+        <option value="LONG">BUY / LONG</option>
+        <option value="SHORT">SELL / SHORT</option>
+      </select>
+      <input type="number" step="any" id="trkEntry" placeholder="Entry Price (blank = current)" />
+      <input type="number" id="trkLev" value="5" min="2" max="500" placeholder="Leverage (e.g. 5)" />
+      <button class="success" onclick="trackManualTrade()">Track Trade</button>
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h3 style="font-size:1rem;">4. Per-Asset Backtest Optimizer & Recent Exit Alerts</h3>
+    <p style="font-size:0.78rem;color:var(--muted);margin-top:4px;">
+      Click <strong>Optimize</strong> on any asset to sweep parameter combinations on historical candles and save its best profile to <code>state/</code>:
+    </p>
+    <div id="optimizerList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+
+    <h4 style="font-size:0.85rem;color:var(--muted);margin-top:18px;text-transform:uppercase;">Recent Exit / Stall Alerts & Closed Trades</h4>
+    <div id="alertsContainer" style="margin-top:8px;max-height:180px;overflow-y:auto;font-size:0.8rem;"></div>
+
+    <div class="track-form" style="margin-top:16px;">
+      <strong style="font-size:0.82rem;width:100%;color:var(--green);">5. Quick-Connect Telegram Phone Alerts &amp; Gemini API (Saves to .env):</strong>
+      <p style="font-size:0.75rem;color:var(--muted);width:100%;">
+        1. In Telegram, message <code>@BotFather</code> &rarr; send <code>/newbot</code> &rarr; copy the token.<br/>
+        2. Send any message (like <code>hi</code>) to your new bot in Telegram, paste the token below, and click <strong>Connect &amp; Test Telegram</strong> (Chat ID auto-detects!).
+      </p>
+      <input type="text" id="tgToken" placeholder="Telegram Bot Token (123456:ABC...)" style="min-width:210px;" />
+      <input type="text" id="tgChatId" placeholder="Chat ID (leave blank to auto-detect)" style="min-width:160px;" />
+      <input type="password" id="geminiKey" placeholder="Optional: Gemini API Key" style="min-width:160px;" />
+      <button class="primary" onclick="connectTelegram()">Connect &amp; Send Test Alert</button>
+      <div id="tgStatusMsg" style="width:100%;font-size:0.78rem;margin-top:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentState = null;
+
+let isStaticCloud = false;
+
+async function fetchState() {
+  try {
+    let res = await fetch('/api/state', { cache: 'no-store' });
+    if (!res.ok) {
+      isStaticCloud = true;
+      res = await fetch('./state.json?t=' + Date.now(), { cache: 'no-store' });
+    }
+    const data = await res.json();
+    currentState = data;
+    renderDashboard(data);
+  } catch (e) {
+    try {
+      isStaticCloud = true;
+      const res2 = await fetch('./state.json?t=' + Date.now(), { cache: 'no-store' });
+      const data2 = await res2.json();
+      currentState = data2;
+      renderDashboard(data2);
+    } catch (e2) {
+      document.getElementById('lastScanText').innerText = 'Connection error: ' + e;
+    }
+  }
+}
+
+function renderDashboard(data) {
+  document.getElementById('tfSelect').value = data.timeframe;
+  if (data.risk) {
+    const mSel = document.getElementById('marginSelect');
+    const lSel = document.getElementById('levSelect');
+    if (mSel && document.activeElement !== mSel) mSel.value = String(Math.round(data.risk.margin_per_trade_usd));
+    if (lSel && document.activeElement !== lSel) lSel.value = String(data.risk.default_leverage);
+  }
+  const modePrefix = isStaticCloud ? '☁️ Cloud Mobile View (@kaintraderbot)' : 'Running locally';
+  document.getElementById('lastScanText').innerText =
+    `${modePrefix} | Last scan: ${data.last_scan_ts || 'Running...'} | Alert Threshold: ${data.alert_confidence_threshold || 80}%+`;
+
+  const autoBtn = document.getElementById('toggleAutoBtn');
+  autoBtn.innerText = data.auto_scan_enabled ? `Auto-Scan: ON (${data.poll_interval_sec}s)` : 'Auto-Scan: PAUSED';
+  document.getElementById('liveDot').style.background = data.auto_scan_enabled ? 'var(--green)' : 'var(--amber)';
+
+  // 1. Render Diagnostics
+  const d = data.diagnostics;
+  const healthItems = [
+    { title: 'Auto-Scanner Daemon', info: d.scanner_daemon, badgeClass: d.scanner_daemon.working ? 'ok' : 'warn' },
+    { title: 'Live Market Feeds', info: d.market_data_feeds, badgeClass: d.market_data_feeds.working ? 'ok' : 'err' },
+    { title: 'Backtest Profiles', info: d.strategy_optimizers, badgeClass: d.strategy_optimizers.working ? 'ok' : 'warn' },
+    { title: 'Sentiment Analyst', info: d.sentiment_agent, badgeClass: d.sentiment_agent.mode === 'GEMINI_LIVE_SEARCH' ? 'ok' : 'warn' },
+    { title: 'Telegram Bot Alerts', info: d.telegram_alerts, badgeClass: d.telegram_alerts.working ? 'ok' : 'warn' },
+    { title: 'Execution & Tracking', info: d.btcc_execution, badgeClass: 'ok' }
+  ];
+  document.getElementById('healthGrid').innerHTML = healthItems.map(item => `
+    <div class="health-card">
+      <div class="health-top">
+        <span>${item.title}</span>
+        <span class="badge ${item.badgeClass}">${item.info.working ? 'WORKING' : 'OPTIONAL / OFF'}</span>
+      </div>
+      <div class="health-status">${item.info.status}</div>
+      <div class="health-detail">${item.info.detail}</div>
+    </div>
+  `).join('');
+
+  // 2. Render Asset Recommendation Cards (Sorted by Highest Confidence & Active Status, Single Unified Trade Box)
+  const profiles = d.strategy_optimizers.profiles || {};
+  const cards = Object.values(data.asset_cards || {}).sort((a, b) => {
+    const tpA = a.trade_plan || {};
+    const tpB = b.trade_plan || {};
+    const actA = tpA.entry_mode === 'ENTER NOW' ? 1 : 0;
+    const actB = tpB.entry_mode === 'ENTER NOW' ? 1 : 0;
+    if (actA !== actB) return actB - actA;
+    return (tpB.confidence_pct || 0) - (tpA.confidence_pct || 0);
+  });
+  document.getElementById('cardsGrid').innerHTML = cards.map(c => {
+    const tp = c.trade_plan || {};
+    const side = tp.side || 'LONG';
+    const isLong = side === 'LONG';
+    const isNow = tp.entry_mode === 'ENTER NOW';
+    const conf = tp.confidence_pct || 65;
+    const confColor = conf >= 78 ? 'var(--green)' : (conf >= 65 ? 'var(--blue)' : 'var(--amber)');
+    const sideColor = isLong ? 'var(--green)' : 'var(--red)';
+    const sideBg = isLong ? 'rgba(16,185,129,0.14)' : 'rgba(244,63,94,0.14)';
+    const mUsd = tp.margin_usd || c.margin_per_trade_usd || 5;
+    const lev = tp.leverage || c.rec_leverage || 5;
+    const priceStr = c.price_str || c.price;
+    const entryStr = tp.safe_entry_str || tp.safe_entry || priceStr;
+    const slStr = tp.sl_str || tp.sl;
+    const tp1Str = tp.tp1_str || tp.tp1;
+    const tp2Str = tp.tp2_str || tp.tp2;
+
+    return `
+      <div class="asset-card rec-${c.rec_color}">
+        <div class="asset-header">
+          <div>
+            <div class="symbol-title">
+              ${c.symbol}
+              <span class="cat-pill" style="background:${sideBg};color:${sideColor};border:1px solid ${sideColor};font-weight:800;">
+                ${side} ${isLong ? '&#9650;' : '&#9660;'}
+              </span>
+              <span class="cat-pill" style="color:${confColor};border:1px solid ${confColor};font-weight:800;">
+                ${conf}% CONFIDENCE
+              </span>
+            </div>
+            <div class="sub-metrics">${isNow ? '&#9889; ACTIVE BREAKOUT — ENTER NOW' : '&#9203; WAIT FOR SAFE ENTRY LEVEL'} (${c.timeframe.toUpperCase()})</div>
+          </div>
+          <div class="price-box">
+            <div class="price-val">$${priceStr}</div>
+            <div class="sub-metrics">Live Price</div>
+          </div>
+        </div>
+
+        <div class="signal-levels" style="border-color:${isNow ? sideColor : 'var(--border)'};margin-top:4px;">
+          <div style="grid-column:1 / -1;font-weight:800;color:${sideColor};font-size:0.8rem;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} SETUP (Click any price to copy)</span>
+            <span style="color:${confColor};">${conf}% Conf</span>
+          </div>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Safe Entry">
+            <span>Safe Entry:</span> <strong>$${entryStr} &#128203;</strong>
+          </div>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${slStr}', this)" title="Click to copy Stop-Loss">
+            <span>Stop-Loss (SL):</span> <strong style="color:var(--red)">$${slStr} &#128203;</strong>
+          </div>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1">
+            <span>Take-Profit 1 (TP1):</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
+          </div>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2">
+            <span>Take-Profit 2 (TP2):</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
+          </div>
+        </div>
+
+        <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
+          ${tp.simple_why || ''} &bull; Size: <strong>$${mUsd} @ ${lev}x</strong>
+        </div>
+
+        <div style="display:flex;gap:6px;margin-top:2px;">
+          <button class="primary" style="flex:1.4;" onclick="quickTrack('${c.symbol}', '${side}', ${tp.safe_entry || c.price}, ${lev})">
+            Track ${side} ($${mUsd} @ ${lev}x)
+          </button>
+          <button style="flex:1;" onclick="openBtccDesktop('${c.symbol}', '${entryStr}')">
+            Open BTCC &#8599;
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 3. Render Active Positions
+  document.getElementById('accountSummary').innerText =
+    `Reserve: $${data.portfolio.account_balance_usd.toFixed(2)} | Daily Realized PnL: $${data.portfolio.daily_realized_pnl_usd.toFixed(2)}`;
+
+  const openPos = data.portfolio.open_positions || [];
+  if (openPos.length === 0) {
+    document.getElementById('positionsContainer').innerHTML =
+      `<p style="color:var(--muted);font-size:0.84rem;padding:12px 0;">No active positions currently open. Use the form below or click a confirmed signal card to track a trade.</p>`;
+  } else {
+    document.getElementById('positionsContainer').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Side / Lev</th>
+            <th>Entry &rarr; Current</th>
+            <th>TP1 / TP2 / SL</th>
+            <th>Unrealized PnL (ROE)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${openPos.map(p => `
+            <tr>
+              <td><strong>${p.symbol}</strong></td>
+              <td><span class="badge ${p.side === 'LONG' ? 'ok' : 'err'}">${p.side} ${p.leverage}x</span></td>
+              <td style="font-family:monospace;">$${p.entry_price} &rarr; <strong>$${p.current_price}</strong></td>
+              <td style="font-family:monospace;font-size:0.75rem;">
+                TP1: $${p.tp1_price}<br/>TP2: $${p.tp2_price}<br/>SL: <span style="color:var(--red)">$${p.stop_loss}</span>
+              </td>
+              <td class="${p.unrealized_pnl_usd >= 0 ? 'pnl-pos' : 'pnl-neg'}">
+                ${p.unrealized_pnl_usd >= 0 ? '+' : ''}$${p.unrealized_pnl_usd.toFixed(2)} (${p.unrealized_roe_pct >= 0 ? '+' : ''}${p.unrealized_roe_pct.toFixed(1)}%)
+              </td>
+              <td><button class="danger" style="padding:4px 8px;font-size:0.75rem;" onclick="closePosition('${p.symbol}')">Close</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // 4. Render Optimizer Status List
+  const jobs = data.backtest_jobs || {};
+  document.getElementById('optimizerList').innerHTML = Object.keys(profiles).map(sym => {
+    const prof = profiles[sym];
+    const job = jobs[`${sym}_${data.timeframe}`];
+    const isRunning = job && job.status === 'RUNNING';
+    let statusSpan = '';
+    if (prof.optimized) {
+      if (prof.profitable) {
+        statusSpan = `<span style="color:var(--green);margin-left:6px;font-weight:600;">&#10003; WORKING (Win Rate: ${prof.win_rate_pct}%, PF: ${prof.profit_factor}, Net: +$${prof.total_net_pnl_usd}, Stall Saves: ${prof.profit_stall_exits})</span>`;
+      } else {
+        statusSpan = `<span style="color:var(--red);margin-left:6px;font-weight:600;">&#9888; UNDERPERFORMING (Win Rate: ${prof.win_rate_pct}%, PF: ${prof.profit_factor}, Net: $${prof.total_net_pnl_usd})</span>`;
+      }
+    } else {
+      statusSpan = `<span style="color:var(--amber);margin-left:6px;">Using Default Profile (Not Yet Optimized on ${data.timeframe})</span>`;
+    }
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--panel-alt);padding:8px 12px;border-radius:6px;font-size:0.82rem;">
+        <div>
+          <strong>${sym} (${data.timeframe})</strong>:
+          ${statusSpan}
+        </div>
+        <button onclick="runBacktest('${sym}')" ${isRunning ? 'disabled' : ''}>
+          ${isRunning ? 'Optimizing...' : (prof.optimized ? 'Re-Optimize' : 'Optimize Now')}
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  // 5. Render Recent Alerts & Closed Trades
+  const alerts = data.recent_alerts || [];
+  const closed = (data.portfolio.closed_trades || []).slice(-6).reverse();
+  let alertsHtml = '';
+  if (alerts.length === 0 && closed.length === 0) {
+    alertsHtml = `<p style="color:var(--muted);">No exit/stall alerts fired yet in this session.</p>`;
+  } else {
+    alertsHtml += alerts.map(a => `
+      <div style="padding:6px 8px;border-left:3px solid var(--amber);background:var(--panel-alt);margin-bottom:6px;">
+        <strong>[${a.time}] ${a.symbol} ${a.side} — ${a.reason}</strong> (${a.roe_pct >= 0 ? '+' : ''}${a.roe_pct}% ROE / $${a.pnl_usd})<br/>
+        <span style="color:var(--muted);">${a.explanation}</span>
+      </div>
+    `).join('');
+    alertsHtml += closed.map(c => `
+      <div style="padding:6px 8px;border-left:3px solid ${c.net_pnl_usd >= 0 ? 'var(--green)' : 'var(--red)'};background:var(--panel-alt);margin-bottom:6px;">
+        <strong>Closed ${c.symbol} ${c.side} (${c.leverage}x)</strong> &bull; ${c.exit_reason} &bull;
+        <span class="${c.net_pnl_usd >= 0 ? 'pnl-pos' : 'pnl-neg'}">${c.net_pnl_usd >= 0 ? '+' : ''}$${c.net_pnl_usd} (${c.roe_pct}%)</span>
+      </div>
+    `).join('');
+  }
+  document.getElementById('alertsContainer').innerHTML = alertsHtml;
+}
+
+async function scanNow() {
+  await fetch('/api/scan', { method: 'POST' });
+  await fetchState();
+}
+
+function copyPrice(val, el) {
+  navigator.clipboard.writeText(String(val));
+  const orig = el.innerHTML;
+  el.innerHTML = `<span style="color:var(--green);font-weight:800;">&#10003; Copied $${val}!</span>`;
+  setTimeout(() => { el.innerHTML = orig; }, 1200);
+}
+
+function openBtccDesktop(symbol, entryPrice) {
+  navigator.clipboard.writeText(String(entryPrice));
+  window.open('https://www.btcc.com/en-US/trade/perpetual/' + symbol, '_blank');
+}
+
+async function toggleAutoScan() {
+  await fetch('/api/toggle-auto', { method: 'POST' });
+  await fetchState();
+}
+
+async function changeTimeframe(tf) {
+  await fetch('/api/timeframe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ timeframe: tf })
+  });
+  await fetchState();
+}
+
+async function changeRisk() {
+  const margin = parseFloat(document.getElementById('marginSelect').value || '5');
+  const lev = parseInt(document.getElementById('levSelect').value || '20', 10);
+  document.getElementById('trkLev').value = lev;
+  await fetch('/api/risk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ margin_per_trade_usd: margin, default_leverage: lev })
+  });
+  await fetchState();
+}
+
+async function trackManualTrade() {
+  const symbol = document.getElementById('trkSymbol').value;
+  const side = document.getElementById('trkSide').value;
+  const entryRaw = document.getElementById('trkEntry').value;
+  const leverage = parseInt(document.getElementById('trkLev').value || '100', 10);
+  const entry_price = entryRaw ? parseFloat(entryRaw) : null;
+
+  await fetch('/api/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ symbol, side, entry_price, leverage })
+  });
+  document.getElementById('trkEntry').value = '';
+  await fetchState();
+}
+
+async function quickTrack(symbol, side, entry_price, leverage) {
+  await fetch('/api/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ symbol, side, entry_price, leverage })
+  });
+  await fetchState();
+}
+
+async function closePosition(symbol) {
+  await fetch('/api/close', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ symbol })
+  });
+  await fetchState();
+}
+
+async function runBacktest(symbol) {
+  await fetch('/api/backtest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ symbol })
+  });
+  await fetchState();
+}
+
+async function connectTelegram() {
+  const bot_token = document.getElementById('tgToken').value.trim();
+  const chat_id = document.getElementById('tgChatId').value.trim();
+  const gemini_key = document.getElementById('geminiKey').value.trim();
+  const statusEl = document.getElementById('tgStatusMsg');
+  statusEl.style.color = 'var(--blue)';
+  statusEl.innerText = 'Connecting & checking Telegram...';
+
+  const res = await fetch('/api/connect-telegram', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bot_token, chat_id, gemini_key })
+  });
+  const out = await res.json();
+  statusEl.style.color = out.ok ? 'var(--green)' : 'var(--red)';
+  statusEl.innerText = out.message || '';
+  await fetchState();
+}
+
+fetchState();
+setInterval(fetchState, 4000);
+</script>
+</body>
+</html>

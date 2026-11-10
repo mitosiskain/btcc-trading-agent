@@ -640,10 +640,55 @@ class DashboardController:
             self.last_scan_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
             self.last_scan_duration_ms = int((time.time() - t0) * 1000)
             self.scan_count += 1
+            self.export_static_cloud_dashboard()
         except Exception as scan_err:
             print(f"[SCAN ERROR] {scan_err}", flush=True)
         finally:
             self.is_scanning = False
+
+    def get_state_payload(self) -> Dict[str, Any]:
+        open_pos_list = []
+        for sym, p in self.orchestrator.execution.open_positions.items():
+            d = asdict(p)
+            d["unrealized_pnl_usd"] = round(p.unrealized_pnl_usd(), 2)
+            d["unrealized_roe_pct"] = round(p.unrealized_roe_pct(), 2)
+            open_pos_list.append(d)
+
+        return {
+            "timeframe": self.timeframe,
+            "poll_interval_sec": self.poll_interval_sec,
+            "auto_scan_enabled": self.auto_scan_enabled,
+            "is_scanning": self.is_scanning,
+            "last_scan_ts": self.last_scan_ts,
+            "last_scan_duration_ms": self.last_scan_duration_ms,
+            "scan_count": self.scan_count,
+            "alert_confidence_threshold": self.alert_confidence_threshold,
+            "diagnostics": self.get_system_diagnostics(),
+            "risk": asdict(self.config.risk),
+            "asset_cards": self.asset_cards,
+            "portfolio": {
+                "account_balance_usd": self.orchestrator.execution.account_balance_usd,
+                "daily_realized_pnl_usd": self.orchestrator.execution.daily_realized_pnl_usd,
+                "open_positions": open_pos_list,
+                "closed_trades": [asdict(c) for c in self.orchestrator.execution.closed_trades],
+            },
+            "recent_alerts": self.recent_alerts,
+            "backtest_jobs": self.backtest_jobs,
+        }
+
+    def export_static_cloud_dashboard(self) -> None:
+        """Write docs/index.html + docs/state.json (and root state.json/index.html) for GitHub Pages phone access."""
+        try:
+            root = Path(__file__).resolve().parent
+            state_json = json.dumps(self.get_state_payload(), indent=2)
+            for out_dir in (root / "docs", root / "btcc"):
+                out_dir.mkdir(parents=True, exist_ok=True)
+                (out_dir / "index.html").write_text(HTML_PAGE)
+                (out_dir / "state.json").write_text(state_json)
+            (root / "index.html").write_text(HTML_PAGE)
+            (root / "state.json").write_text(state_json)
+        except Exception:
+            pass
 
     def trigger_backtest_async(self, symbol: str, timeframe: str) -> None:
         key = f"{symbol}_{timeframe}"
@@ -1668,14 +1713,28 @@ HTML_PAGE = """<!DOCTYPE html>
 <script>
 let currentState = null;
 
+let isStaticCloud = false;
+
 async function fetchState() {
   try {
-    const res = await fetch('/api/state');
+    let res = await fetch('/api/state', { cache: 'no-store' });
+    if (!res.ok) {
+      isStaticCloud = true;
+      res = await fetch('./state.json?t=' + Date.now(), { cache: 'no-store' });
+    }
     const data = await res.json();
     currentState = data;
     renderDashboard(data);
   } catch (e) {
-    document.getElementById('lastScanText').innerText = 'Connection error: ' + e;
+    try {
+      isStaticCloud = true;
+      const res2 = await fetch('./state.json?t=' + Date.now(), { cache: 'no-store' });
+      const data2 = await res2.json();
+      currentState = data2;
+      renderDashboard(data2);
+    } catch (e2) {
+      document.getElementById('lastScanText').innerText = 'Connection error: ' + e;
+    }
   }
 }
 
@@ -1687,8 +1746,9 @@ function renderDashboard(data) {
     if (mSel && document.activeElement !== mSel) mSel.value = String(Math.round(data.risk.margin_per_trade_usd));
     if (lSel && document.activeElement !== lSel) lSel.value = String(data.risk.default_leverage);
   }
+  const modePrefix = isStaticCloud ? '☁️ Cloud Mobile View (@kaintraderbot)' : 'Running locally';
   document.getElementById('lastScanText').innerText =
-    `Running locally | Last scan: ${data.last_scan_ts || 'Running...'} (${data.last_scan_duration_ms}ms) | Total passes: ${data.scan_count}`;
+    `${modePrefix} | Last scan: ${data.last_scan_ts || 'Running...'} | Alert Threshold: ${data.alert_confidence_threshold || 80}%+`;
 
   const autoBtn = document.getElementById('toggleAutoBtn');
   autoBtn.innerText = data.auto_scan_enabled ? `Auto-Scan: ON (${data.poll_interval_sec}s)` : 'Auto-Scan: PAUSED';

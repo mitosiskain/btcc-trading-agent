@@ -68,12 +68,12 @@ jobs:
           fi
           python -u cloud_runner.py --timeframe "$TF" --duration-minutes "$DUR" --git-sync $SUMMARY_FLAG
 
-      - name: Persist Open Positions & Alert Cache
+      - name: Persist Open Positions, Alert Cache & Phone Web GUI
         if: always()
         run: |
-          git add state/portfolio_state.json state/cloud_alert_cache.json 2>/dev/null || true
+          git add state/portfolio_state.json state/cloud_alert_cache.json docs/index.html docs/state.json btcc/index.html btcc/state.json index.html state.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
-            git commit -m "chore(state): update cloud portfolio & alert cache [skip ci]"
-            git pull --rebase origin main || true
-            git push origin main || true
+            git commit -m "chore(state): update cloud portfolio & live phone web GUI [skip ci]"
+            git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true
+            git push origin HEAD 2>/dev/null || true
           fi

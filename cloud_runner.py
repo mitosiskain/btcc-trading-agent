@@ -12,10 +12,21 @@ from gui_dashboard import DashboardController
 
 
 def sync_state_to_git() -> None:
-    """Commit and push updated portfolio & alert cache to GitHub if running in cloud CI."""
+    """Commit and push updated portfolio, alert cache & static phone dashboard to GitHub."""
     try:
         subprocess.run(
-            ["git", "add", "state/portfolio_state.json", "state/cloud_alert_cache.json"],
+            [
+                "git",
+                "add",
+                "state/portfolio_state.json",
+                "state/cloud_alert_cache.json",
+                "docs/index.html",
+                "docs/state.json",
+                "btcc/index.html",
+                "btcc/state.json",
+                "index.html",
+                "state.json",
+            ],
             check=False,
             capture_output=True,
             timeout=10,
