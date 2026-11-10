@@ -3,15 +3,15 @@
   "poll_interval_sec": 15,
   "auto_scan_enabled": true,
   "is_scanning": true,
-  "last_scan_ts": "2026-11-10 12:33:23 UTC",
-  "last_scan_duration_ms": 24501,
-  "scan_count": 12,
+  "last_scan_ts": "2026-11-10 12:34:24 UTC",
+  "last_scan_duration_ms": 24518,
+  "scan_count": 13,
   "alert_confidence_threshold": 80,
   "diagnostics": {
     "scanner_daemon": {
       "working": true,
       "status": "ACTIVE (AUTO-RUNNING)",
-      "detail": "Scans every 15s (12 scans completed, 24501ms last pass)"
+      "detail": "Scans every 15s (13 scans completed, 24518ms last pass)"
     },
     "market_data_feeds": {
       "working": true,
@@ -20,94 +20,94 @@
       "per_symbol": {
         "XRPUSDT": {
           "ok": true,
-          "latency_ms": 1737,
+          "latency_ms": 1788,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:00 UTC"
+          "updated_at": "12:34:02 UTC"
         },
         "DOGEUSDT": {
           "ok": true,
-          "latency_ms": 1735,
+          "latency_ms": 1741,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:02 UTC"
+          "updated_at": "12:34:04 UTC"
         },
         "SUIUSDT": {
           "ok": true,
-          "latency_ms": 1699,
+          "latency_ms": 1757,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:04 UTC"
+          "updated_at": "12:34:06 UTC"
         },
         "SOLUSDT": {
           "ok": true,
-          "latency_ms": 1718,
+          "latency_ms": 1667,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:06 UTC"
+          "updated_at": "12:34:08 UTC"
         },
         "ETHUSDT": {
+          "ok": true,
+          "latency_ms": 1717,
+          "bars": 140,
+          "source": "Binance Perps / Spot",
+          "updated_at": "12:34:10 UTC"
+        },
+        "BTCUSDT": {
           "ok": true,
           "latency_ms": 1654,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:08 UTC"
-        },
-        "BTCUSDT": {
-          "ok": true,
-          "latency_ms": 1685,
-          "bars": 140,
-          "source": "Binance Perps / Spot",
-          "updated_at": "12:33:10 UTC"
+          "updated_at": "12:34:12 UTC"
         },
         "XAUUSDT": {
           "ok": true,
-          "latency_ms": 1125,
+          "latency_ms": 1140,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:12 UTC"
+          "updated_at": "12:34:14 UTC"
         },
         "XAGUSDT": {
           "ok": true,
-          "latency_ms": 1165,
+          "latency_ms": 1177,
           "bars": 140,
           "source": "Yahoo (SI=F)",
-          "updated_at": "12:33:13 UTC"
+          "updated_at": "12:34:15 UTC"
         },
         "PEPEUSDT": {
           "ok": true,
-          "latency_ms": 1803,
+          "latency_ms": 1713,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:15 UTC"
+          "updated_at": "12:34:17 UTC"
         },
         "AVAXUSDT": {
+          "ok": true,
+          "latency_ms": 1722,
+          "bars": 140,
+          "source": "Binance Perps / Spot",
+          "updated_at": "12:34:19 UTC"
+        },
+        "WIFUSDT": {
+          "ok": true,
+          "latency_ms": 1689,
+          "bars": 140,
+          "source": "Binance Perps / Spot",
+          "updated_at": "12:34:21 UTC"
+        },
+        "INJUSDT": {
           "ok": true,
           "latency_ms": 1716,
           "bars": 140,
           "source": "Binance Perps / Spot",
-          "updated_at": "12:33:17 UTC"
-        },
-        "WIFUSDT": {
-          "ok": true,
-          "latency_ms": 1756,
-          "bars": 140,
-          "source": "Binance Perps / Spot",
-          "updated_at": "12:33:19 UTC"
-        },
-        "INJUSDT": {
-          "ok": true,
-          "latency_ms": 1683,
-          "bars": 140,
-          "source": "Binance Perps / Spot",
-          "updated_at": "12:33:21 UTC"
+          "updated_at": "12:34:23 UTC"
         },
         "NVDAUSDT": {
           "ok": true,
-          "latency_ms": 462,
+          "latency_ms": 459,
           "bars": 140,
           "source": "Yahoo (NVDA)",
-          "updated_at": "12:33:22 UTC"
+          "updated_at": "12:34:24 UTC"
         }
       }
     },
@@ -276,16 +276,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 1.0769,
-      "price_str": "1.0769",
-      "rsi": 24.7,
+      "price": 1.0786,
+      "price_str": "1.0786",
+      "rsi": 25.2,
       "atr": 0.0221,
       "atr_str": "0.0221",
       "range_low": 1.0743,
       "range_low_str": "1.0743",
       "range_high": 1.3389,
       "range_high_str": "1.3389",
-      "range_pos_pct": 1.0,
+      "range_pos_pct": 1.6,
       "recommendation": "LONG \ud83d\udcc8 \u2014 74% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $1.0825 | TP1: $1.0958 | TP2: $1.1103 | SL: $1.0741 \u2022 Backtest 83% WR \u2022 Macro BEARISH \u2022 Sentiment 62% Bear",
@@ -325,8 +325,8 @@
         "up_breakout_trigger": 1.106,
         "down_breakout_trigger": 1.0743,
         "box_range_atr": 1.57,
-        "dist_to_up_breakout_pct": 2.7,
-        "dist_to_down_breakout_pct": 0.24,
+        "dist_to_up_breakout_pct": 2.56,
+        "dist_to_down_breakout_pct": 0.38,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
         "closeup_status": "4H Range [$1.074 \u2013 $1.106] (1.57x ATR) \u2022 Pre-Set LONG Trigger @ $1.0825",
@@ -334,7 +334,7 @@
           "side": "LONG",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
           "trigger_entry_price": 1.0825,
-          "limit_entry_price": 1.0769,
+          "limit_entry_price": 1.0784,
           "stop_loss": 1.0741,
           "tp1_price": 1.0958,
           "tp2_price": 1.1103,
@@ -418,9 +418,9 @@
         "p_value": 0.2807,
         "confidence_pct": 71.9,
         "stage": "POST_MOVE_EXHAUSTED",
-        "stage_label": "MOVE ALREADY PLAYED OUT (RSI 24.7 Exhausted) \u2014 Wait for 3-Bar Stability Box",
+        "stage_label": "MOVE ALREADY PLAYED OUT (RSI 25.2 Exhausted) \u2014 Wait for 3-Bar Stability Box",
         "in_pre_move_box": false,
-        "early_entry_price": 1.0769,
+        "early_entry_price": 1.0786,
         "trigger_entry_price": 1.0732,
         "stop_loss": 1.11152,
         "tp1_price": 1.02722,
@@ -428,7 +428,7 @@
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$1.074\u2013$1.106] before full expansion",
-          "Exhausted Oversold Floor RSI (24.7 < 34) \u2014 Bearish dump already played out; do NOT chase short at floor!",
+          "Exhausted Oversold Floor RSI (25.2 < 34) \u2014 Bearish dump already played out; do NOT chase short at floor!",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: NEUTRAL \u2022 1M: BEARISH)"
         ],
         "top_headlines": [
@@ -464,7 +464,7 @@
         1.0921,
         1.0947,
         1.078,
-        1.0769
+        1.0786
       ]
     },
     "DOGEUSDT": {
@@ -478,16 +478,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 0.06927,
-      "price_str": "0.06927",
-      "rsi": 40.4,
+      "price": 0.06934,
+      "price_str": "0.06934",
+      "rsi": 40.7,
       "atr": 0.00125,
       "atr_str": "0.00125",
       "range_low": 0.0676,
       "range_low_str": "0.0676",
       "range_high": 0.07828,
       "range_high_str": "0.07828",
-      "range_pos_pct": 15.6,
+      "range_pos_pct": 16.3,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 77% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $0.06909 | TP1: $0.0672 | TP2: $0.06579 | SL: $0.07027 \u2022 Backtest 64% WR \u2022 Macro BEARISH \u2022 Sentiment 55% Bear",
@@ -527,11 +527,11 @@
         "up_breakout_trigger": 0.07026,
         "down_breakout_trigger": 0.06912,
         "box_range_atr": 0.98,
-        "dist_to_up_breakout_pct": 1.43,
-        "dist_to_down_breakout_pct": 0.22,
+        "dist_to_up_breakout_pct": 1.33,
+        "dist_to_down_breakout_pct": 0.32,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\u26a1 TESTING 4H BOX FLOOR ($0.06912, -0.22% away) \u2014 Set Trigger SHORT @ $0.06909!",
+        "closeup_status": "\u26a1 TESTING 4H BOX FLOOR ($0.06912, -0.32% away) \u2014 Set Trigger SHORT @ $0.06909!",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
@@ -622,15 +622,15 @@
         "stage": "PRE_MOVE_COILED_READY",
         "stage_label": "PRE-MOVE STABILITY WINDOW (Get In Before Move / Box Trigger)",
         "in_pre_move_box": true,
-        "early_entry_price": 0.06927,
+        "early_entry_price": 0.06934,
         "trigger_entry_price": 0.06906,
-        "stop_loss": 0.0707,
-        "tp1_price": 0.06709,
-        "tp2_price": 0.06512,
+        "stop_loss": 0.07077,
+        "tp1_price": 0.06701,
+        "tp2_price": 0.06496,
         "recommended_leverage": 5,
         "overlap_factors": [
           "PRE-MOVE STABILITY BOX: Coiling inside [$0.06912\u2013$0.07026] (0.98x ATR) \u2014 market has NOT priced in the sentiment wave yet",
-          "Non-Exhausted RSI (40.4 >= 34) leaves room for downside breakdown",
+          "Non-Exhausted RSI (40.7 >= 34) leaves room for downside breakdown",
           "Retail Crowd Trap: 82.9% of accounts are crowded LONG (4.86x L/S) while institutional/news flow is 55% BEARISH",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH)"
         ],
@@ -667,7 +667,7 @@
         0.0695,
         0.07003,
         0.06934,
-        0.06927
+        0.06934
       ]
     },
     "SUIUSDT": {
@@ -681,16 +681,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 0.8307,
-      "price_str": "0.8307",
-      "rsi": 43.6,
+      "price": 0.8318,
+      "price_str": "0.8318",
+      "rsi": 43.9,
       "atr": 0.02078,
       "atr_str": "0.02078",
       "range_low": 0.8041,
       "range_low_str": "0.8041",
       "range_high": 0.9554,
       "range_high_str": "0.9554",
-      "range_pos_pct": 17.6,
+      "range_pos_pct": 18.3,
       "recommendation": "LONG \ud83d\udcc8 \u2014 81% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $0.85112 | TP1: $0.87495 | TP2: $0.89283 | SL: $0.83623 \u2022 Backtest 80% WR \u2022 Macro BEARISH \u2022 Sentiment 75% Bull",
@@ -730,8 +730,8 @@
         "up_breakout_trigger": 0.8505,
         "down_breakout_trigger": 0.8271,
         "box_range_atr": 1.24,
-        "dist_to_up_breakout_pct": 2.38,
-        "dist_to_down_breakout_pct": 0.43,
+        "dist_to_up_breakout_pct": 2.25,
+        "dist_to_down_breakout_pct": 0.57,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
         "closeup_status": "4H Flatline Box [$0.8271 \u2013 $0.8505] (1.24x ATR) \u2022 Pre-Set SHORT Trigger @ $0.82653",
@@ -825,15 +825,15 @@
         "stage": "PRE_MOVE_COILED_READY",
         "stage_label": "PRE-MOVE STABILITY WINDOW (Get In Before Move / Box Trigger)",
         "in_pre_move_box": true,
-        "early_entry_price": 0.8307,
+        "early_entry_price": 0.8318,
         "trigger_entry_price": 0.85154,
-        "stop_loss": 0.8068,
-        "tp1_price": 0.90523,
-        "tp2_price": 0.95892,
+        "stop_loss": 0.8079,
+        "tp1_price": 0.90391,
+        "tp2_price": 0.95628,
         "recommended_leverage": 5,
         "overlap_factors": [
           "PRE-MOVE STABILITY BOX: Coiling inside [$0.8271\u2013$0.8505] (1.24x ATR) \u2014 market has NOT priced in the sentiment wave yet",
-          "Non-Exhausted RSI (43.6) leaves full room for upside expansion (75% WR Bridge Zone)"
+          "Non-Exhausted RSI (43.9) leaves full room for upside expansion (75% WR Bridge Zone)"
         ],
         "top_headlines": [
           "[TV/coinmarketcal] Sui: Samsung Wallet adds USDC support - Nov 2026",
@@ -868,7 +868,7 @@
         0.8411,
         0.8485,
         0.8313,
-        0.8307
+        0.8318
       ]
     },
     "SOLUSDT": {
@@ -882,31 +882,31 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 84.49,
-      "price_str": "84.49",
-      "rsi": 31.9,
+      "price": 84.59,
+      "price_str": "84.59",
+      "rsi": 32.2,
       "atr": 1.6314,
       "atr_str": "1.6314",
       "range_low": 84.14,
       "range_low_str": "84.14",
       "range_high": 98.05,
       "range_high_str": "98.05",
-      "range_pos_pct": 2.5,
+      "range_pos_pct": 3.2,
       "recommendation": "LONG \ud83d\udcc8 \u2014 56% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
-      "rec_summary": "Safe Entry: $84.9451 | TP1: $85.9112 | TP2: $86.9652 | SL: $84.393 \u2022 Backtest 62% WR \u2022 Macro BEARISH \u2022 Sentiment 60% Bear",
+      "rec_summary": "Safe Entry: $84.9597 | TP1: $85.9258 | TP2: $86.9798 | SL: $84.4075 \u2022 Backtest 62% WR \u2022 Macro BEARISH \u2022 Sentiment 60% Bear",
       "trade_plan": {
         "side": "LONG",
         "entry_mode": "WAIT FOR SAFE ENTRY",
         "confidence_pct": 56,
-        "safe_entry": 84.9451,
-        "safe_entry_str": "84.9451",
-        "sl": 84.393,
-        "sl_str": "84.393",
-        "tp1": 85.9112,
-        "tp1_str": "85.9112",
-        "tp2": 86.9652,
-        "tp2_str": "86.9652",
+        "safe_entry": 84.9597,
+        "safe_entry_str": "84.9597",
+        "sl": 84.4075,
+        "sl_str": "84.4075",
+        "tp1": 85.9258,
+        "tp1_str": "85.9258",
+        "tp2": 86.9798,
+        "tp2_str": "86.9798",
         "leverage": 5,
         "margin_usd": 5.0,
         "simple_why": "Backtest 62% WR \u2022 Macro BEARISH \u2022 Sentiment 60% Bear"
@@ -931,21 +931,21 @@
         "up_breakout_trigger": 86.94,
         "down_breakout_trigger": 84.14,
         "box_range_atr": 1.91,
-        "dist_to_up_breakout_pct": 2.89,
-        "dist_to_down_breakout_pct": 0.43,
+        "dist_to_up_breakout_pct": 2.78,
+        "dist_to_down_breakout_pct": 0.53,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
-        "closeup_status": "4H Range [$84.14 \u2013 $86.94] (1.91x ATR) \u2022 Pre-Set LONG Trigger @ $84.9451",
+        "closeup_status": "4H Range [$84.14 \u2013 $86.94] (1.91x ATR) \u2022 Pre-Set LONG Trigger @ $84.9597",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
-          "trigger_entry_price": 84.9451,
-          "limit_entry_price": 84.5,
-          "stop_loss": 84.4395,
-          "tp1_price": 85.9112,
-          "tp2_price": 86.9652,
+          "trigger_entry_price": 84.9597,
+          "limit_entry_price": 84.59,
+          "stop_loss": 84.4393,
+          "tp1_price": 85.9258,
+          "tp2_price": 86.9798,
           "recommended_leverage": 5,
-          "estimated_liq_price": 69.655
+          "estimated_liq_price": 69.667
         }
       },
       "macro_compass": {
@@ -1024,9 +1024,9 @@
         "p_value": 0.4338,
         "confidence_pct": 56.6,
         "stage": "POST_MOVE_EXHAUSTED",
-        "stage_label": "MOVE ALREADY PLAYED OUT (RSI 31.9 Exhausted) \u2014 Wait for 3-Bar Stability Box",
+        "stage_label": "MOVE ALREADY PLAYED OUT (RSI 32.2 Exhausted) \u2014 Wait for 3-Bar Stability Box",
         "in_pre_move_box": false,
-        "early_entry_price": 84.49,
+        "early_entry_price": 84.59,
         "trigger_entry_price": 84.05843,
         "stop_loss": 87.34786,
         "tp1_price": 80.11111,
@@ -1034,7 +1034,7 @@
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$84.14\u2013$86.94] before full expansion",
-          "Exhausted Oversold Floor RSI (31.9 < 34) \u2014 Bearish dump already played out; do NOT chase short at floor!",
+          "Exhausted Oversold Floor RSI (32.2 < 34) \u2014 Bearish dump already played out; do NOT chase short at floor!",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: NEUTRAL \u2022 1M: BEARISH)"
         ],
         "top_headlines": [
@@ -1070,7 +1070,7 @@
         85.69,
         86.0,
         84.58,
-        84.49
+        84.59
       ]
     },
     "ETHUSDT": {
@@ -1084,31 +1084,31 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 2085.66,
-      "price_str": "2085.66",
-      "rsi": 25.1,
+      "price": 2086.75,
+      "price_str": "2086.75",
+      "rsi": 25.2,
       "atr": 35.69,
       "atr_str": "35.6922",
       "range_low": 2080.85,
       "range_low_str": "2080.85",
       "range_high": 2444.27,
       "range_high_str": "2444.27",
-      "range_pos_pct": 1.3,
+      "range_pos_pct": 1.6,
       "recommendation": "LONG \ud83d\udcc8 \u2014 75% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
-      "rec_summary": "Safe Entry: $2095.92 | TP1: $2116.47 | TP2: $2138.88 | SL: $2082.30 \u2022 Backtest 100% WR \u2022 Macro BEARISH \u2022 Sentiment 58% Bear",
+      "rec_summary": "Safe Entry: $2096.16 | TP1: $2116.70 | TP2: $2139.11 | SL: $2082.53 \u2022 Backtest 100% WR \u2022 Macro BEARISH \u2022 Sentiment 58% Bear",
       "trade_plan": {
         "side": "LONG",
         "entry_mode": "WAIT FOR SAFE ENTRY",
         "confidence_pct": 75,
-        "safe_entry": 2095.92,
-        "safe_entry_str": "2095.92",
-        "sl": 2082.3,
-        "sl_str": "2082.30",
-        "tp1": 2116.47,
-        "tp1_str": "2116.47",
-        "tp2": 2138.88,
-        "tp2_str": "2138.88",
+        "safe_entry": 2096.16,
+        "safe_entry_str": "2096.16",
+        "sl": 2082.53,
+        "sl_str": "2082.53",
+        "tp1": 2116.7,
+        "tp1_str": "2116.70",
+        "tp2": 2139.11,
+        "tp2_str": "2139.11",
         "leverage": 5,
         "margin_usd": 5.0,
         "simple_why": "Backtest 100% WR \u2022 Macro BEARISH \u2022 Sentiment 58% Bear"
@@ -1133,21 +1133,21 @@
         "up_breakout_trigger": 2134.6599,
         "down_breakout_trigger": 2081.55,
         "box_range_atr": 1.71,
-        "dist_to_up_breakout_pct": 2.35,
-        "dist_to_down_breakout_pct": 0.2,
+        "dist_to_up_breakout_pct": 2.3,
+        "dist_to_down_breakout_pct": 0.25,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
-        "closeup_status": "4H Range [$2082 \u2013 $2135] (1.71x ATR) \u2022 Pre-Set LONG Trigger @ $2095.9213",
+        "closeup_status": "4H Range [$2082 \u2013 $2135] (1.71x ATR) \u2022 Pre-Set LONG Trigger @ $2096.156",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
-          "trigger_entry_price": 2095.9213,
-          "limit_entry_price": 2085.6599,
-          "stop_loss": 2084.0418,
-          "tp1_price": 2116.465,
-          "tp2_price": 2138.8763,
+          "trigger_entry_price": 2096.156,
+          "limit_entry_price": 2086.75,
+          "stop_loss": 2084.0464,
+          "tp1_price": 2116.6997,
+          "tp2_price": 2139.111,
           "recommended_leverage": 5,
-          "estimated_liq_price": 1718.6555
+          "estimated_liq_price": 1718.8479
         }
       },
       "macro_compass": {
@@ -1226,9 +1226,9 @@
         "p_value": 0.5663,
         "confidence_pct": 43.4,
         "stage": "POST_MOVE_EXHAUSTED",
-        "stage_label": "MOVE ALREADY PLAYED OUT (RSI 25.1 Exhausted) \u2014 Wait for 3-Bar Stability Box",
+        "stage_label": "MOVE ALREADY PLAYED OUT (RSI 25.2 Exhausted) \u2014 Wait for 3-Bar Stability Box",
         "in_pre_move_box": false,
-        "early_entry_price": 2085.65991,
+        "early_entry_price": 2086.75,
         "trigger_entry_price": 2079.76539,
         "stop_loss": 2143.58294,
         "tp1_price": 2003.18433,
@@ -1236,7 +1236,7 @@
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$2082\u2013$2135] before full expansion",
-          "Exhausted Oversold Floor RSI (25.1 < 34) \u2014 Bearish dump already played out; do NOT chase short at floor!",
+          "Exhausted Oversold Floor RSI (25.2 < 34) \u2014 Bearish dump already played out; do NOT chase short at floor!",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: NEUTRAL \u2022 1M: BEARISH)"
         ],
         "top_headlines": [
@@ -1272,7 +1272,7 @@
         2111.87,
         2113.39,
         2091.7,
-        2085.66
+        2086.75
       ]
     },
     "BTCUSDT": {
@@ -1286,31 +1286,31 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 74082.83,
-      "price_str": "74082.83",
-      "rsi": 37.2,
+      "price": 74128.99,
+      "price_str": "74128.99",
+      "rsi": 37.5,
       "atr": 890.52,
       "atr_str": "890.52",
       "range_low": 73525.53,
       "range_low_str": "73525.53",
       "range_high": 81075.6,
       "range_high_str": "81075.60",
-      "range_pos_pct": 7.4,
+      "range_pos_pct": 8.0,
       "recommendation": "LONG \ud83d\udcc8 \u2014 62% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
-      "rec_summary": "Safe Entry: $74342.20 | TP1: $75115.36 | TP2: $75695.23 | SL: $73858.98 \u2022 Backtest 75% WR \u2022 Macro BEARISH \u2022 Sentiment 75% Bear",
+      "rec_summary": "Safe Entry: $74342.07 | TP1: $75115.23 | TP2: $75695.10 | SL: $73858.85 \u2022 Backtest 75% WR \u2022 Macro BEARISH \u2022 Sentiment 75% Bear",
       "trade_plan": {
         "side": "LONG",
         "entry_mode": "WAIT FOR SAFE ENTRY",
         "confidence_pct": 62,
-        "safe_entry": 74342.2,
-        "safe_entry_str": "74342.20",
-        "sl": 73858.98,
-        "sl_str": "73858.98",
-        "tp1": 75115.36,
-        "tp1_str": "75115.36",
-        "tp2": 75695.23,
-        "tp2_str": "75695.23",
+        "safe_entry": 74342.07,
+        "safe_entry_str": "74342.07",
+        "sl": 73858.85,
+        "sl_str": "73858.85",
+        "tp1": 75115.23,
+        "tp1_str": "75115.23",
+        "tp2": 75695.1,
+        "tp2_str": "75695.10",
         "leverage": 16,
         "margin_usd": 5.0,
         "simple_why": "Backtest 75% WR \u2022 Macro BEARISH \u2022 Sentiment 75% Bear"
@@ -1335,21 +1335,21 @@
         "up_breakout_trigger": 75340.2266,
         "down_breakout_trigger": 74017.3203,
         "box_range_atr": 1.76,
-        "dist_to_up_breakout_pct": 1.7,
-        "dist_to_down_breakout_pct": 0.09,
+        "dist_to_up_breakout_pct": 1.63,
+        "dist_to_down_breakout_pct": 0.15,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
-        "closeup_status": "4H Range [$7.402e+04 \u2013 $7.534e+04] (1.76x ATR) \u2022 Pre-Set LONG Trigger @ $74342.2",
+        "closeup_status": "4H Range [$7.402e+04 \u2013 $7.534e+04] (1.76x ATR) \u2022 Pre-Set LONG Trigger @ $74342.0727",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
-          "trigger_entry_price": 74342.2,
-          "limit_entry_price": 74082.8281,
-          "stop_loss": 74017.5876,
-          "tp1_price": 74838.3976,
-          "tp2_price": 75379.7041,
+          "trigger_entry_price": 74342.0727,
+          "limit_entry_price": 74128.9922,
+          "stop_loss": 74017.9694,
+          "tp1_price": 74838.2703,
+          "tp2_price": 75379.5768,
           "recommended_leverage": 16,
-          "estimated_liq_price": 70160.4512
+          "estimated_liq_price": 70160.3311
         }
       },
       "macro_compass": {
@@ -1430,7 +1430,7 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 74082.82812,
+        "early_entry_price": 74128.99219,
         "trigger_entry_price": 73972.79441,
         "stop_loss": 75562.85606,
         "tp1_price": 72064.72043,
@@ -1438,7 +1438,7 @@
         "recommended_leverage": 16,
         "overlap_factors": [
           "Holding near 4h structure [$7.402e+04\u2013$7.534e+04] before full expansion",
-          "Non-Exhausted RSI (37.2 >= 34) leaves room for downside breakdown",
+          "Non-Exhausted RSI (37.5 >= 34) leaves room for downside breakdown",
           "Retail Crowd Trap: 74.8% of accounts are crowded LONG (2.97x L/S) while institutional/news flow is 75% BEARISH",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: NEUTRAL \u2022 1M: BEARISH)"
         ],
@@ -1475,7 +1475,7 @@
         74460.88,
         74747.79,
         74316.99,
-        74082.83
+        74128.99
       ]
     },
     "XAUUSDT": {
@@ -1489,9 +1489,9 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 4085.6,
-      "price_str": "4085.60",
-      "rsi": 52.7,
+      "price": 4085.5,
+      "price_str": "4085.50",
+      "rsi": 52.6,
       "atr": 35.17,
       "atr_str": "35.1714",
       "range_low": 3879.3,
@@ -1501,19 +1501,19 @@
       "range_pos_pct": 74.1,
       "recommendation": "LONG \ud83d\udcc8 \u2014 53% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
-      "rec_summary": "Safe Entry: $4095.07 | TP1: $4124.47 | TP2: $4148.73 | SL: $4076.69 \u2022 Backtest 58% WR \u2022 Macro BEARISH \u2022 Sentiment 54% Bear",
+      "rec_summary": "Safe Entry: $4094.96 | TP1: $4124.22 | TP2: $4148.63 | SL: $4076.68 \u2022 Backtest 58% WR \u2022 Macro BEARISH \u2022 Sentiment 54% Bear",
       "trade_plan": {
         "side": "LONG",
         "entry_mode": "WAIT FOR SAFE ENTRY",
         "confidence_pct": 53,
-        "safe_entry": 4095.07,
-        "safe_entry_str": "4095.07",
-        "sl": 4076.69,
-        "sl_str": "4076.69",
-        "tp1": 4124.47,
-        "tp1_str": "4124.47",
-        "tp2": 4148.73,
-        "tp2_str": "4148.73",
+        "safe_entry": 4094.96,
+        "safe_entry_str": "4094.96",
+        "sl": 4076.68,
+        "sl_str": "4076.68",
+        "tp1": 4124.22,
+        "tp1_str": "4124.22",
+        "tp2": 4148.63,
+        "tp2_str": "4148.63",
         "leverage": 9,
         "margin_usd": 5.0,
         "simple_why": "Backtest 58% WR \u2022 Macro BEARISH \u2022 Sentiment 54% Bear"
@@ -1538,21 +1538,21 @@
         "up_breakout_trigger": 4150.7002,
         "down_breakout_trigger": 4076.2,
         "box_range_atr": 1.92,
-        "dist_to_up_breakout_pct": 1.59,
+        "dist_to_up_breakout_pct": 1.6,
         "dist_to_down_breakout_pct": 0.23,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
-        "closeup_status": "4H Range [$4076 \u2013 $4151] (1.92x ATR) \u2022 Pre-Set LONG Trigger @ $4095.0656",
+        "closeup_status": "4H Range [$4076 \u2013 $4151] (1.92x ATR) \u2022 Pre-Set LONG Trigger @ $4094.9613",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
-          "trigger_entry_price": 4095.0656,
-          "limit_entry_price": 4085.6001,
-          "stop_loss": 4076.6883,
-          "tp1_price": 4120.7331,
-          "tp2_price": 4148.734,
+          "trigger_entry_price": 4094.9613,
+          "limit_entry_price": 4085.5,
+          "stop_loss": 4076.6776,
+          "tp1_price": 4120.6288,
+          "tp2_price": 4148.6297,
           "recommended_leverage": 9,
-          "estimated_liq_price": 3685.559
+          "estimated_liq_price": 3685.4652
         }
       },
       "macro_compass": {
@@ -1633,7 +1633,7 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 4085.6001,
+        "early_entry_price": 4085.5,
         "trigger_entry_price": 4074.44143,
         "stop_loss": 4159.49305,
         "tp1_price": 3972.37949,
@@ -1641,7 +1641,7 @@
         "recommended_leverage": 9,
         "overlap_factors": [
           "Holding near 4h structure [$4076\u2013$4151] before full expansion",
-          "Non-Exhausted RSI (52.7 >= 34) leaves room for downside breakdown",
+          "Non-Exhausted RSI (52.6 >= 34) leaves room for downside breakdown",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BULLISH)"
         ],
         "top_headlines": [
@@ -1677,7 +1677,7 @@
         4120.2,
         4121.0,
         4082.3,
-        4085.6
+        4085.5
       ]
     },
     "XAGUSDT": {
@@ -1691,8 +1691,8 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 52.385,
-      "price_str": "52.385",
+      "price": 52.39,
+      "price_str": "52.39",
       "rsi": 53.3,
       "atr": 0.772,
       "atr_str": "0.772",
@@ -1700,22 +1700,22 @@
       "range_low_str": "48.62",
       "range_high": 53.78,
       "range_high_str": "53.78",
-      "range_pos_pct": 73.0,
+      "range_pos_pct": 73.1,
       "recommendation": "LONG \ud83d\udcc8 \u2014 82% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
-      "rec_summary": "Safe Entry: $52.5471 | TP1: $53.1173 | TP2: $53.7393 | SL: $52.3106 \u2022 Backtest 100% WR \u2022 Macro BEARISH \u2022 Sentiment 83% Bull",
+      "rec_summary": "Safe Entry: $52.5463 | TP1: $53.1165 | TP2: $53.7385 | SL: $52.3098 \u2022 Backtest 100% WR \u2022 Macro BEARISH \u2022 Sentiment 83% Bull",
       "trade_plan": {
         "side": "LONG",
         "entry_mode": "WAIT FOR SAFE ENTRY",
         "confidence_pct": 82,
-        "safe_entry": 52.5471,
-        "safe_entry_str": "52.5471",
-        "sl": 52.3106,
-        "sl_str": "52.3106",
-        "tp1": 53.1173,
-        "tp1_str": "53.1173",
-        "tp2": 53.7393,
-        "tp2_str": "53.7393",
+        "safe_entry": 52.5463,
+        "safe_entry_str": "52.5463",
+        "sl": 52.3098,
+        "sl_str": "52.3098",
+        "tp1": 53.1165,
+        "tp1_str": "53.1165",
+        "tp2": 53.7385,
+        "tp2_str": "53.7385",
         "leverage": 5,
         "margin_usd": 5.0,
         "simple_why": "Backtest 100% WR \u2022 Macro BEARISH \u2022 Sentiment 83% Bull"
@@ -1740,21 +1740,21 @@
         "up_breakout_trigger": 53.78,
         "down_breakout_trigger": 52.255,
         "box_range_atr": 1.77,
-        "dist_to_up_breakout_pct": 2.66,
-        "dist_to_down_breakout_pct": 0.25,
+        "dist_to_up_breakout_pct": 2.65,
+        "dist_to_down_breakout_pct": 0.26,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
-        "closeup_status": "4H Range [$52.26 \u2013 $53.78] (1.77x ATR) \u2022 Pre-Set LONG Trigger @ $52.5471",
+        "closeup_status": "4H Range [$52.26 \u2013 $53.78] (1.77x ATR) \u2022 Pre-Set LONG Trigger @ $52.5463",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "TRIGGER / STOP-LIMIT BREAKOUT ORDER",
-          "trigger_entry_price": 52.5471,
-          "limit_entry_price": 52.385,
-          "stop_loss": 52.2352,
-          "tp1_price": 53.1173,
-          "tp2_price": 53.7393,
+          "trigger_entry_price": 52.5463,
+          "limit_entry_price": 52.39,
+          "stop_loss": 52.235,
+          "tp1_price": 53.1165,
+          "tp2_price": 53.7385,
           "recommended_leverage": 5,
-          "estimated_liq_price": 43.0886
+          "estimated_liq_price": 43.088
         }
       },
       "macro_compass": {
@@ -1835,11 +1835,11 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 52.385,
+        "early_entry_price": 52.39,
         "trigger_entry_price": 53.8186,
-        "stop_loss": 51.4972,
-        "tp1_price": 56.60428,
-        "tp2_price": 59.38996,
+        "stop_loss": 51.5022,
+        "tp1_price": 56.59828,
+        "tp2_price": 59.37796,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$52.26\u2013$53.78] before full expansion",
@@ -1880,7 +1880,7 @@
         53.0,
         52.75,
         52.325,
-        52.385
+        52.39
       ]
     },
     "PEPEUSDT": {
@@ -2096,16 +2096,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 8.298,
-      "price_str": "8.298",
-      "rsi": 52.1,
+      "price": 8.304,
+      "price_str": "8.304",
+      "rsi": 52.3,
       "atr": 0.2733,
       "atr_str": "0.27329",
       "range_low": 7.767,
       "range_low_str": "7.767",
       "range_high": 9.118,
       "range_high_str": "9.118",
-      "range_pos_pct": 39.3,
+      "range_pos_pct": 39.7,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 70% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $8.2423 | TP1: $7.8322 | TP2: $7.5788 | SL: $8.3865 \u2022 Backtest 73% WR \u2022 Macro BEARISH \u2022 Sentiment 78% Bull",
@@ -2145,8 +2145,8 @@
         "up_breakout_trigger": 8.737,
         "down_breakout_trigger": 8.249,
         "box_range_atr": 2.19,
-        "dist_to_up_breakout_pct": 5.29,
-        "dist_to_down_breakout_pct": 0.59,
+        "dist_to_up_breakout_pct": 5.21,
+        "dist_to_down_breakout_pct": 0.66,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
         "closeup_status": "4H Range [$8.249 \u2013 $8.737] (2.19x ATR) \u2022 Pre-Set SHORT Trigger @ $8.2423",
@@ -2240,15 +2240,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 8.298,
+        "early_entry_price": 8.304,
         "trigger_entry_price": 8.75066,
-        "stop_loss": 7.98372,
-        "tp1_price": 9.67099,
-        "tp2_price": 10.59132,
+        "stop_loss": 7.98972,
+        "tp1_price": 9.66379,
+        "tp2_price": 10.57692,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$8.249\u2013$8.737] before full expansion",
-          "Non-Exhausted RSI (52.1) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Non-Exhausted RSI (52.3) leaves full room for upside expansion (75% WR Bridge Zone)",
           "Unwound/Short-heavy positioning (Funding -0.0029%) fuels short squeeze"
         ],
         "top_headlines": [
@@ -2284,7 +2284,7 @@
         8.56,
         8.455,
         8.303,
-        8.298
+        8.304
       ]
     },
     "WIFUSDT": {
@@ -2298,16 +2298,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 0.1578,
-      "price_str": "0.1578",
-      "rsi": 44.2,
+      "price": 0.15765,
+      "price_str": "0.15765",
+      "rsi": 43.9,
       "atr": 0.00318,
       "atr_str": "0.00318",
       "range_low": 0.15081,
       "range_low_str": "0.15081",
       "range_high": 0.1824,
       "range_high_str": "0.1824",
-      "range_pos_pct": 22.1,
+      "range_pos_pct": 21.7,
       "recommendation": "LONG \ud83d\udcc8 \u2014 59% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $0.15867 | TP1: $0.16311 | TP2: $0.16644 | SL: $0.15589 \u2022 Backtest 33% WR \u2022 Macro BEARISH \u2022 Sentiment 95% Bull",
@@ -2347,8 +2347,8 @@
         "up_breakout_trigger": 0.15858,
         "down_breakout_trigger": 0.15641,
         "box_range_atr": 0.69,
-        "dist_to_up_breakout_pct": 0.49,
-        "dist_to_down_breakout_pct": 0.88,
+        "dist_to_up_breakout_pct": 0.59,
+        "dist_to_down_breakout_pct": 0.79,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
         "closeup_status": "4H Flatline Box [$0.1564 \u2013 $0.1586] (0.69x ATR) \u2022 Pre-Set LONG Trigger @ $0.15867",
@@ -2442,15 +2442,15 @@
         "stage": "PRE_MOVE_COILED_READY",
         "stage_label": "PRE-MOVE STABILITY WINDOW (Get In Before Move / Box Trigger)",
         "in_pre_move_box": true,
-        "early_entry_price": 0.1578,
+        "early_entry_price": 0.15765,
         "trigger_entry_price": 0.15874,
-        "stop_loss": 0.15414,
-        "tp1_price": 0.16426,
-        "tp2_price": 0.16978,
+        "stop_loss": 0.15399,
+        "tp1_price": 0.16444,
+        "tp2_price": 0.17014,
         "recommended_leverage": 5,
         "overlap_factors": [
           "PRE-MOVE STABILITY BOX: Coiling inside [$0.1564\u2013$0.1586] (0.69x ATR) \u2014 market has NOT priced in the sentiment wave yet",
-          "Non-Exhausted RSI (44.2) leaves full room for upside expansion (75% WR Bridge Zone)"
+          "Non-Exhausted RSI (43.9) leaves full room for upside expansion (75% WR Bridge Zone)"
         ],
         "top_headlines": [
           "[TV/bravenewcoin] From BONK to ANSEM: How Solana Reinvented the Meme Coin",
@@ -2485,7 +2485,7 @@
         0.15719,
         0.15762,
         0.15729,
-        0.1578
+        0.15765
       ]
     },
     "INJUSDT": {
@@ -2499,16 +2499,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 7.955,
-      "price_str": "7.955",
-      "rsi": 40.1,
+      "price": 7.976,
+      "price_str": "7.976",
+      "rsi": 40.9,
       "atr": 0.2492,
       "atr_str": "0.24921",
       "range_low": 6.833,
       "range_low_str": "6.833",
       "range_high": 8.582,
       "range_high_str": "8.582",
-      "range_pos_pct": 64.2,
+      "range_pos_pct": 65.4,
       "recommendation": "LONG \ud83d\udcc8 \u2014 62% CONFIDENCE (WAIT FOR SAFE ENTRY)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $8.2625 | TP1: $8.5944 | TP2: $8.7995 | SL: $8.1179 \u2022 Backtest 50% WR \u2022 Macro BULLISH \u2022 Sentiment 77% Bull",
@@ -2548,8 +2548,8 @@
         "up_breakout_trigger": 8.255,
         "down_breakout_trigger": 7.86,
         "box_range_atr": 1.7,
-        "dist_to_up_breakout_pct": 3.68,
-        "dist_to_down_breakout_pct": 1.28,
+        "dist_to_up_breakout_pct": 3.5,
+        "dist_to_down_breakout_pct": 1.45,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
         "closeup_status": "4H Range [$7.86 \u2013 $8.255] (1.70x ATR) \u2022 Pre-Set SHORT Trigger @ $7.853",
@@ -2643,15 +2643,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 7.955,
+        "early_entry_price": 7.976,
         "trigger_entry_price": 8.26746,
-        "stop_loss": 7.6684,
-        "tp1_price": 8.98633,
-        "tp2_price": 9.7052,
+        "stop_loss": 7.6894,
+        "tp1_price": 8.96113,
+        "tp2_price": 9.6548,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$7.86\u2013$8.255] before full expansion",
-          "Non-Exhausted RSI (40.1) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Non-Exhausted RSI (40.9) leaves full room for upside expansion (75% WR Bridge Zone)",
           "Unwound/Short-heavy positioning (Funding -0.0054%) fuels short squeeze",
           "Aligned with Macro & Monthly Compass (1D: BULLISH \u2022 1W: BULLISH \u2022 1M: BEARISH)"
         ],
@@ -2688,7 +2688,7 @@
         8.003,
         8.08,
         8.008,
-        7.955
+        7.976
       ]
     },
     "NVDAUSDT": {
