@@ -2283,7 +2283,8 @@ def create_app(controller: DashboardController) -> web.Application:
 
     async def start_bg(app_inst: web.Application) -> None:
         app_inst["scanner_task"] = asyncio.create_task(background_scanner_task(app_inst))
-        app_inst["tg_poller_task"] = asyncio.create_task(telegram_poller_task(app_inst))
+        if os.getenv("ENABLE_LOCAL_TG_POLLER", "false").lower() == "true":
+            app_inst["tg_poller_task"] = asyncio.create_task(telegram_poller_task(app_inst))
 
     async def cleanup_bg(app_inst: web.Application) -> None:
         for k in ("scanner_task", "tg_poller_task"):
