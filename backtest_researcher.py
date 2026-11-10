@@ -225,14 +225,17 @@ class AutomatedBacktestResearcher:
     def run_research_sweep(
         self,
         symbol: str = "ETHUSDT",
-        interval: str = "5m",
-        limit: int = 1000,
+        interval: str = "4h",
+        limit: int = 1200,
         use_ai_summary: bool = True,
     ) -> Dict[str, Any]:
         """
-        Fetches historical candles, sweeps parameter combinations for the Impulse + Flatline Reversal
-        strategy, compares Profit-Flatline Stall Exit vs Fixed Exit, and generates an AI Research Report.
+        Evaluates Carbon V2 Purged Meta-Ensemble (with honest next-bar/maker fills, real fees, spread/slippage,
+        and pessimistic intrabar wicks) when engine_version == 'CARBON_V2', saving verified metrics to state/.
         """
+        if getattr(self.config.risk, "engine_version", "CARBON_V2") == "CARBON_V2":
+            return self._run_carbon_v2_honest_eval(symbol=symbol, interval=interval, limit=max(limit, 1200))
+
         df = self.feed.fetch_ohlcv(symbol=symbol, interval=interval, limit=limit)
 
         if interval == "1M":
@@ -479,3 +482,137 @@ Provide a concise, high-signal 4-bullet quantitative takeaway covering:
                 f"Best {symbol} ({interval}): {best.win_rate_pct}% WR, PF {best.profit_factor}, "
                 f"Net PnL ${best.total_net_pnl_usd:+.2f}."
             )
+
+    def _run_carbon_v2_honest_eval(
+        self,
+        symbol: str,
+        interval: str = "4h",
+        limit: int = 1200,
+    ) -> Dict[str, Any]:
+        from carbon_v2_engine import (
+            CarbonFeatureEngine,
+            CarbonCandidateGenerator,
+            CarbonLiveBridge,
+        )
+        from benchmark_argon_vs_carbon import simulate_trade_honest
+
+        df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=symbol, interval=interval, limit=min(limit, 1500))
+        feat_df = CarbonFeatureEngine.compute_features(df, btc_df=btc_df)
+
+        is_swing = interval in ("4h", "1d", "1w", "1M")
+        bridge = CarbonLiveBridge(self.config.risk, state_dir=self.state_dir)
+        model = bridge.models.get("4h" if is_swing else "1h")
+        gen = CarbonCandidateGenerator(timeframe="4h" if is_swing else "1h")
+
+        cands = gen.extract_candidates(feat_df, symbol=symbol, start_idx=100, end_idx=len(feat_df) - 2)
+        margin_u = float(self.config.risk.margin_per_trade_usd)
+        base_risk_u = margin_u * (float(getattr(self.config.risk, "target_sl_margin_risk_pct", 20.0)) / 100.0)
+
+        trades: List[Dict[str, Any]] = []
+        eq = [0.0]
+        peak_eq = 0.0
+        max_dd = 0.0
+        tp1_cnt = 0
+        tp2_cnt = 0
+        sl_cnt = 0
+        trail_cnt = 0
+        busy_until = -1
+
+        for idx in sorted(cands.keys()):
+            if idx <= busy_until:
+                continue
+            sig = cands[idx]
+            if model is not None and model.is_fitted_:
+                if not model.score_and_filter(sig):
+                    continue
+                if is_swing and sig.archetype == "FRESH_CHANNEL_BREAKOUT":
+                    if sig.meta_pred_r < max(model.threshold_r_ + 0.07, 0.13) or sig.meta_win_prob < 0.50 or float(sig.features[3]) < 1.12:
+                        continue
+
+            sim = simulate_trade_honest(
+                df=feat_df,
+                symbol=symbol,
+                signal_idx=idx,
+                side=sig.side,
+                stop_dist=sig.stop_dist,
+                tp1_dist=sig.tp1_r * sig.stop_dist,
+                tp2_dist=sig.tp2_r * sig.stop_dist,
+                partial_frac=sig.partial_frac,
+                max_hold_bars=sig.max_hold_bars,
+                margin_usd=margin_u,
+                base_risk_usd=max(0.50, base_risk_u),
+                risk_scale=sig.risk_scale,
+                model_mode="CARBON_V2",
+                trail_atr_mult=sig.trail_atr_mult,
+            )
+            if sim is None:
+                continue
+            busy_until = int(sim["exit_idx"])
+            trades.append(sim)
+            eq.append(eq[-1] + float(sim["net_pnl_usd"]))
+            peak_eq = max(peak_eq, eq[-1])
+            max_dd = max(max_dd, peak_eq - eq[-1])
+            rsn = str(sim["exit_reason"])
+            if "TP2" in rsn:
+                tp2_cnt += 1
+                tp1_cnt += 1
+            elif "TRAIL" in rsn or "BREAKEVEN" in rsn:
+                trail_cnt += 1
+                tp1_cnt += 1
+            elif "STOP" in rsn:
+                sl_cnt += 1
+
+        wins = [t["net_pnl_usd"] for t in trades if t["net_pnl_usd"] > 0]
+        losses = [abs(t["net_pnl_usd"]) for t in trades if t["net_pnl_usd"] <= 0]
+        n_tr = len(trades)
+        wr = (len(wins) / n_tr * 100.0) if n_tr > 0 else 0.0
+        pf = (sum(wins) / max(sum(losses), 1e-6)) if wins else 0.0
+        net_pnl = sum(t["net_pnl_usd"] for t in trades)
+        avg_roe = float(np.mean([t["roe_pct"] for t in trades])) if trades else 0.0
+
+        bm = BacktestMetrics(
+            symbol=symbol,
+            timeframe=interval,
+            total_bars=len(feat_df),
+            total_trades=n_tr,
+            win_rate_pct=round(wr, 2),
+            profit_factor=round(min(pf, 99.0), 2),
+            total_net_pnl_usd=round(net_pnl, 2),
+            avg_roe_per_trade_pct=round(avg_roe, 2),
+            max_drawdown_usd=round(max_dd, 2),
+            profit_stall_exits_count=trail_cnt,
+            tp1_hits_count=tp1_cnt,
+            tp2_hits_count=tp2_cnt,
+            stop_loss_count=sl_cnt,
+            params={"engine": "CARBON_V2_PURGED_META", "timeframe": interval},
+        )
+
+        out_file = self.state_dir / f"optimized_{symbol.lower()}_{interval}.json"
+        out_file.write_text(
+            json.dumps(
+                {
+                    "engine": "CARBON_V2_PURGED_META",
+                    "best_metrics": asdict(bm),
+                    "sample_trades": trades[-10:],
+                },
+                indent=2,
+            )
+        )
+
+        verdict = (
+            f"Carbon V2 Honest Evaluation ({symbol} {interval}, {len(feat_df)} bars, full fees+slippage+pessimistic wicks): "
+            f"{n_tr} trades | {bm.win_rate_pct}% WR | PF {bm.profit_factor} | "
+            f"Net PnL ${bm.total_net_pnl_usd:+.2f} | MaxDD ${bm.max_drawdown_usd:.2f} "
+            f"({trail_cnt} Chandelier runner locks)."
+        )
+        return {
+            "symbol": symbol,
+            "interval": interval,
+            "bars_tested": len(feat_df),
+            "configs_tested": 1,
+            "best_metrics": asdict(bm),
+            "top_result": asdict(bm),
+            "recent_trades": trades[-6:],
+            "ai_researcher_verdict": verdict,
+        }
+

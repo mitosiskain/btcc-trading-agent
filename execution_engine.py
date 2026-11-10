@@ -45,6 +45,12 @@ class OpenPosition:
     realized_partial_pnl_usd: float = 0.0
     sentiment_decision: str = "APPROVE_REVERSAL"
     sentiment_reasoning: str = ""
+    archetype: str = "CARBON_ABSORPTION_REVERSAL"
+    order_type: str = "POST_ONLY_LIMIT"
+    partial_frac: float = 0.48
+    trail_atr_mult: float = 1.75
+    peak_favorable_price: float = 0.0
+    meta_pred_r: float = 0.0
 
     def unrealized_pnl_usd(self) -> float:
         if self.side == "LONG":
@@ -99,27 +105,34 @@ class BTCCExchangeClient:
         entry_price: float,
         stop_loss: float,
         take_profit: float,
+        order_type: str = "POST_ONLY_LIMIT",
     ) -> Dict[str, Any]:
+        is_maker = "LIMIT" in order_type.upper()
         if not self.live_enabled:
             return {
                 "mode": "SIMULATION",
                 "status": "FILLED",
+                "order_type": order_type,
                 "order_id": f"sim-{symbol.lower()}-{int(time.time()*1000)}",
                 "filled_price": entry_price,
             }
 
-        # Live BTCC HMAC-SHA256 signed request structure
+        # Live BTCC HMAC-SHA256 signed request structure (Post-Only Maker Limit by default)
         timestamp = str(int(time.time() * 1000))
-        payload = {
+        payload: Dict[str, Any] = {
             "symbol": symbol,
             "side": "BUY" if side == "LONG" else "SELL",
-            "type": "MARKET",
+            "type": "LIMIT" if is_maker else "MARKET",
             "leverage": leverage,
             "margin": round(margin_usd, 2),
-            "stopLoss": round(stop_loss, 4),
-            "takeProfit": round(take_profit, 4),
+            "stopLoss": round(stop_loss, 6),
+            "takeProfit": round(take_profit, 6),
             "timestamp": timestamp,
         }
+        if is_maker:
+            payload["price"] = round(entry_price, 6)
+            payload["postOnly"] = "true"
+            payload["timeInForce"] = "GTX"
         query_str = "&".join(f"{k}={v}" for k, v in sorted(payload.items()))
         signature = hmac.new(
             self.api_secret.encode("utf-8"),
@@ -130,6 +143,7 @@ class BTCCExchangeClient:
         return {
             "mode": "LIVE_BTCC_READY",
             "status": "SUBMITTED",
+            "order_type": order_type,
             "order_id": f"btcc-{timestamp}",
             "filled_price": entry_price,
             "payload": payload,
@@ -160,11 +174,16 @@ class ExecutionEngine:
         self.closed_trades: List[ClosedTradeRecord] = []
         self._load_state()
 
-    def can_open_trade(self, symbol: str) -> tuple[bool, str]:
+    def can_open_trade(self, symbol: str, side: Optional[str] = None) -> tuple[bool, str]:
         if symbol in self.open_positions:
             return False, f"Position already open for {symbol}"
         if len(self.open_positions) >= self.risk.max_concurrent_positions:
             return False, f"Max concurrent positions ({self.risk.max_concurrent_positions}) reached"
+        if side is not None:
+            max_same = int(getattr(self.risk, "max_same_side_positions", 2))
+            same_cnt = sum(1 for p in self.open_positions.values() if p.side.upper() == side.upper())
+            if same_cnt >= max_same:
+                return False, f"Max correlated {side.upper()} positions ({max_same}) reached"
         if self.daily_realized_pnl_usd <= -abs(self.risk.daily_max_loss_usd):
             return False, f"Daily kill-switch triggered (Loss: ${self.daily_realized_pnl_usd:.2f})"
         allocated = sum(p.remaining_margin_usd for p in self.open_positions.values())
@@ -176,14 +195,18 @@ class ExecutionEngine:
         self,
         signal: ReversalSetupSignal,
         verdict: SentimentVerdictSchema,
+        archetype: str = "ABSORPTION_REVERSAL",
+        partial_frac: float = 0.48,
+        trail_atr_mult: float = 1.75,
+        meta_pred_r: float = 0.0,
     ) -> Optional[OpenPosition]:
         """
-        Validates risk guardrails and opens an isolated high-leverage reversal position.
+        Validates risk & correlation guardrails and opens an isolated Maker-Limit / Kelly-scaled position.
         """
         if verdict.decision == "VETO_CONTINUATION_RISK" or verdict.leverage_multiplier <= 0:
             return None
 
-        allowed, _ = self.can_open_trade(signal.symbol)
+        allowed, _ = self.can_open_trade(signal.symbol, side=signal.trade_side)
         if not allowed:
             return None
 
@@ -198,8 +221,16 @@ class ExecutionEngine:
         margin_usd = self.risk.margin_per_trade_usd
         notional_usd = margin_usd * leverage
 
-        # Deduct entry taker fee from reserve account
-        entry_fee = notional_usd * (self.risk.btcc_taker_fee_pct / 100.0)
+        use_maker = bool(getattr(self.risk, "prefer_maker_limit_entries", True))
+        order_type = "POST_ONLY_LIMIT" if use_maker else "MARKET"
+        fee_pct = (
+            float(getattr(self.risk, "btcc_maker_fee_pct", 0.020))
+            if use_maker
+            else float(self.risk.btcc_taker_fee_pct)
+        )
+
+        # Deduct entry fee from reserve account (0.020% Maker vs 0.045% Taker)
+        entry_fee = notional_usd * (fee_pct / 100.0)
         self.account_balance_usd -= entry_fee
         self.daily_realized_pnl_usd -= entry_fee
 
@@ -211,6 +242,7 @@ class ExecutionEngine:
             entry_price=signal.entry_price,
             stop_loss=signal.stop_loss,
             take_profit=signal.tp2_price,
+            order_type=order_type,
         )
 
         pos = OpenPosition(
@@ -232,6 +264,12 @@ class ExecutionEngine:
             tp1_hit=False,
             sentiment_decision=verdict.decision,
             sentiment_reasoning=verdict.reasoning,
+            archetype=archetype,
+            order_type=order_type,
+            partial_frac=partial_frac,
+            trail_atr_mult=trail_atr_mult,
+            peak_favorable_price=signal.entry_price,
+            meta_pred_r=meta_pred_r,
         )
         self.open_positions[signal.symbol] = pos
         self._save_state()
@@ -265,16 +303,18 @@ class ExecutionEngine:
             self._save_state()
             return None
 
-        # Case 1: Partial Profit at TP1 (close 50% and move Stop-Loss to breakeven)
+        # Case 1: Partial Profit at TP1 (close partial_frac and move Stop-Loss to breakeven)
         if exit_sig.urgency == "TAKE_PARTIAL_AND_TRAIL" and not pos.tp1_hit:
-            close_margin = pos.remaining_margin_usd * 0.5
+            p_frac = max(0.25, min(0.75, float(getattr(pos, "partial_frac", 0.48))))
+            close_margin = pos.remaining_margin_usd * p_frac
             if pos.side == "LONG":
                 ret = (exit_sig.current_price - pos.entry_price) / pos.entry_price
             else:
                 ret = (pos.entry_price - exit_sig.current_price) / pos.entry_price
 
+            tp_fee_pct = float(getattr(self.risk, "btcc_maker_fee_pct", 0.020))
             gross_pnl = close_margin * pos.leverage * ret
-            exit_fee = (close_margin * pos.leverage) * (self.risk.btcc_taker_fee_pct / 100.0)
+            exit_fee = (close_margin * pos.leverage) * (tp_fee_pct / 100.0)
             net_partial = gross_pnl - exit_fee
 
             pos.remaining_margin_usd -= close_margin
@@ -283,8 +323,9 @@ class ExecutionEngine:
             if (pos.side == "LONG" and exit_sig.current_price > pos.entry_price) or (
                 pos.side == "SHORT" and exit_sig.current_price < pos.entry_price
             ):
-                pos.stop_loss = pos.entry_price  # Move stop to breakeven only when TP1 is in profit
+                pos.stop_loss = pos.entry_price  # Move stop to breakeven when TP1 is hit
             pos.tp1_hit = True
+            pos.peak_favorable_price = exit_sig.current_price
 
             self.account_balance_usd += net_partial
             self.daily_realized_pnl_usd += net_partial
@@ -346,11 +387,15 @@ class ExecutionEngine:
             data = json.loads(self.state_file.read_text())
             self.account_balance_usd = float(data.get("account_balance_usd", self.account_balance_usd))
             self.daily_realized_pnl_usd = float(data.get("daily_realized_pnl_usd", 0.0))
+            pos_fields = set(OpenPosition.__dataclass_fields__.keys())
+            rec_fields = set(ClosedTradeRecord.__dataclass_fields__.keys())
             self.open_positions = {
-                k: OpenPosition(**v) for k, v in data.get("open_positions", {}).items()
+                k: OpenPosition(**{ fk: fv for fk, fv in v.items() if fk in pos_fields })
+                for k, v in data.get("open_positions", {}).items()
             }
             self.closed_trades = [
-                ClosedTradeRecord(**t) for t in data.get("closed_trades", [])
+                ClosedTradeRecord(**{ fk: fv for fk, fv in t.items() if fk in rec_fields })
+                for t in data.get("closed_trades", [])
             ]
         except Exception:
             pass

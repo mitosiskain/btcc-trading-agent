@@ -54,6 +54,13 @@ class ExitAlertSignal:
     explanation: str
 
 
+class _NpColsCache(dict):
+    """Identity-compared dict wrapper so pandas 3.x `df.attrs == other.attrs` never compares numpy arrays."""
+
+    def __eq__(self, other: object) -> bool:
+        return self is other
+
+
 class ImpulseFlatlineDetector:
     """
     Detects:
@@ -70,7 +77,7 @@ class ImpulseFlatlineDetector:
     def _get_np_cols(df: pd.DataFrame) -> dict:
         cols = df.attrs.get("_np_cols")
         if cols is None or len(cols["close"]) != len(df):
-            cols = {
+            cols = _NpColsCache({
                 "open": df["open"].to_numpy(dtype=float, copy=False),
                 "close": df["close"].to_numpy(dtype=float, copy=False),
                 "high": df["high"].to_numpy(dtype=float, copy=False),
@@ -81,7 +88,7 @@ class ImpulseFlatlineDetector:
                 "volume": df["volume"].to_numpy(dtype=float, copy=False),
                 "ema20": df["ema20"].to_numpy(dtype=float, copy=False) if "ema20" in df.columns else df["close"].to_numpy(dtype=float, copy=False),
                 "ema50": df["ema50"].to_numpy(dtype=float, copy=False) if "ema50" in df.columns else df["close"].to_numpy(dtype=float, copy=False),
-            }
+            })
             df.attrs["_np_cols"] = cols
         return cols
 
@@ -828,19 +835,21 @@ class ImpulseFlatlineDetector:
         tp1_already_hit: bool = False,
         warning_already_sent: bool = False,
         use_live_spot_only: bool = False,
+        trail_atr_mult: float = 1.75,
+        peak_favorable_price: float = 0.0,
     ) -> Optional[ExitAlertSignal]:
         """
         Monitors an open position for:
         1. Stop-Loss or TP2 hit
-        2. Profit-Flatline Stall: The reversal trade is in profit, and price now flatlines/stalls
-           for `exit_flatline_bars` candles -> immediately alert/exit so the user doesn't miss profits!
-        3. TP1 hit (partial profit + move stop to breakeven)
+        2. Post-TP1 Chandelier ATR Runner Trailing Stop (locks fat-tail trends cleanly)
+        3. Mature Profit-Flatline Stall (>= 1.20R & >= 4 bars dead compression)
+        4. TP1 hit (partial profit + move stop to breakeven)
         """
         cols = self._get_np_cols(df)
         curr_price = float(cols["close"][idx])
         high_price = curr_price if (bars_held == 0 or use_live_spot_only) else float(cols["high"][idx])
         low_price = curr_price if (bars_held == 0 or use_live_spot_only) else float(cols["low"][idx])
-        risk_dist = max(abs(entry_price - stop_loss), 1e-9)
+        risk_dist = max(abs(entry_price - stop_loss), entry_price * 0.005, 1e-9)
 
         if side == "LONG":
             raw_move = curr_price - entry_price
@@ -861,7 +870,9 @@ class ImpulseFlatlineDetector:
         prec = 8 if curr_price < 0.001 else (5 if curr_price < 1.0 else (4 if curr_price < 100 else 2))
 
         if hit_sl:
-            sl_move = -abs(entry_price - stop_loss) if not tp1_already_hit else 0.0
+            sl_move = -abs(entry_price - stop_loss) if not tp1_already_hit else (
+                (stop_loss - entry_price) if side == "LONG" else (entry_price - stop_loss)
+            )
             sl_roe = (sl_move / entry_price) * 100.0 * leverage
             return ExitAlertSignal(
                 symbol=symbol,
@@ -889,25 +900,76 @@ class ImpulseFlatlineDetector:
                 unrealized_pnl_pct_on_margin=round(tp2_roe, 2),
                 unrealized_pnl_usd=round(margin_usd * (tp2_roe / 100.0), 2),
                 r_multiple=round(tp2_move / risk_dist, 2),
-                explanation=f"Full 61.8% reversal target ({tp2_price:.{prec}f}) reached! Lock in +{tp2_roe:.1f}% ROE.",
+                explanation=f"Full Carbon V2 TP2 runner target ({tp2_price:.{prec}f}) reached! Lock in +{tp2_roe:.1f}% ROE.",
             )
 
-        # Check Profit-Flatline Stall ("ETH reversed into profit and is now flatlining -> TAKE PROFIT!")
-        w_exit = self.params.exit_flatline_bars
+        # Carbon V2 Post-TP1 Chandelier ATR Runner Trail (lets fat-tail trends run to TP2 while ratcheting floor)
+        atr_curr = max(float(cols["atr"][idx]), 1e-9)
+        if tp1_already_hit and bars_held >= 1:
+            look_w = min(max(1, bars_held), idx + 1)
+            if side == "LONG":
+                win_hi = max(float(cols["high"][idx - look_w + 1 : idx + 1].max()), peak_favorable_price, tp1_price)
+                chand_stop = max(entry_price, win_hi - trail_atr_mult * atr_curr)
+                if chand_stop > entry_price * 1.001 and low_price <= chand_stop:
+                    c_move = chand_stop - entry_price
+                    c_roe = (c_move / entry_price) * 100.0 * leverage
+                    return ExitAlertSignal(
+                        symbol=symbol,
+                        position_side=side,
+                        reason="CHANDELIER_TRAIL_LOCK",
+                        urgency="IMMEDIATE_CLOSE",
+                        entry_price=entry_price,
+                        current_price=chand_stop,
+                        unrealized_pnl_pct_on_margin=round(c_roe, 2),
+                        unrealized_pnl_usd=round(margin_usd * (c_roe / 100.0), 2),
+                        r_multiple=round(c_move / risk_dist, 2),
+                        explanation=(
+                            f"Post-TP1 Chandelier Trail ({trail_atr_mult:.2f}x ATR from peak {win_hi:.{prec}f}) "
+                            f"locked runner profit at {chand_stop:.{prec}f} (+{c_roe:.1f}% ROE)!"
+                        ),
+                    )
+            else:
+                win_lo = min(
+                    float(cols["low"][idx - look_w + 1 : idx + 1].min()),
+                    peak_favorable_price if peak_favorable_price > 0 else tp1_price,
+                    tp1_price,
+                )
+                chand_stop = min(entry_price, win_lo + trail_atr_mult * atr_curr)
+                if chand_stop < entry_price * 0.999 and high_price >= chand_stop:
+                    c_move = entry_price - chand_stop
+                    c_roe = (c_move / entry_price) * 100.0 * leverage
+                    return ExitAlertSignal(
+                        symbol=symbol,
+                        position_side=side,
+                        reason="CHANDELIER_TRAIL_LOCK",
+                        urgency="IMMEDIATE_CLOSE",
+                        entry_price=entry_price,
+                        current_price=chand_stop,
+                        unrealized_pnl_pct_on_margin=round(c_roe, 2),
+                        unrealized_pnl_usd=round(margin_usd * (c_roe / 100.0), 2),
+                        r_multiple=round(c_move / risk_dist, 2),
+                        explanation=(
+                            f"Post-TP1 Chandelier Trail ({trail_atr_mult:.2f}x ATR from trough {win_lo:.{prec}f}) "
+                            f"locked runner profit at {chand_stop:.{prec}f} (+{c_roe:.1f}% ROE)!"
+                        ),
+                    )
+
+        # Check Mature Profit-Flatline Stall (only after >= 1.20R & >= 4 bars of genuine dead compression, preventing premature 0.8R chops)
+        w_exit = max(4, self.params.exit_flatline_bars)
+        min_r_stall = max(1.20, self.params.min_profit_r_for_stall_exit)
         if (
             self.params.exit_on_profit_flatline
+            and not tp1_already_hit
             and bars_held >= w_exit
-            and (r_mult >= self.params.min_profit_r_for_stall_exit or roe_pct >= 18.0)
+            and (r_mult >= min_r_stall or roe_pct >= 28.0)
             and idx >= w_exit
         ):
-            atr = max(float(cols["atr"][idx]), 1e-9)
             s_idx = idx - w_exit + 1
             stall_range = float(cols["high"][s_idx : idx + 1].max() - cols["low"][s_idx : idx + 1].min())
             stall_open = float(cols["open"][s_idx])
             favorable_progress = (curr_price - stall_open) if side == "LONG" else (stall_open - curr_price)
 
-            # If price has stopped making favorable progress over w_exit bars and compressed into a sideways band
-            if favorable_progress <= 0.25 * atr and stall_range <= 1.85 * atr:
+            if favorable_progress <= 0.10 * atr_curr and stall_range <= 1.35 * atr_curr:
                 return ExitAlertSignal(
                     symbol=symbol,
                     position_side=side,
@@ -919,8 +981,8 @@ class ImpulseFlatlineDetector:
                     unrealized_pnl_usd=round(pnl_usd, 2),
                     r_multiple=round(r_mult, 2),
                     explanation=(
-                        f"Reversal is up +{roe_pct:.1f}% ROE ({r_mult:.2f}R) and has FLATLINED sideways for {w_exit} bars "
-                        f"(favorable drift {favorable_progress:+.{prec}f} vs ATR {atr:.{prec}f}). Momentum is stalling—lock in profit now!"
+                        f"Position is up +{roe_pct:.1f}% ROE ({r_mult:.2f}R) and compressed into a dead {w_exit}-bar band "
+                        f"(favorable drift {favorable_progress:+.{prec}f} vs ATR {atr_curr:.{prec}f}). Lock in profit now!"
                     ),
                 )
 
@@ -931,13 +993,13 @@ class ImpulseFlatlineDetector:
                 reason="TP1_HIT_LOCK_PARTIAL",
                 urgency="TAKE_PARTIAL_AND_TRAIL",
                 entry_price=entry_price,
-                current_price=curr_price,
+                current_price=tp1_price if not use_live_spot_only else curr_price,
                 unrealized_pnl_pct_on_margin=round(roe_pct, 2),
                 unrealized_pnl_usd=round(pnl_usd, 2),
                 r_multiple=round(r_mult, 2),
                 explanation=(
-                    f"TP1 (38.2% retracement at {tp1_price:.{prec}f}) hit (+{roe_pct:.1f}% ROE)! "
-                    f"Take 50% profit and move Stop-Loss to breakeven ({entry_price:.{prec}f})."
+                    f"Carbon V2 Equilibrium TP1 ({tp1_price:.{prec}f}) hit (+{roe_pct:.1f}% ROE)! "
+                    f"Close partial profit, move Stop-Loss to breakeven ({entry_price:.{prec}f}), and activate Chandelier Runner Trail."
                 ),
             )
 

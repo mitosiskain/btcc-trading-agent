@@ -17,6 +17,7 @@ from typing import Set, Dict
 from config import AppConfig, StrategyParams
 from market_data import MarketDataFeed
 from detector import ImpulseFlatlineDetector
+from carbon_v2_engine import CarbonLiveBridge
 from sentiment_agent import SentimentAnalystAgent
 from execution_engine import ExecutionEngine
 from backtest_researcher import AutomatedBacktestResearcher
@@ -28,12 +29,13 @@ class BTCCTradingOrchestrator:
         self.config = config
         self.feed = MarketDataFeed()
         self.detector = ImpulseFlatlineDetector(config.strategy, config.risk)
+        self.state_dir = Path(__file__).resolve().parent / "state"
+        self.carbon_bridge = CarbonLiveBridge(config.risk, state_dir=self.state_dir)
         self.sentiment_agent = SentimentAnalystAgent(config)
         self.execution = ExecutionEngine(config)
         self.researcher = AutomatedBacktestResearcher(config)
         self.telegram = TelegramNotifier(config)
         self.alerted_bar_keys: Set[str] = set()
-        self.state_dir = Path(__file__).resolve().parent / "state"
 
     def get_detector_for_symbol(self, symbol: str, timeframe: str) -> ImpulseFlatlineDetector:
         """Load per-asset optimized StrategyParams from state/ if available."""
@@ -50,27 +52,32 @@ class BTCCTradingOrchestrator:
 
     def scan_and_manage_once(self) -> None:
         """
-        Single pass across watchlist:
-        1. Checks open positions for Profit-Flatline Stalls, TP1/TP2, or Stop-Loss.
-        2. Scans for new 'Impulse + Flatline -> Reversal' setups and runs Gemini Sentiment validation.
+        Single pass across watchlist using Carbon V2 Quantitative Engine:
+        1. Checks open positions for Post-TP1 Chandelier Trails, Mature Profit Stalls, TP1/TP2, or Stop-Loss.
+        2. Scans 12-column perpetual orderflow + BTC beta-residuals + PurgedMetaEnsemble for Maker-Limit entries.
         """
         tf = self.config.strategy.timeframe
         for symbol in self.config.watchlist:
             sym_detector = self.get_detector_for_symbol(symbol, tf)
             try:
-                df = self.feed.fetch_ohlcv(symbol=symbol, interval=tf, limit=120)
+                df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=symbol, interval=tf, limit=240)
             except Exception as e:
                 print(f"[WARN] Could not fetch {symbol}: {e}")
                 continue
 
             last_idx = len(df) - 1
             curr_price = float(df.iloc[last_idx]["close"])
-            curr_ts = str(df.iloc[last_idx]["timestamp"])
 
-            # 1. Monitor Open Position for this symbol (Exit & Profit-Flatline Stall Monitor)
+            # 1. Monitor Open Position for this symbol (Chandelier Trail, Mature Stall & TP/SL Monitor)
             if symbol in self.execution.open_positions:
                 pos = self.execution.open_positions[symbol]
                 pos.current_price = curr_price
+                if pos.side == "LONG":
+                    pos.peak_favorable_price = max(float(getattr(pos, "peak_favorable_price", 0.0) or curr_price), curr_price)
+                else:
+                    prev_pk = float(getattr(pos, "peak_favorable_price", 0.0) or curr_price)
+                    pos.peak_favorable_price = min(prev_pk, curr_price) if prev_pk > 0 else curr_price
+
                 tf_sec_map = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400, "1w": 604800, "1M": 2592000}
                 bar_sec = tf_sec_map.get(tf, 14400)
                 try:
@@ -92,33 +99,44 @@ class BTCCTradingOrchestrator:
                     margin_usd=pos.remaining_margin_usd,
                     bars_held=pos.bars_held,
                     tp1_already_hit=pos.tp1_hit,
+                    trail_atr_mult=float(getattr(pos, "trail_atr_mult", 1.75)),
+                    peak_favorable_price=float(getattr(pos, "peak_favorable_price", 0.0)),
                 )
                 if exit_sig is not None:
                     closed_rec = self.execution.process_exit_signal(exit_sig)
                     self.telegram.send_exit_or_stall_alert(exit_sig, closed_rec)
                 continue
 
-            # 2. Scan for new Impulse + Flatline Reversal Setup (check latest closed bar and current bar)
-            for check_idx in (last_idx - 1, last_idx):
-                if check_idx < 0:
-                    continue
-                bar_ts = str(df.iloc[check_idx]["timestamp"])
-                dedup_key = f"{symbol}:{tf}:{bar_ts}"
-                if dedup_key in self.alerted_bar_keys:
-                    continue
-
-                signal = sym_detector.detect_setup_at_index(df, check_idx, symbol=symbol)
-                if signal is not None:
+            # 2. Scan with Carbon V2 Orderflow + PurgedMetaEnsemble
+            scan_res = self.carbon_bridge.evaluate_symbol_live(df, btc_df, symbol=symbol, timeframe=tf)
+            tel = scan_res.telemetry
+            if scan_res.active_signal is not None and scan_res.signal_bars_ago in (0, 1):
+                signal = scan_res.active_signal
+                cand = scan_res.active_candidate
+                dedup_key = f"{symbol}:{tf}:{signal.timestamp}"
+                if dedup_key not in self.alerted_bar_keys:
                     self.alerted_bar_keys.add(dedup_key)
                     verdict = self.sentiment_agent.evaluate_setup(signal)
-                    opened_pos = self.execution.execute_reversal_entry(signal, verdict)
+                    verdict.reasoning = (
+                        f"Carbon V2 {tel['archetype']} (E[{tel['meta_pred_r']:+.2f}R], "
+                        f"Taker Δ {tel['delta_norm_pct']:+.1f}%, Whale {tel['whale_print_ratio']:.2f}x) • {verdict.reasoning}"
+                    )
+                    opened_pos = self.execution.execute_reversal_entry(
+                        signal,
+                        verdict,
+                        archetype=cand.archetype if cand else "ABSORPTION_REVERSAL",
+                        partial_frac=cand.partial_frac if cand else 0.48,
+                        trail_atr_mult=cand.trail_atr_mult if cand else 1.75,
+                        meta_pred_r=cand.meta_pred_r if cand else 0.0,
+                    )
                     self.telegram.send_entry_setup_alert(signal, verdict, opened_pos)
-                    break
-            else:
-                print(
-                    f"[SCAN] {symbol:8s} ({tf}) | Price: {curr_price:<10.4f} | "
-                    f"RSI: {float(df.iloc[last_idx]['rsi']):5.1f} | ATR: {float(df.iloc[last_idx]['atr']):.4f} | No flatline reversal trigger"
-                )
+                    continue
+
+            print(
+                f"[CARBON V2] {symbol:8s} ({tf}) | Price: {curr_price:<10.4f} | "
+                f"Taker Δ: {tel['delta_norm_pct']:+5.1f}% | Whale: {tel['whale_print_ratio']:4.2f}x | "
+                f"VWAP-Z: {tel['z_vwap']:+5.2f} | Meta E[R]: {tel['meta_pred_r']:+5.2f}R | Trap {scan_res.pending_order_plan['side']} @ {scan_res.pending_order_plan['limit_entry_price']}"
+            )
 
     def handle_telegram_command(self, cmd_text: str) -> str:
         parts = cmd_text.strip().split()
@@ -159,38 +177,37 @@ class BTCCTradingOrchestrator:
 
         if cmd in ("/prices", "/sheet"):
             tf = self.config.strategy.timeframe
-            lines = [f"🎯 *BTCC LIMIT / TRIGGER ORDER PRICE SHEET ({tf.upper()})*\n_Tap any price in `code` on your phone to copy it into BTCC:_"]
+            lines = [f"🎯 *CARBON V2 MAKER-LIMIT ORDER SHEET ({tf.upper()})*\n_Post-Only Limit levels to avoid BTCC taker/spread drag • Tap any price to copy:_"]
             for sym in self.config.watchlist:
                 try:
-                    sym_det = self.get_detector_for_symbol(sym, tf)
-                    df = self.feed.fetch_ohlcv(symbol=sym, interval=tf, limit=60)
-                    sig = sym_det.detect_setup_at_index(df, len(df) - 1, symbol=sym)
-                    radar = sym_det.inspect_mtf_breakout_radar(df, None, symbol=sym, closeup_tf="15m")
-                    plan = radar.get("pending_order_plan") or {}
+                    df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=sym, interval=tf, limit=240)
+                    scan_res = self.carbon_bridge.evaluate_symbol_live(df, btc_df, symbol=sym, timeframe=tf)
+                    sig = scan_res.active_signal
+                    plan = scan_res.pending_order_plan
+                    tel = scan_res.telemetry
                     if sig:
                         lines.append(
-                            f"⚡ *{sym}* (*{sig.trade_side}* @ `{sig.recommended_leverage}x` — ACTIVE):\n"
-                            f"   Entry: `{sig.entry_price}` | SL: `{sig.stop_loss}` | TP1: `{sig.tp1_price}` | TP2: `{sig.tp2_price}`"
+                            f"⚡ *{sym}* (*{sig.trade_side}* @ `{sig.recommended_leverage}x` — MAKER ENTER NOW • `E[{tel['meta_pred_r']:+.2f}R]`):\n"
+                            f"   Limit Entry: `{sig.entry_price}` | SL: `{sig.stop_loss}` | TP1: `{sig.tp1_price}` | TP2: `{sig.tp2_price}`"
                         )
                     else:
                         lines.append(
-                            f"⏳ *{sym}* (*{plan.get('side')}* @ `{plan.get('recommended_leverage', 5)}x` — TRIGGER):\n"
-                            f"   Trigger: `{plan.get('trigger_entry_price')}` | SL: `{plan.get('stop_loss')}` | TP1: `{plan.get('tp1_price')}` | TP2: `{plan.get('tp2_price')}`"
+                            f"⏳ *{sym}* (*{plan.get('side')}* @ `{plan.get('recommended_leverage', 5)}x` — MAKER TRAP):\n"
+                            f"   Limit Trap: `{plan.get('limit_entry_price')}` | SL: `{plan.get('stop_loss')}` | TP1: `{plan.get('tp1_price')}` | TP2: `{plan.get('tp2_price')}`"
                         )
                 except Exception:
                     continue
-            lines.append("\n👉 _Reply `/track SUIUSDT` (or any symbol) after placing the order on BTCC so I monitor it for Profit-Flatline Stalls!_")
+            lines.append("\n👉 _Reply `/track SUIUSDT` (or any symbol) after placing the limit order on BTCC so Carbon V2 monitors TP1 + Chandelier Runner Trail!_")
             return "\n".join(lines)
 
         if cmd == "/track" and len(parts) >= 2:
             # Supports short form `/track SUIUSDT` OR full form `/track SUIUSDT SHORT 0.8412 5`
             sym = parts[1].upper()
             tf = self.config.strategy.timeframe
-            sym_det = self.get_detector_for_symbol(sym, tf)
-            df = self.feed.fetch_ohlcv(symbol=sym, interval=tf, limit=60)
-            sig = sym_det.detect_setup_at_index(df, len(df) - 1, symbol=sym)
-            radar = sym_det.inspect_mtf_breakout_radar(df, None, symbol=sym, closeup_tf="15m")
-            plan = radar.get("pending_order_plan") or {}
+            df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=sym, interval=tf, limit=240)
+            scan_res = self.carbon_bridge.evaluate_symbol_live(df, btc_df, symbol=sym, timeframe=tf)
+            sig = scan_res.active_signal
+            plan = scan_res.pending_order_plan
 
             if len(parts) >= 4:
                 side = parts[2].upper()
@@ -201,32 +218,36 @@ class BTCCTradingOrchestrator:
                 entry_p = sig.entry_price
                 lev = sig.recommended_leverage
             else:
-                side = str(plan.get("side", "SHORT")).upper()
-                entry_p = float(plan.get("trigger_entry_price") or df.iloc[-1]["close"])
+                side = str(plan.get("side", "LONG")).upper()
+                entry_p = float(plan.get("limit_entry_price") or df.iloc[-1]["close"])
                 lev = int(plan.get("recommended_leverage") or self.config.risk.default_leverage)
 
-            if sig is not None and abs(entry_p - sig.entry_price) / max(entry_p, 1e-9) < 0.01:
+            if sig is not None and abs(entry_p - sig.entry_price) / max(entry_p, 1e-9) < 0.015:
                 sl = sig.stop_loss
                 tp1 = sig.tp1_price
                 tp2 = sig.tp2_price
                 liq = sig.estimated_liq_price
-            elif plan and abs(entry_p - float(plan.get("trigger_entry_price", 0))) / max(entry_p, 1e-9) < 0.01:
+            elif plan and abs(entry_p - float(plan.get("limit_entry_price", 0))) / max(entry_p, 1e-9) < 0.015:
                 sl = float(plan["stop_loss"])
                 tp1 = float(plan["tp1_price"])
                 tp2 = float(plan["tp2_price"])
                 liq = float(plan["estimated_liq_price"])
             else:
-                atr = float(df.iloc[-1]["atr"])
+                prec = self.carbon_bridge._price_precision(entry_p)
+                atr = float(df.iloc[-1]["atr"]) or (entry_p * 0.015)
+                is_rwa = any(k in sym for k in ("XAU", "XAG"))
+                min_stop_pct = 0.0080 if is_rwa else 0.0155
+                sl_dist = max(1.35 * atr, min_stop_pct * entry_p)
                 if side == "LONG":
-                    sl = round(entry_p - 1.5 * atr, 4)
-                    tp1 = round(entry_p + 1.8 * atr, 4)
-                    tp2 = round(entry_p + 3.0 * atr, 4)
-                    liq = round(entry_p * (1.0 - 0.90 / lev), 4)
+                    sl = round(entry_p - sl_dist, prec)
+                    tp1 = round(entry_p + 1.30 * sl_dist, prec)
+                    tp2 = round(entry_p + 2.65 * sl_dist, prec)
+                    liq = round(entry_p * (1.0 - 0.90 / max(lev, 1)), prec)
                 else:
-                    sl = round(entry_p + 1.5 * atr, 4)
-                    tp1 = round(entry_p - 1.8 * atr, 4)
-                    tp2 = round(entry_p - 3.0 * atr, 4)
-                    liq = round(entry_p * (1.0 + 0.90 / lev), 4)
+                    sl = round(entry_p + sl_dist, prec)
+                    tp1 = round(entry_p - 1.30 * sl_dist, prec)
+                    tp2 = round(entry_p - 2.65 * sl_dist, prec)
+                    liq = round(entry_p * (1.0 + 0.90 / max(lev, 1)), prec)
 
             from execution_engine import OpenPosition
             from datetime import datetime, timezone
@@ -310,8 +331,8 @@ def main() -> None:
         help="Execution mode (gui launches the live on-screen control center)",
     )
     parser.add_argument("--symbol", default="ETHUSDT", help="Symbol for backtest (e.g., ETHUSDT, XAUUSDT, BTCUSDT)")
-    parser.add_argument("--timeframe", default="5m", help="Candle timeframe (1m, 5m, 15m)")
-    parser.add_argument("--limit", type=int, default=1000, help="Historical bars to fetch for backtesting")
+    parser.add_argument("--timeframe", default="4h", help="Candle timeframe (default: 4h Carbon V2 Swing)")
+    parser.add_argument("--limit", type=int, default=1200, help="Historical bars to fetch for backtesting")
     parser.add_argument("--poll-seconds", type=int, default=20, help="Polling interval in daemon mode")
     args = parser.parse_args()
 

@@ -71,7 +71,7 @@ jobs:
       - name: Persist Open Positions, Alert Cache & Phone Web GUI
         if: always()
         run: |
-          git add state/portfolio_state.json state/cloud_alert_cache.json docs/index.html docs/state.json btcc/index.html btcc/state.json index.html state.json 2>/dev/null || true
+          git add state/portfolio_state.json state/cloud_alert_cache.json state/carbon_v2_live_model.json docs/index.html docs/state.json btcc/index.html btcc/state.json index.html state.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
             git commit -m "chore(state): update cloud portfolio & live phone web GUI [skip ci]"
             git pull --rebase origin main 2>/dev/null || git pull --rebase origin master 2>/dev/null || true

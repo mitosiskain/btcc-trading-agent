@@ -295,14 +295,14 @@
     </label>
     <label style="font-size:0.8rem;color:var(--muted);">Timeframe:
       <select id="tfSelect" onchange="changeTimeframe(this.value)">
-        <option value="1m">1m (Scalp)</option>
-        <option value="5m">5m (Intraday)</option>
-        <option value="15m">15m (Intraday)</option>
-        <option value="1h">1h (Hourly — 65.7% WR)</option>
-        <option value="4h" selected>4h (Multi-Day Swing ⭐ 73.8% WR)</option>
-        <option value="1d">1d (Daily / 1-Wk Hold ⭐ 88.2% WR)</option>
-        <option value="1w">1w (Weekly Macro — 75.0% WR)</option>
-        <option value="1M">1M (Monthly Macro — 68.5% WR)</option>
+        <option value="1m">1m (Scalp — High Fee Hurdle)</option>
+        <option value="5m">5m (Intraday — Maker Only)</option>
+        <option value="15m">15m (Intraday — Maker Only)</option>
+        <option value="1h">1h (Maker-Limit Sweep Only)</option>
+        <option value="4h" selected>4h (Carbon V2 Swing &#11088; +1.26 PF OOS)</option>
+        <option value="1d">1d (Daily Macro Swing &#11088; Low Friction)</option>
+        <option value="1w">1w (Weekly Macro Swing)</option>
+        <option value="1M">1M (Monthly Macro Swing)</option>
       </select>
     </label>
     <button class="primary" onclick="scanNow()">Scan All Now</button>
@@ -316,8 +316,8 @@
 <div class="health-grid" id="healthGrid"></div>
 
 <div class="section-title">
-  <span>2. Live Buy / Sell Recommendations & Setup Checklist</span>
-  <span style="font-size:0.78rem;text-transform:none;">Strategy: Impulse Spike/Dump &rarr; Tight Flatline &rarr; Reversal Fade</span>
+  <span>2. Carbon V2 Live Maker-Limit Signals &amp; Orderflow Traps</span>
+  <span style="font-size:0.78rem;text-transform:none;">Engine: 12-Col Taker Orderflow Climax &rarr; Purged Meta-Ensemble &rarr; Post-Only Maker Limit (0.020% Fee)</span>
 </div>
 <div class="cards-grid" id="cardsGrid"></div>
 
@@ -475,6 +475,12 @@ function renderDashboard(data) {
     const slStr = tp.sl_str || tp.sl;
     const tp1Str = tp.tp1_str || tp.tp1;
     const tp2Str = tp.tp2_str || tp.tp2;
+    const ctel = c.carbon_telemetry || {};
+    const deltaPct = typeof ctel.delta_norm_pct === 'number' ? `${ctel.delta_norm_pct >= 0 ? '+' : ''}${ctel.delta_norm_pct.toFixed(1)}%` : 'n/a';
+    const cvd6Pct = typeof ctel.cvd_6_pct === 'number' ? `${ctel.cvd_6_pct >= 0 ? '+' : ''}${ctel.cvd_6_pct.toFixed(1)}%` : 'n/a';
+    const whaleRatio = typeof ctel.whale_print_ratio === 'number' ? `${ctel.whale_print_ratio.toFixed(2)}x` : 'n/a';
+    const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
+    const entryLbl = isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:';
 
     return `
       <div class="asset-card rec-${c.rec_color}">
@@ -489,7 +495,7 @@ function renderDashboard(data) {
                 ${conf}% CONFIDENCE
               </span>
             </div>
-            <div class="sub-metrics">${isNow ? '&#9889; ACTIVE BREAKOUT — ENTER NOW' : '&#9203; WAIT FOR SAFE ENTRY LEVEL'} (${c.timeframe.toUpperCase()})</div>
+            <div class="sub-metrics">${isNow ? '&#9889; CARBON V2 MAKER LIMIT — ENTER NOW' : '&#127919; RESTING VWAP MAKER-LIMIT TRAP'} (${c.timeframe.toUpperCase()})</div>
           </div>
           <div class="price-box">
             <div class="price-val">$${priceStr}</div>
@@ -499,25 +505,32 @@ function renderDashboard(data) {
 
         <div class="signal-levels" style="border-color:${isNow ? sideColor : 'var(--border)'};margin-top:4px;">
           <div style="grid-column:1 / -1;font-weight:800;color:${sideColor};font-size:0.8rem;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} SETUP (Click any price to copy)</span>
+            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} ${isNow ? 'ACTIVE SETUP' : 'LIMIT TRAP'} (Click price to copy)</span>
             <span style="color:${confColor};">${conf}% Conf</span>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Safe Entry">
-            <span>Safe Entry:</span> <strong>$${entryStr} &#128203;</strong>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Maker Limit Entry">
+            <span>${entryLbl}</span> <strong>$${entryStr} &#128203;</strong>
           </div>
           <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${slStr}', this)" title="Click to copy Stop-Loss">
             <span>Stop-Loss (SL):</span> <strong style="color:var(--red)">$${slStr} &#128203;</strong>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1">
-            <span>Take-Profit 1 (TP1):</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1 (55% Partial)">
+            <span>TP1 (55% Partial):</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2">
-            <span>Take-Profit 2 (TP2):</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2 (45% Runner)">
+            <span>TP2 (45% Runner):</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
           </div>
         </div>
 
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(15,23,42,0.55);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:0.71rem;margin-top:2px;">
+          <div><span style="color:var(--muted);display:block;">Taker &Delta;</span><strong>${deltaPct}</strong></div>
+          <div><span style="color:var(--muted);display:block;">6-Bar CVD</span><strong>${cvd6Pct}</strong></div>
+          <div><span style="color:var(--muted);display:block;">Whale Print</span><strong>${whaleRatio}</strong></div>
+          <div><span style="color:var(--muted);display:block;">Meta E[R]</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
+        </div>
+
         <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
-          ${tp.simple_why || ''} &bull; Size: <strong>$${mUsd} @ ${lev}x</strong>
+          ${tp.simple_why || ''} &bull; Kelly Safe: <strong>$${mUsd} @ ${lev}x</strong>
         </div>
 
         <div style="display:flex;gap:6px;margin-top:2px;">

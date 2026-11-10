@@ -55,8 +55,12 @@ class LeverageRiskConfig:
     target_sl_margin_risk_pct: float = float(os.getenv("TARGET_SL_MARGIN_RISK_PCT", "15.0"))  # ~15% of $5 = $0.75 risk at SL
     auto_adjust_leverage_to_stop: bool = True  # Dynamically scale leverage so SL triggers well before isolated liquidation
     max_concurrent_positions: int = 3
+    max_same_side_positions: int = 2           # Correlation guard: max 2 LONG or 2 SHORT concurrently
     daily_max_loss_usd: float = float(os.getenv("DAILY_MAX_LOSS_USD", "15.0"))       # Kill-switch if daily losses exceed 3x trade margin
-    btcc_taker_fee_pct: float = 0.045          # 0.045% per side typical BTCC VIP/standard perp fee
+    btcc_taker_fee_pct: float = 0.045          # 0.045% per side typical BTCC VIP/standard perp taker fee
+    btcc_maker_fee_pct: float = 0.020          # 0.020% per side post-only / maker limit fee
+    prefer_maker_limit_entries: bool = True    # Route entries as Maker/Pullback limits to cut fee+spread drag
+    engine_version: str = "CARBON_V2"          # Active quantitative alpha engine
 
 
 @dataclass

@@ -20,6 +20,7 @@ def sync_state_to_git() -> None:
                 "add",
                 "state/portfolio_state.json",
                 "state/cloud_alert_cache.json",
+                "state/carbon_v2_live_model.json",
                 "docs/index.html",
                 "docs/state.json",
                 "btcc/index.html",
