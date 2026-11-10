@@ -305,7 +305,7 @@
         <option value="1M">1M (Monthly Macro Swing)</option>
       </select>
     </label>
-    <button class="primary" onclick="scanNow()">Scan All Now</button>
+    <button class="primary" id="scanNowBtn" onclick="scanNow()">Scan All Now</button>
     <button id="toggleAutoBtn" onclick="toggleAutoScan()">Auto-Scan: ON (15s)</button>
   </div>
 </header>
@@ -384,22 +384,56 @@
 <script>
 let currentState = null;
 
-let isStaticCloud = false;
+const isGithubPagesHost = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+let isStaticCloud = isGithubPagesHost;
+let lastCloudFetchMs = 0;
 const GITHUB_RAW_STATE_URL = 'https://raw.githubusercontent.com/mitosiskain/btcc-trading-agent/main/docs/state.json';
 
-async function fetchState() {
-  const urls = [
-    '/api/state',
-    './state.json?t=' + Date.now(),
-    GITHUB_RAW_STATE_URL + '?t=' + Date.now()
-  ];
+function showCloudToast(msg) {
+  let toast = document.getElementById('cloudToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'cloudToast';
+    toast.style.cssText = 'position:fixed;bottom:18px;right:18px;z-index:9999;background:#111827;color:#e5e7eb;border:1px solid #3b82f6;border-radius:8px;padding:10px 14px;font-size:0.82rem;box-shadow:0 10px 25px rgba(0,0,0,0.5);max-width:360px;transition:opacity 0.25s;';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = msg;
+  toast.style.opacity = '1';
+  clearTimeout(window._cloudToastTimer);
+  window._cloudToastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 4200);
+}
+
+function sendViaTelegramBot(cmdText, actionLabel) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cmdText).catch(() => {});
+  }
+  showCloudToast(`<strong>&#9729;&#65039; ${actionLabel}:</strong> Copied <code>${cmdText}</code> &amp; opening <strong>@kaintraderbot</strong> — tap Send in Telegram to sync!`);
+  window.open('https://t.me/kaintraderbot?text=' + encodeURIComponent(cmdText), '_blank');
+}
+
+async function fetchState(force = false) {
+  if (isStaticCloud && !force && lastCloudFetchMs > 0 && (Date.now() - lastCloudFetchMs) < 12000) {
+    return;
+  }
+  const ts = Date.now();
+  const urls = isGithubPagesHost
+    ? [
+        GITHUB_RAW_STATE_URL + '?t=' + ts,
+        './state.json?t=' + ts
+      ]
+    : [
+        '/api/state',
+        GITHUB_RAW_STATE_URL + '?t=' + ts,
+        './state.json?t=' + ts
+      ];
   for (let i = 0; i < urls.length; i++) {
     try {
       const res = await fetch(urls[i], { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data && data.asset_cards) {
-          isStaticCloud = (i > 0);
+          isStaticCloud = isGithubPagesHost || (i > 0);
+          if (isStaticCloud) lastCloudFetchMs = Date.now();
           currentState = data;
           renderDashboard(data);
           return;
@@ -420,12 +454,16 @@ function renderDashboard(data) {
     if (mSel && document.activeElement !== mSel) mSel.value = String(Math.round(data.risk.margin_per_trade_usd));
     if (lSel && document.activeElement !== lSel) lSel.value = String(data.risk.default_leverage);
   }
-  const modePrefix = isStaticCloud ? '☁️ Cloud Mobile View (@kaintraderbot)' : 'Running locally';
+  const modePrefix = isStaticCloud ? '☁️ Cloud Live View (@kaintraderbot)' : 'Running locally';
   document.getElementById('lastScanText').innerText =
     `${modePrefix} | Last scan: ${data.last_scan_ts || 'Running...'} | Alert Threshold: ${data.alert_confidence_threshold || 80}%+`;
 
+  const scanBtn = document.getElementById('scanNowBtn');
+  if (scanBtn) scanBtn.innerText = isStaticCloud ? 'Refresh Cloud Now' : 'Scan All Now';
   const autoBtn = document.getElementById('toggleAutoBtn');
-  autoBtn.innerText = data.auto_scan_enabled ? `Auto-Scan: ON (${data.poll_interval_sec}s)` : 'Auto-Scan: PAUSED';
+  autoBtn.innerText = isStaticCloud
+    ? 'Cloud Sync: LIVE (3m)'
+    : (data.auto_scan_enabled ? `Auto-Scan: ON (${data.poll_interval_sec}s)` : 'Auto-Scan: PAUSED');
   document.getElementById('liveDot').style.background = data.auto_scan_enabled ? 'var(--green)' : 'var(--amber)';
 
   // 1. Render Diagnostics
@@ -639,8 +677,13 @@ function renderDashboard(data) {
 }
 
 async function scanNow() {
+  if (isStaticCloud) {
+    await fetchState(true);
+    showCloudToast('&#9989; Synced latest live Carbon V2 state from GitHub Cloud!');
+    return;
+  }
   await fetch('/api/scan', { method: 'POST' });
-  await fetchState();
+  await fetchState(true);
 }
 
 function copyPrice(val, el) {
@@ -656,29 +699,41 @@ function openBtccDesktop(symbol, entryPrice) {
 }
 
 async function toggleAutoScan() {
+  if (isStaticCloud) {
+    showCloudToast('&#9729;&#65039; Auto-Sync pushes fresh Carbon V2 scans to this cloud page every 3 minutes 24/7.');
+    return;
+  }
   await fetch('/api/toggle-auto', { method: 'POST' });
-  await fetchState();
+  await fetchState(true);
 }
 
 async function changeTimeframe(tf) {
+  if (isStaticCloud) {
+    sendViaTelegramBot(`/tf ${tf}`, `Switch Timeframe (${tf})`);
+    return;
+  }
   await fetch('/api/timeframe', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ timeframe: tf })
   });
-  await fetchState();
+  await fetchState(true);
 }
 
 async function changeRisk() {
   const margin = parseFloat(document.getElementById('marginSelect').value || '5');
   const lev = parseInt(document.getElementById('levSelect').value || '20', 10);
   document.getElementById('trkLev').value = lev;
+  if (isStaticCloud) {
+    showCloudToast(`&#8505;&#65039; Updated manual tracker leverage to <strong>${lev}x</strong> ($${margin} margin) for your next @kaintraderbot command.`);
+    return;
+  }
   await fetch('/api/risk', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ margin_per_trade_usd: margin, default_leverage: lev })
   });
-  await fetchState();
+  await fetchState(true);
 }
 
 async function trackManualTrade() {
@@ -688,43 +743,66 @@ async function trackManualTrade() {
   const leverage = parseInt(document.getElementById('trkLev').value || '100', 10);
   const entry_price = entryRaw ? parseFloat(entryRaw) : null;
 
+  if (isStaticCloud) {
+    const pxPart = entry_price ? ` at ${entry_price}` : '';
+    sendViaTelegramBot(`I went ${side} on ${symbol}${pxPart} ${leverage}x`, `Track ${symbol} ${side}`);
+    document.getElementById('trkEntry').value = '';
+    return;
+  }
+
   await fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ symbol, side, entry_price, leverage })
   });
   document.getElementById('trkEntry').value = '';
-  await fetchState();
+  await fetchState(true);
 }
 
 async function quickTrack(symbol, side, entry_price, leverage) {
+  if (isStaticCloud) {
+    sendViaTelegramBot(`I went ${side} on ${symbol} at ${entry_price} ${leverage}x`, `Track ${symbol} ${side}`);
+    return;
+  }
   await fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ symbol, side, entry_price, leverage })
   });
-  await fetchState();
+  await fetchState(true);
 }
 
 async function closePosition(symbol) {
+  if (isStaticCloud) {
+    sendViaTelegramBot(`/close ${symbol}`, `Close ${symbol}`);
+    return;
+  }
   await fetch('/api/close', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ symbol })
   });
-  await fetchState();
+  await fetchState(true);
 }
 
 async function runBacktest(symbol) {
+  if (isStaticCloud) {
+    showCloudToast('&#9729;&#65039; Purged Meta-Ensemble OOS profiles run on your local daemon and auto-sync here.');
+    return;
+  }
   await fetch('/api/backtest', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ symbol })
   });
-  await fetchState();
+  await fetchState(true);
 }
 
 async function connectTelegram() {
+  if (isStaticCloud) {
+    window.open('https://t.me/kaintraderbot', '_blank');
+    return;
+  }
   const bot_token = document.getElementById('tgToken').value.trim();
   const chat_id = document.getElementById('tgChatId').value.trim();
   const gemini_key = document.getElementById('geminiKey').value.trim();
@@ -740,11 +818,11 @@ async function connectTelegram() {
   const out = await res.json();
   statusEl.style.color = out.ok ? 'var(--green)' : 'var(--red)';
   statusEl.innerText = out.message || '';
-  await fetchState();
+  await fetchState(true);
 }
 
-fetchState();
-setInterval(fetchState, 4000);
+fetchState(true);
+setInterval(() => fetchState(false), 4000);
 </script>
 </body>
 </html>
