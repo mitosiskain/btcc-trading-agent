@@ -1,8 +1,37 @@
 {
   "account_balance_usd": 10063.46,
   "daily_realized_pnl_usd": 63.46,
-  "positions_version_ts": 0.0,
-  "open_positions": {},
+  "positions_version_ts": 1794352347.751,
+  "open_positions": {
+    "ETHUSDT": {
+      "position_id": "manual-ethusdt-1794352347",
+      "symbol": "ETHUSDT",
+      "side": "LONG",
+      "entry_price": 2042.56,
+      "current_price": 2045.51,
+      "stop_loss": 1983.7749999999999,
+      "tp1_price": 2113.102,
+      "tp2_price": 2167.968,
+      "leverage": 5,
+      "initial_margin_usd": 5.0,
+      "remaining_margin_usd": 5.0,
+      "notional_usd": 25.0,
+      "liq_price": 1674.8992,
+      "opened_at": "2026-11-10T23:12:27.750644+00:00",
+      "bars_held": 0,
+      "tp1_hit": false,
+      "warning_sent": false,
+      "realized_partial_pnl_usd": 0.0,
+      "sentiment_decision": "MANUAL_BTCC_TRADE",
+      "sentiment_reasoning": "Reported via Telegram: I have an eth long position opened at 2042.56",
+      "archetype": "CARBON_ABSORPTION_REVERSAL",
+      "order_type": "POST_ONLY_LIMIT",
+      "partial_frac": 0.48,
+      "trail_atr_mult": 1.75,
+      "peak_favorable_price": 0.0,
+      "meta_pred_r": 0.0
+    }
+  },
   "closed_trades": [
     {
       "position_id": "manual-ethusdt-1794149895",
