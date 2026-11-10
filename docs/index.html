@@ -385,28 +385,31 @@
 let currentState = null;
 
 let isStaticCloud = false;
+const GITHUB_RAW_STATE_URL = 'https://raw.githubusercontent.com/mitosiskain/btcc-trading-agent/main/docs/state.json';
 
 async function fetchState() {
-  try {
-    let res = await fetch('/api/state', { cache: 'no-store' });
-    if (!res.ok) {
-      isStaticCloud = true;
-      res = await fetch('./state.json?t=' + Date.now(), { cache: 'no-store' });
-    }
-    const data = await res.json();
-    currentState = data;
-    renderDashboard(data);
-  } catch (e) {
+  const urls = [
+    '/api/state',
+    './state.json?t=' + Date.now(),
+    GITHUB_RAW_STATE_URL + '?t=' + Date.now()
+  ];
+  for (let i = 0; i < urls.length; i++) {
     try {
-      isStaticCloud = true;
-      const res2 = await fetch('./state.json?t=' + Date.now(), { cache: 'no-store' });
-      const data2 = await res2.json();
-      currentState = data2;
-      renderDashboard(data2);
-    } catch (e2) {
-      document.getElementById('lastScanText').innerText = 'Connection error: ' + e;
+      const res = await fetch(urls[i], { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.asset_cards) {
+          isStaticCloud = (i > 0);
+          currentState = data;
+          renderDashboard(data);
+          return;
+        }
+      }
+    } catch (err) {
+      // try next fallback URL
     }
   }
+  document.getElementById('lastScanText').innerText = 'Waiting for live state...';
 }
 
 function renderDashboard(data) {
