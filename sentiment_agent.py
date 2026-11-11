@@ -34,6 +34,7 @@ TV_SYMBOL_MAP: Dict[str, str] = {
     "XAUUSDT": "OANDA:XAUUSD",
     "XAGUSDT": "TVC:SILVER",
     "NVDAUSDT": "NASDAQ:NVDA",
+    "SPACEXUSDT": "NASDAQ:SPCX",
     "PEPEUSDT": "BINANCE:PEPEUSDT",
     "WIFUSDT": "BINANCE:WIFUSDT",
     "AVAXUSDT": "BINANCE:AVAXUSDT",
@@ -54,6 +55,7 @@ SOCIAL_QUERY_MAP: Dict[str, str] = {
     "XAUUSDT": "(Gold price OR XAUUSD) (Fed OR central bank OR safe haven OR inflation)",
     "XAGUSDT": "(Silver price OR XAGUSD) (COMEX OR industrial demand OR safe haven OR Gold)",
     "NVDAUSDT": "(Nvidia OR NVDA) (AI chips OR Jensen Huang OR earnings OR Wall Street)",
+    "SPACEXUSDT": "(SpaceX OR SPCX OR Starlink) (stock OR Starship OR launch OR Musk OR earnings OR Nasdaq)",
     "PEPEUSDT": "(Pepe coin OR $PEPE) (memecoin OR whale OR rally OR breakout)",
     "WIFUSDT": "(dogwifhat OR $WIF) (Solana memecoin OR whale OR breakout OR rally)",
     "AVAXUSDT": "(Avalanche OR $AVAX) (crypto OR RWA OR staking OR rally)",
@@ -184,7 +186,7 @@ class SentimentAnalystAgent:
 
         # 1. OKX Perp Funding Rate & Retail Long/Short Account Ratio (no geo-block)
         base_ccy = sym.replace("USDT", "")
-        if sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT"):
+        if sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT"):
             try:
                 r_fund = self.session.get(
                     "https://www.okx.com/api/v5/public/funding-rate",

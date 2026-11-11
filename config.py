@@ -136,6 +136,17 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         min_lot_label="0.1 NVDA",
         min_notional_usd=18.0,
     ),
+    "SPACEXUSDT": AssetProfile(
+        symbol="SPACEXUSDT",
+        btcc_symbol="SPACEXUSDT",      # BTCC tokenized-stock perpetual (up to 50x)
+        category="rwa",
+        binance_symbol="SPCXUSDT",     # Binance USDT-M equity perp (24/7, since 2026-05-21) for klines + funding
+        yfinance_ticker="SPCX",        # Nasdaq: SPCX (IPO 2026-06-12) fallback
+        max_btcc_leverage=50,
+        default_impulse_pct=0.80,
+        min_lot_label="0.1 SPCX",
+        min_notional_usd=15.0,
+    ),
     "XRPUSDT": AssetProfile(
         symbol="XRPUSDT",
         btcc_symbol="XRPUSDT",
@@ -253,6 +264,7 @@ class AppConfig:
             "WIFUSDT",
             "INJUSDT",
             "NVDAUSDT",
+            "SPACEXUSDT",
         ]
     )
     strategy: StrategyParams = field(default_factory=StrategyParams)

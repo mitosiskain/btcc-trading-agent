@@ -936,6 +936,7 @@ class DashboardController:
             ("WIFUSDT", ["wifusdt", "dogwifhat", "wif"]),
             ("INJUSDT", ["injusdt", "injective", "inj"]),
             ("NVDAUSDT", ["nvdausdt", "nvidia", "nvda"]),
+            ("SPACEXUSDT", ["spacexusdt", "spcxusdt", "spacex", "space x", "spcx"]),
         ]
         found: List[str] = []
         for sym, words in aliases:
@@ -1136,7 +1137,7 @@ Important BTCC / exchange conventions:
 - "Open Price" / "Avg. Open Price" / "Entry Price" = entry_price.
 - "Margin" / "Position Margin" = margin_usd.
 - Leverage is usually shown like "20X", "50x", "100x", "5x".
-- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA).
+- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA), SPACEXUSDT (SpaceX / SPCX).
 - If the screenshot is an exchange "Positions" tab showing ZERO open positions (e.g. "Positions (0)", "No Data", "No open positions"), set screen_type="EMPTY_POSITIONS" and positions=[].
 - If the screenshot is a full exchange "Positions" list tab showing currently open positions, set screen_type="OPEN_POSITIONS".
 - If the screenshot is a "Closed Position" / "Position History" / "Realized PnL" card or row (or the user caption says "closed"), set screen_type="CLOSED_PNL" and set is_closed=true (and exit_price if visible) for closed rows.
@@ -2035,6 +2036,7 @@ HTML_PAGE = """<!DOCTYPE html>
         <option value="WIFUSDT">WIFUSDT</option>
         <option value="INJUSDT">INJUSDT</option>
         <option value="NVDAUSDT">NVDAUSDT</option>
+        <option value="SPACEXUSDT">SPACEXUSDT (SpaceX)</option>
       </select>
       <select id="trkSide">
         <option value="LONG">BUY / LONG</option>
