@@ -92,6 +92,7 @@ VALIDATED_WATCHLIST: List[str] = [
     "SUIUSDT",
     "AVAXUSDT",
     "XAUUSDT",
+    "XAGUSDT",   # validated under Metals Trend V1 (benchmark_metals.py: COMEX 2000-2026 PF 1.87, 24/7 perp positive)
 ]
 
 
@@ -217,14 +218,14 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         symbol="XAGUSDT",
         btcc_symbol="SILVERUSDT",
         category="rwa",
-        binance_symbol="XAGUSDT",      # Listed 2026-01-07 (0 dev history; OOS PF 0.82 on 4h / 0.79 on 1h)
+        binance_symbol="XAGUSDT",      # 24/7 Binance perp (since 2026-01-07); signals via Metals Trend V1 (+ COMEX history warm-up)
         yfinance_ticker="SI=F",
         max_btcc_leverage=150,
         default_impulse_pct=0.45,
         min_lot_label="0.1 oz",
         min_notional_usd=10.0,
         okx_inst_id="XAG-USDT-SWAP",
-        validated_for_alerts=False,
+        validated_for_alerts=True,
     ),
     "PEPEUSDT": AssetProfile(
         symbol="PEPEUSDT",

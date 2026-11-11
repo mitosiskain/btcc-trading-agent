@@ -21,6 +21,19 @@ The live scanner, GitHub cloud runner, web dashboard and Telegram bot now run **
 
 Switch back to the previous engine with `ENGINE_VERSION=CARBON_V2` (env var / GitHub workflow).
 
+### Gold & Silver: Metals Trend V1 ([`metals_engine.py`](./metals_engine.py))
+
+Gold (`XAUUSDT`) and silver (`XAGUSDT`) use a dedicated engine because their long histories are session data
+(COMEX ~23h × 5 days) while BTCC trades them 24/7. Every decision is taken once per weekday at the UTC daily close,
+so the rules behave identically on session data and on 24/7 perpetual data.
+
+- **Entry:** daily close above the prior 40-weekday closing high, while above the 200-day average (long-only by default;
+  `METALS_ALLOW_SHORTS=true` adds the mirror short).
+- **Risk/exit:** 2 × daily ATR stop (1R), 3 × ATR chandelier trail, exit on a daily close below the prior 20-day closing low.
+- **Evidence** ([`benchmark_metals.py`](./benchmark_metals.py)): COMEX 2000–2026 gold PF 1.53 (115 trades), silver PF 1.87 (112);
+  24/7 gold (PAXG 2020–2026) PF 2.41 vs Krypton V3 PF 1.09 on the same data. ~4 trades per metal per year.
+- Disable with `METALS_ENGINE=OFF` (metals then fall back to Krypton V3).
+
 ---
 
 ## Core Strategy & Agent Architecture

@@ -9,6 +9,7 @@ Combines:
 
 from __future__ import annotations
 import argparse
+import os
 import json
 import time
 from pathlib import Path
@@ -19,6 +20,7 @@ from market_data import MarketDataFeed
 from detector import ImpulseFlatlineDetector
 from carbon_v2_engine import CarbonLiveBridge
 from krypton_engine import KryptonLiveBridge
+from metals_engine import MetalsTrendBridge, METALS_SYMBOLS
 from sentiment_agent import SentimentAnalystAgent
 from execution_engine import ExecutionEngine
 from backtest_researcher import AutomatedBacktestResearcher
@@ -38,11 +40,20 @@ class BTCCTradingOrchestrator:
         self.is_krypton = self.engine_version.startswith("KRYPTON")
         self.engine_bridge = self.krypton_bridge if self.is_krypton else self.carbon_bridge
         self.engine_label = "Krypton V3" if self.is_krypton else "Carbon V2"
+        # Gold & silver run the dedicated, calendar-consistent Metals Trend engine (METALS_ENGINE=OFF -> Krypton V3)
+        self.metals_bridge = MetalsTrendBridge(config.risk, state_dir=self.state_dir, feed=self.feed)
+        self.use_metals_engine = os.getenv("METALS_ENGINE", "METALS_TREND").upper() != "OFF"
         self.sentiment_agent = SentimentAnalystAgent(config)
         self.execution = ExecutionEngine(config)
         self.researcher = AutomatedBacktestResearcher(config)
         self.telegram = TelegramNotifier(config)
         self.alerted_bar_keys: Set[str] = set()
+
+    def bridge_for(self, symbol: str):
+        """Live engine for a symbol: Metals Trend for XAU/XAG, otherwise the active engine (Krypton V3 / Carbon V2)."""
+        if self.is_krypton and self.use_metals_engine and str(symbol).upper() in METALS_SYMBOLS:
+            return self.metals_bridge
+        return self.engine_bridge
 
     def scan_bars(self, timeframe: str) -> int:
         """History length the active engine needs (Krypton's 200/800-bar EMAs need far more than Carbon's 240)."""
@@ -103,7 +114,7 @@ class BTCCTradingOrchestrator:
                 except Exception:
                     pos.bars_held = 0
                 if self.is_krypton:
-                    exit_sig, trail_upd = self.krypton_bridge.check_position_exit(df, pos, tf)
+                    exit_sig, trail_upd = self.bridge_for(symbol).check_position_exit(df, pos, tf)
                     if trail_upd is not None:
                         self.execution._save_state()
                         self.telegram.send_message(
@@ -141,7 +152,7 @@ class BTCCTradingOrchestrator:
                 continue
 
             # 2. Scan with the active engine (Krypton V3 trend breakout by default, Carbon V2 optional)
-            scan_res = self.engine_bridge.evaluate_symbol_live(df, btc_df, symbol=symbol, timeframe=tf)
+            scan_res = self.bridge_for(symbol).evaluate_symbol_live(df, btc_df, symbol=symbol, timeframe=tf)
             tel = scan_res.telemetry
             if scan_res.active_signal is not None and scan_res.signal_bars_ago in (0, 1):
                 signal = scan_res.active_signal
@@ -224,7 +235,7 @@ class BTCCTradingOrchestrator:
             for sym in self.config.watchlist:
                 try:
                     df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=sym, interval=tf, limit=self.scan_bars(tf))
-                    scan_res = self.engine_bridge.evaluate_symbol_live(df, btc_df, symbol=sym, timeframe=tf)
+                    scan_res = self.bridge_for(sym).evaluate_symbol_live(df, btc_df, symbol=sym, timeframe=tf)
                     sig = scan_res.active_signal
                     plan = scan_res.pending_order_plan
                     tel = scan_res.telemetry
@@ -248,7 +259,7 @@ class BTCCTradingOrchestrator:
             sym = parts[1].upper()
             tf = self.config.strategy.timeframe
             df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=sym, interval=tf, limit=self.scan_bars(tf))
-            scan_res = self.engine_bridge.evaluate_symbol_live(df, btc_df, symbol=sym, timeframe=tf)
+            scan_res = self.bridge_for(sym).evaluate_symbol_live(df, btc_df, symbol=sym, timeframe=tf)
             sig = scan_res.active_signal
             plan = scan_res.pending_order_plan
 

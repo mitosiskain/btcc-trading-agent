@@ -250,7 +250,7 @@ class DashboardController:
         expected_opt_engine = "KRYPTON_V3_TREND_BREAKOUT" if self.orchestrator.is_krypton else "CARBON_V2_PURGED_META"
         for sym in self.config.watchlist:
             prof = DEFAULT_ASSETS.get(sym)
-            oos = self.orchestrator.engine_bridge.get_oos_asset_summary(sym, self.timeframe)
+            oos = self.orchestrator.bridge_for(sym).get_oos_asset_summary(sym, self.timeframe)
             opt_file = state_dir / f"optimized_{sym.lower()}_{self.timeframe}.json"
             used_custom = False
             if opt_file.exists() and not self.orchestrator.is_krypton:
@@ -450,7 +450,8 @@ class DashboardController:
                         pos.bars_held = 0
                     if self.orchestrator.is_krypton:
                         # Krypton V3 exits: initial stop -> chandelier trail ratchet -> exit-channel close -> time stop
-                        exit_sig, trail_upd = self.orchestrator.krypton_bridge.check_position_exit(df, pos, tf)
+                        pos_bridge = self.orchestrator.bridge_for(symbol)
+                        exit_sig, trail_upd = pos_bridge.check_position_exit(df, pos, tf)
                         if trail_upd is not None:
                             self.orchestrator.execution.touch_positions_version()
                             self.orchestrator.execution._save_state()
@@ -459,7 +460,7 @@ class DashboardController:
                                 self.sentiment_alert_cooldowns[trail_key] = time.time()
                                 self.orchestrator.telegram.send_message(
                                     f"🔒 *{symbol} {pos.side} — RAISE YOUR STOP*\n"
-                                    f"• Krypton trail moved SL `{fmt_price(trail_upd['old_sl'])}` → `{fmt_price(trail_upd['new_sl'])}`\n"
+                                    f"• {pos_bridge.display_name} trail moved SL `{fmt_price(trail_upd['old_sl'])}` → `{fmt_price(trail_upd['new_sl'])}`\n"
                                     f"• _Update the stop on BTCC so the trend can keep running with locked-in risk._"
                                 )
                     else:
@@ -514,9 +515,10 @@ class DashboardController:
 
                 # 2. Evaluate the active alpha engine (Krypton V3 trend breakout by default; Carbon V2 via ENGINE_VERSION)
                 is_kr = self.orchestrator.is_krypton
-                eng_lbl = self.orchestrator.engine_label
+                sym_bridge = self.orchestrator.bridge_for(symbol)
+                eng_lbl = getattr(sym_bridge, "display_name", self.orchestrator.engine_label)
                 curr_ema20 = float(df["ema20"].iloc[last_idx]) if "ema20" in df.columns else curr_price
-                carbon_res = self.orchestrator.engine_bridge.evaluate_symbol_live(
+                carbon_res = sym_bridge.evaluate_symbol_live(
                     df=df, btc_df=btc_df, symbol=symbol, timeframe=tf
                 )
                 active_signal: Optional[ReversalSetupSignal] = carbon_res.active_signal
@@ -532,9 +534,10 @@ class DashboardController:
                 mtf_radar["pending_order_plan"] = carbon_res.pending_order_plan
                 mtf_radar["closeup_status"] = (
                     (
-                        f"⚡ KRYPTON V3 TREND BREAKOUT {active_signal.trade_side} ACTIVE (trend {c_tel.get('trend')} • stop {fmt_price(active_signal.stop_loss)})"
+                        f"⚡ {eng_lbl.upper()} TREND BREAKOUT {active_signal.trade_side} ACTIVE (trend {c_tel.get('trend')} • stop {fmt_price(active_signal.stop_loss)})"
                         if active_signal is not None
-                        else f"👀 Krypton V3 {c_tel['archetype']}: {carbon_res.pending_order_plan['side']} if {tf} closes "
+                        else f"👀 {eng_lbl} {c_tel['archetype']}: {carbon_res.pending_order_plan['side']} if the "
+                        f"{c_tel.get('decision_label', tf + ' candle close')} is "
                         f"{'above' if carbon_res.pending_order_plan['side'] == 'LONG' else 'below'} "
                         f"${fmt_price(carbon_res.pending_order_plan['trigger_entry_price'])} ({c_tel['dist_to_trap_pct']:.2f}% away)"
                     )
@@ -674,9 +677,9 @@ class DashboardController:
                     if active_signal is not None:
                         exit_lvl = c_tel.get("exit_channel_long") if u_side == "LONG" else c_tel.get("exit_channel_short")
                     simple_why = (
-                        f"Krypton V3 {'trend breakout' if u_mode == 'ENTER NOW' else c_tel['archetype'].replace('_', ' ').lower()} "
-                        f"(trend {c_tel.get('trend')}, hold-out E[{meta_er:+.2f}R]/trade) • No fixed TP: trail stop + "
-                        f"exit on {tf} close beyond ${fmt_price(float(exit_lvl or 0))} • Macro {dom_trend} • Sent {sent_lbl}"
+                        f"{eng_lbl} {'trend breakout' if u_mode == 'ENTER NOW' else c_tel['archetype'].replace('_', ' ').lower()} "
+                        f"(trend {c_tel.get('trend')}, backtest E[{meta_er:+.2f}R]/trade) • No fixed TP: trail stop + "
+                        f"exit on {c_tel.get('decision_label', tf + ' close')} beyond ${fmt_price(float(exit_lvl or 0))} • Macro {dom_trend} • Sent {sent_lbl}"
                     )
                 else:
                     simple_why = (
@@ -705,11 +708,15 @@ class DashboardController:
                     "archetype": c_tel["archetype"],
                     "engine": eng_lbl,
                     "breakout_score": float(active_signal.impulse_atr_mult) if (is_kr and active_signal is not None) else 0.0,
-                    "entry_label": ("Market Entry (on close):" if u_mode == "ENTER NOW" else "Enter if candle closes beyond:") if is_kr else None,
+                    "entry_label": (
+                        ("Market Entry (on close):" if u_mode == "ENTER NOW" else
+                         ("Enter if daily close (00:00 UTC) is above:" if c_tel.get("decision_label") else "Enter if candle closes beyond:"))
+                        if is_kr else None
+                    ),
                     "tp1_label": "Milestone +3R (no auto-TP):" if is_kr else None,
                     "tp2_label": "Milestone +6R (trail exit):" if is_kr else None,
                     "mode_label": (
-                        ("⚡ KRYPTON V3 TREND BREAKOUT — ENTER NOW" if u_mode == "ENTER NOW" else f"👀 KRYPTON V3 — {u_mode}") if is_kr else None
+                        (f"⚡ {eng_lbl.upper()} TREND BREAKOUT — ENTER NOW" if u_mode == "ENTER NOW" else f"👀 {eng_lbl.upper()} — {u_mode}") if is_kr else None
                     ),
                 }
 
@@ -782,11 +789,13 @@ class DashboardController:
                             if is_kr:
                                 ex_word = "below" if u_side == "LONG" else "above"
                                 tg_msg = (
-                                    f"{icon} *KRYPTON V3 SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'}*\n"
-                                    f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()} trend breakout • {actual_source})_\n"
+                                    f"{icon} *{eng_lbl.upper()} SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'}*\n"
+                                    f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | "
+                                    f"{'daily-close' if c_tel.get('decision_label') else tf.upper()} trend breakout • {actual_source})_\n"
                                     f"• *Entry*: `{trade_plan['safe_entry_str']}` _(market — breakout confirmed on candle close)_\n"
                                     f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(= 1R • ${margin_usd:.0f} @ {u_lev}x)_\n"
-                                    f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a {tf} candle closes {ex_word} the exit channel\n"
+                                    f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a "
+                                    f"{c_tel.get('decision_label', tf + ' candle close')} is {ex_word} the exit channel\n"
                                     f"• *Milestones*: +3R `{trade_plan['tp1_str']}` | +6R `{trade_plan['tp2_str']}` _(info only)_\n"
                                     f"• _Expect ~25-35% winners; the edge comes from letting the big trends run._"
                                 )
@@ -1048,17 +1057,19 @@ class DashboardController:
         entry_lbl = "Maker Limit Entry" if mode == "ENTER NOW" else "Resting Maker Trap"
         if self.orchestrator.is_krypton:
             ex_word = "below" if side == "LONG" else "above"
+            eng_name = tp.get("engine") or "Krypton V3"
+            close_lbl = (c.get("carbon_telemetry") or {}).get("decision_label") or f"{self.timeframe} candle close"
             entry_line = (
-                f"• *Market Entry*: `{tp.get('safe_entry_str')}` _(breakout confirmed on candle close)_\n"
+                f"• *Market Entry*: `{tp.get('safe_entry_str')}` _(breakout confirmed on the {close_lbl})_\n"
                 if mode == "ENTER NOW"
-                else f"• *Trigger*: {side} only if a {self.timeframe} candle closes {'above' if side == 'LONG' else 'below'} `{tp.get('safe_entry_str')}`\n"
+                else f"• *Trigger*: {side} only if the {close_lbl} is {'above' if side == 'LONG' else 'below'} `{tp.get('safe_entry_str')}`\n"
             )
             return (
-                f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} (Krypton V3)*\n"
+                f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} ({eng_name})*\n"
                 f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}`)_\n"
                 + entry_line
                 + f"• *Stop-Loss (SL)*: `{tp.get('sl_str')}` _(1R • {tp.get('leverage', 5)}x)_\n"
-                f"• *Exit*: _no fixed TP_ — trail stop + close if a {self.timeframe} candle closes {ex_word} the exit channel "
+                f"• *Exit*: _no fixed TP_ — trail stop + close if the {close_lbl} is {ex_word} the exit channel "
                 f"_(milestones +3R `{tp.get('tp1_str')}` | +6R `{tp.get('tp2_str')}`)_\n"
                 f"• *Why*: _{tp.get('simple_why', '')}_"
                 + pos_block
@@ -2309,7 +2320,7 @@ function renderDashboard(data) {
     const whaleRatio = typeof ctel.whale_print_ratio === 'number' ? `${ctel.whale_print_ratio.toFixed(2)}x` : 'n/a';
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
     const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
-    const isKr = tp.engine === 'Krypton V3';
+    const isKr = !!tp.entry_label;
 
     return `
       <div class="asset-card rec-${c.rec_color}">
