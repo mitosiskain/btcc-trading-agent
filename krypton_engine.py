@@ -129,7 +129,7 @@ def compute_features(df: pd.DataFrame, p: KryptonParams, btc_df: Optional[pd.Dat
     feats["funding_bar"] = ((ts.dt.minute == 0) & (ts.dt.hour % 8 == 0)).to_numpy()
     feats["funding_rate"] = df["funding_rate"].to_numpy(float) if "funding_rate" in df.columns else np.full(len(df), 1e-4)
     feats["ts_str"] = ts.astype(str).to_numpy()
-    feats["ts_ns"] = ts.astype("int64").to_numpy()
+    feats["ts_ns"] = ts.dt.as_unit("ns").astype("int64").to_numpy()  # true nanoseconds (pandas 3 defaults to us)
     return feats
 
 
