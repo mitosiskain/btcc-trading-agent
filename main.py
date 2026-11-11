@@ -67,9 +67,14 @@ class BTCCTradingOrchestrator:
         1. Checks open positions for Post-TP1 Chandelier Trails, Mature Profit Stalls, TP1/TP2, or Stop-Loss.
         2. Scans 12-column perpetual orderflow + BTC beta-residuals + PurgedMetaEnsemble for Maker-Limit entries.
         """
+        from config import DEFAULT_ASSETS
+        from sentiment_agent import SentimentVerdictSchema
+
         tf = self.config.strategy.timeframe
-        for symbol in self.config.watchlist:
+        scan_symbols = list(dict.fromkeys(list(self.config.watchlist) + list(self.execution.open_positions.keys())))
+        for symbol in scan_symbols:
             sym_detector = self.get_detector_for_symbol(symbol, tf)
+            profile = DEFAULT_ASSETS.get(symbol)
             try:
                 df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=symbol, interval=tf, limit=self.scan_bars(tf))
             except Exception as e:
@@ -123,8 +128,16 @@ class BTCCTradingOrchestrator:
                         peak_favorable_price=float(getattr(pos, "peak_favorable_price", 0.0)),
                     )
                 if exit_sig is not None:
+                    already_sent_rsn = str(getattr(pos, "exit_alert_sent_reason", "") or "")
                     closed_rec = self.execution.process_exit_signal(exit_sig)
-                    self.telegram.send_exit_or_stall_alert(exit_sig, closed_rec)
+                    if closed_rec is not None or already_sent_rsn != str(exit_sig.reason):
+                        self.telegram.send_exit_or_stall_alert(exit_sig, closed_rec)
+                continue
+
+            # Skip entry scanning & notifications on unvalidated assets or non-24/7 Yahoo fallback feeds
+            if not (profile and getattr(profile, "validated_for_alerts", False)):
+                continue
+            if not bool(df.attrs.get("is_reliable_24_7_feed", True)):
                 continue
 
             # 2. Scan with the active engine (Krypton V3 trend breakout by default, Carbon V2 optional)
@@ -135,21 +148,31 @@ class BTCCTradingOrchestrator:
                 cand = scan_res.active_candidate
                 dedup_key = f"{symbol}:{tf}:{signal.timestamp}"
                 if dedup_key not in self.alerted_bar_keys:
-                    self.alerted_bar_keys.add(dedup_key)
-                    verdict = self.sentiment_agent.evaluate_setup(signal)
-                    verdict.reasoning = (
-                        f"{self.engine_label} {tel['archetype']} (E[{tel['meta_pred_r']:+.2f}R], "
-                        f"Taker Δ {tel['delta_norm_pct']:+.1f}%, Whale {tel['whale_print_ratio']:.2f}x) • {verdict.reasoning}"
-                    )
+                    if self.is_krypton:
+                        verdict = SentimentVerdictSchema(
+                            decision="APPROVE_REVERSAL",
+                            confidence_score=0.85,
+                            leverage_multiplier=1.0,
+                            catalyst_summary="Krypton V3 Trend Breakout (continuation aligned)",
+                            reasoning=f"Krypton V3 {tel['archetype']} (trend {tel.get('trend')}, hold-out E[{tel['meta_pred_r']:+.2f}R])",
+                        )
+                    else:
+                        verdict = self.sentiment_agent.evaluate_setup(signal)
+                        verdict.reasoning = (
+                            f"{self.engine_label} {tel['archetype']} (E[{tel['meta_pred_r']:+.2f}R], "
+                            f"Taker Δ {tel['delta_norm_pct']:+.1f}%, Whale {tel['whale_print_ratio']:.2f}x) • {verdict.reasoning}"
+                        )
                     opened_pos = self.execution.execute_reversal_entry(
                         signal,
                         verdict,
-                        archetype=cand.archetype if cand else "ABSORPTION_REVERSAL",
-                        partial_frac=cand.partial_frac if cand else 0.48,
-                        trail_atr_mult=cand.trail_atr_mult if cand else 1.75,
-                        meta_pred_r=cand.meta_pred_r if cand else 0.0,
+                        archetype=(cand.archetype if cand else ("TREND_BREAKOUT" if self.is_krypton else "ABSORPTION_REVERSAL")),
+                        partial_frac=(cand.partial_frac if cand else (0.0 if self.is_krypton else 0.48)),
+                        trail_atr_mult=(cand.trail_atr_mult if cand else (8.0 if self.is_krypton else 1.75)),
+                        meta_pred_r=(cand.meta_pred_r if cand else 0.0),
                     )
-                    self.telegram.send_entry_setup_alert(signal, verdict, opened_pos)
+                    if opened_pos is not None:
+                        self.alerted_bar_keys.add(dedup_key)
+                        self.telegram.send_entry_setup_alert(signal, verdict, opened_pos)
                     continue
 
             print(

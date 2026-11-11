@@ -233,7 +233,10 @@ class AutomatedBacktestResearcher:
         Evaluates Carbon V2 Purged Meta-Ensemble (with honest next-bar/maker fills, real fees, spread/slippage,
         and pessimistic intrabar wicks) when engine_version == 'CARBON_V2', saving verified metrics to state/.
         """
-        if getattr(self.config.risk, "engine_version", "CARBON_V2") == "CARBON_V2":
+        eng = str(getattr(self.config.risk, "engine_version", "KRYPTON_V3")).upper()
+        if eng.startswith("KRYPTON"):
+            return self._run_krypton_v3_honest_eval(symbol=symbol, interval=interval, limit=max(limit, 1500))
+        if eng == "CARBON_V2":
             return self._run_carbon_v2_honest_eval(symbol=symbol, interval=interval, limit=max(limit, 1200))
 
         df = self.feed.fetch_ohlcv(symbol=symbol, interval=interval, limit=limit)
@@ -609,6 +612,126 @@ Provide a concise, high-signal 4-bullet quantitative takeaway covering:
             "symbol": symbol,
             "interval": interval,
             "bars_tested": len(feat_df),
+            "configs_tested": 1,
+            "best_metrics": asdict(bm),
+            "top_result": asdict(bm),
+            "recent_trades": trades[-6:],
+            "ai_researcher_verdict": verdict,
+        }
+
+    def _run_krypton_v3_honest_eval(
+        self,
+        symbol: str = "ETHUSDT",
+        interval: str = "4h",
+        limit: int = 1500,
+    ) -> Dict[str, Any]:
+        """
+        Runs Krypton V3 causal trend-breakout simulation with full BTCC taker fees (4.5 bps/side),
+        spread/slippage, 8h funding accrual, and pessimistic intrabar SL-first execution.
+        Uses full cached multi-year research history when available so results are never cherry-picked.
+        """
+        import pickle
+        import pandas as pd
+        from config import DEFAULT_ASSETS
+        from krypton_engine import compute_features, live_params_for, run_symbol
+
+        tf_eval = "1h" if interval in ("1m", "5m", "15m", "30m", "1h") else "4h"
+        pkl_path = self.state_dir / "research_cache" / f"{symbol.lower()}_{tf_eval}_full.pkl"
+        btc_pkl = self.state_dir / "research_cache" / f"btcusdt_{tf_eval}_full.pkl"
+
+        if pkl_path.exists():
+            with open(pkl_path, "rb") as f:
+                df = pickle.load(f)
+            if "timestamp" not in df.columns:
+                df = df.reset_index().rename(columns={df.index.name or "index": "timestamp"})
+            btc_df = None
+            if btc_pkl.exists():
+                with open(btc_pkl, "rb") as bf:
+                    btc_df = pickle.load(bf)
+                if "timestamp" not in btc_df.columns:
+                    btc_df = btc_df.reset_index().rename(columns={btc_df.index.name or "index": "timestamp"})
+        else:
+            df, btc_df = self.feed.fetch_enriched_ohlcv(symbol=symbol, interval=tf_eval, limit=max(limit, 1500))
+
+        params = live_params_for(tf_eval)
+        prof = DEFAULT_ASSETS.get(symbol.upper())
+        max_lev = prof.max_btcc_leverage if prof else 100
+        feats = compute_features(df, params, btc_df=btc_df)
+
+        # Evaluate out-of-sample window (>= 2025-12-01) if symbol has full history, else available post-warmup bars
+        ts = pd.to_datetime(df["timestamp"], utc=True)
+        split_ts = pd.Timestamp("2025-12-01", tz="UTC")
+        split_idx = int(ts.searchsorted(split_ts))
+        start_idx = split_idx if (split_idx >= params.ema_slow + 25 and len(df) - split_idx >= 50) else 0
+        window_lbl = "Hold-Out OOS >= 2025-12-01" if start_idx > 0 else "Available History (Unvalidated Short Sample)"
+
+        trades = run_symbol(feats, symbol.upper(), params, start_idx, len(df) - 1, max_btcc_leverage=max_lev)
+
+        eq = 0.0
+        peak_eq = 0.0
+        max_dd = 0.0
+        trail_cnt = 0
+        chan_cnt = 0
+        sl_cnt = 0
+        for t in trades:
+            eq += float(t["net_pnl_usd"])
+            peak_eq = max(peak_eq, eq)
+            max_dd = max(max_dd, peak_eq - eq)
+            rsn = str(t.get("exit_reason", ""))
+            if "TRAIL" in rsn:
+                trail_cnt += 1
+            elif "CHANNEL" in rsn:
+                chan_cnt += 1
+            elif "STOP" in rsn or "LIQ" in rsn:
+                sl_cnt += 1
+
+        wins = [t["net_pnl_usd"] for t in trades if t["net_pnl_usd"] > 0]
+        losses = [abs(t["net_pnl_usd"]) for t in trades if t["net_pnl_usd"] <= 0]
+        n_tr = len(trades)
+        wr = (len(wins) / n_tr * 100.0) if n_tr > 0 else 0.0
+        pf = (sum(wins) / max(sum(losses), 1e-6)) if wins else 0.0
+        net_pnl = sum(t["net_pnl_usd"] for t in trades)
+        avg_roe = float(np.mean([t["roe_pct"] for t in trades])) if trades else 0.0
+
+        bm = BacktestMetrics(
+            symbol=symbol.upper(),
+            timeframe=tf_eval,
+            total_bars=len(df),
+            total_trades=n_tr,
+            win_rate_pct=round(wr, 2),
+            profit_factor=round(min(pf, 99.0), 2),
+            total_net_pnl_usd=round(net_pnl, 2),
+            avg_roe_per_trade_pct=round(avg_roe, 2),
+            max_drawdown_usd=round(max_dd, 2),
+            profit_stall_exits_count=trail_cnt + chan_cnt,
+            tp1_hits_count=trail_cnt,
+            tp2_hits_count=chan_cnt,
+            stop_loss_count=sl_cnt,
+            params={"engine": "KRYPTON_V3_TREND_BREAKOUT", "timeframe": tf_eval, "window": window_lbl},
+        )
+
+        out_file = self.state_dir / f"optimized_{symbol.lower()}_{tf_eval}.json"
+        out_file.write_text(
+            json.dumps(
+                {
+                    "engine": "KRYPTON_V3_TREND_BREAKOUT",
+                    "best_metrics": asdict(bm),
+                    "sample_trades": trades[-10:],
+                },
+                indent=2,
+            )
+        )
+
+        verdict = (
+            f"Krypton V3 Honest Evaluation ({symbol.upper()} {tf_eval} • {window_lbl} • next-bar open + fees + slippage + funding): "
+            f"{n_tr} trades | {bm.win_rate_pct}% WR | PF {bm.profit_factor} | "
+            f"Net PnL ${bm.total_net_pnl_usd:+.2f} | MaxDD ${bm.max_drawdown_usd:.2f} "
+            f"({chan_cnt} channel exits, {trail_cnt} trail stops, {sl_cnt} initial stops)."
+        )
+        return {
+            "symbol": symbol.upper(),
+            "interval": tf_eval,
+            "bars_tested": len(df),
             "configs_tested": 1,
             "best_metrics": asdict(bm),
             "top_result": asdict(bm),

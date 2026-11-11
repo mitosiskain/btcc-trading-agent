@@ -21,12 +21,15 @@ class MarketDataFeed:
     BINANCE_FAPI_KLINES = "https://fapi.binance.com/fapi/v1/klines"
     BINANCE_FAPI_PREMIUM = "https://fapi.binance.com/fapi/v1/premiumIndex"
     BINANCE_SPOT_KLINES = "https://api.binance.com/api/v3/klines"
+    BINANCE_VISION_KLINES = "https://data-api.binance.vision/api/v3/klines"  # Non-US-geoblocked 12-col Binance mirror
+    OKX_CANDLES = "https://www.okx.com/api/v5/market/candles"
+    OKX_HISTORY_CANDLES = "https://www.okx.com/api/v5/market/history-candles"
     BYBIT_KLINES = "https://api.bybit.com/v5/market/kline"
     YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
 
     def __init__(self, timeout: int = 10):
         self.session = requests.Session()
-        self.session.headers.update({"User-Agent": "BTCC-AI-Trading-Agent/2.0-Carbon"})
+        self.session.headers.update({"User-Agent": "BTCC-AI-Trading-Agent/3.0-Krypton"})
         self.timeout = timeout
         self._macro_cache: dict[str, tuple[float, dict]] = {}
         self._funding_cache: dict[str, tuple[float, float]] = {}
@@ -44,17 +47,20 @@ class MarketDataFeed:
         """
         profile: Optional[AssetProfile] = DEFAULT_ASSETS.get(symbol.upper())
         binance_sym = profile.binance_symbol if profile else symbol.upper()
+        okx_inst = getattr(profile, "okx_inst_id", "") if profile else ""
         yf_ticker = profile.yfinance_ticker if profile else symbol.upper()
 
         df = pd.DataFrame()
 
-        # 1. Try Bybit Linear Perps or Binance Futures/Spot for Crypto & PAXG (Tokenized Gold)
+        # 1. Primary 24/7 feeds: Binance Perps/Spot/Vision (12-col) -> OKX 24/7 Perps -> Bybit Linear Perps
         if binance_sym:
             df = self._fetch_binance(binance_sym, interval, limit)
-            if df.empty:
-                df = self._fetch_bybit(binance_sym, interval, limit)
+        if df.empty and okx_inst:
+            df = self._fetch_okx_swap(okx_inst, interval, limit, target_symbol=binance_sym or symbol.upper())
+        if df.empty and binance_sym:
+            df = self._fetch_bybit(binance_sym, interval, limit)
 
-        # 2. Fallback to Yahoo Finance (or deeper macro history when 1M limit exceeds Spot history)
+        # 2. Fallback to Yahoo Finance ONLY for chart/macro reference (marked unreliable for 24/7 perp alerts)
         if yf_ticker and (df.empty or (interval == "1M" and len(df) < limit)):
             df_yh = self._fetch_yahoo(yf_ticker, interval, limit)
             if len(df_yh) > len(df):
@@ -123,23 +129,32 @@ class MarketDataFeed:
 
     def _fetch_binance(self, symbol: str, interval: str, limit: int) -> pd.DataFrame:
         urls = (
-            (self.BINANCE_SPOT_KLINES, self.BINANCE_FAPI_KLINES)
+            (self.BINANCE_SPOT_KLINES, self.BINANCE_VISION_KLINES, self.BINANCE_FAPI_KLINES)
             if interval in ("1w", "1M")
-            else (self.BINANCE_FAPI_KLINES, self.BINANCE_SPOT_KLINES)
+            else (self.BINANCE_FAPI_KLINES, self.BINANCE_SPOT_KLINES, self.BINANCE_VISION_KLINES)
         )
+        spot_urls = {self.BINANCE_SPOT_KLINES, self.BINANCE_VISION_KLINES}
         sym_candidates = [symbol]
-        if not symbol.startswith("1000") and symbol in ("PEPEUSDT", "SHIBUSDT", "BONKUSDT", "FLOKIUSDT"):
+        if symbol.startswith("1000"):
+            sym_candidates.append(symbol[4:])
+        elif symbol in ("PEPEUSDT", "SHIBUSDT", "BONKUSDT", "FLOKIUSDT"):
             sym_candidates.insert(0, f"1000{symbol}")
 
         for base_url in urls:
+            max_lim = 1000 if base_url in spot_urls else 1500
             for cand_sym in sym_candidates:
-                if base_url == self.BINANCE_SPOT_KLINES and cand_sym.startswith("1000"):
+                if base_url in spot_urls and cand_sym.startswith("1000"):
                     continue
-                scale = 0.001 if (cand_sym.startswith("1000") and not symbol.startswith("1000")) else 1.0
+                if cand_sym.startswith("1000") and not symbol.startswith("1000"):
+                    scale = 0.001
+                elif symbol.startswith("1000") and not cand_sym.startswith("1000"):
+                    scale = 1000.0
+                else:
+                    scale = 1.0
                 try:
                     resp = self.session.get(
                         base_url,
-                        params={"symbol": cand_sym, "interval": interval, "limit": min(limit, 1500)},
+                        params={"symbol": cand_sym, "interval": interval, "limit": min(limit, max_lim)},
                         timeout=self.timeout,
                     )
                     if resp.status_code != 200:
@@ -147,6 +162,17 @@ class MarketDataFeed:
                     raw = resp.json()
                     if not isinstance(raw, list) or not raw:
                         continue
+                    if base_url in spot_urls and limit > max_lim and len(raw) == max_lim:
+                        rem = min(max_lim, limit - len(raw))
+                        prev_resp = self.session.get(
+                            base_url,
+                            params={"symbol": cand_sym, "interval": interval, "limit": rem, "endTime": int(raw[0][0]) - 1},
+                            timeout=self.timeout,
+                        )
+                        if prev_resp.status_code == 200:
+                            prev_raw = prev_resp.json()
+                            if isinstance(prev_raw, list) and prev_raw:
+                                raw = prev_raw + raw
                     rows = [
                         {
                             "timestamp": pd.to_datetime(int(r[0]), unit="ms", utc=True),
@@ -156,18 +182,95 @@ class MarketDataFeed:
                             "close": float(r[4]) * scale,
                             "volume": float(r[5]) / scale,
                             "quote_vol": float(r[7]) if len(r) > 7 else (float(r[4]) * float(r[5])),
-                            "num_trades": float(r[8]) if len(r) > 8 else 1.0,
+                            "num_trades": float(r[8]) if len(r) > 8 else 0.0,
                             "taker_buy_vol": (float(r[9]) / scale) if len(r) > 9 else (0.5 * float(r[5]) / scale),
                             "taker_buy_quote_vol": float(r[10]) if len(r) > 10 else (0.5 * float(r[4]) * float(r[5])),
                         }
                         for r in raw
                     ]
                     out_df = pd.DataFrame(rows)
+                    src_label = (
+                        "Binance Perps 12-Col"
+                        if base_url == self.BINANCE_FAPI_KLINES
+                        else ("Binance Vision 12-Col" if base_url == self.BINANCE_VISION_KLINES else "Binance Spot 12-Col")
+                    )
                     out_df.attrs["has_true_orderflow"] = True
+                    out_df.attrs["data_source"] = src_label
+                    out_df.attrs["is_reliable_24_7_feed"] = True
                     return out_df
                 except Exception:
                     continue
         return pd.DataFrame()
+
+    def _fetch_okx_swap(self, inst_id: str, interval: str, limit: int, target_symbol: str = "") -> pd.DataFrame:
+        okx_bar_map = {
+            "1m": "1m",
+            "3m": "3m",
+            "5m": "5m",
+            "15m": "15m",
+            "30m": "30m",
+            "1h": "1H",
+            "4h": "4H",
+            "1d": "1Dutc",
+            "1w": "1Wutc",
+            "1M": "1Mutc",
+        }
+        bar = okx_bar_map.get(interval)
+        if not bar:
+            return pd.DataFrame()
+        scale = 1000.0 if target_symbol.startswith("1000") and not inst_id.startswith("1000") else 1.0
+        collected: list = []
+        after_cursor: Optional[str] = None
+        max_pages = max(1, min(4, (limit + 299) // 300))
+        try:
+            for page in range(max_pages):
+                url = self.OKX_CANDLES if page == 0 else self.OKX_HISTORY_CANDLES
+                params = {"instId": inst_id, "bar": bar, "limit": str(min(300, max(100, limit - len(collected))))}
+                if after_cursor:
+                    params["after"] = after_cursor
+                resp = self.session.get(url, params=params, timeout=self.timeout)
+                if resp.status_code != 200:
+                    break
+                batch = resp.json().get("data", [])
+                if not batch:
+                    break
+                collected.extend(batch)
+                after_cursor = str(batch[-1][0])
+                if len(collected) >= limit or len(batch) < 100:
+                    break
+            if not collected:
+                return pd.DataFrame()
+            seen_ts = set()
+            rows = []
+            for r in reversed(collected):
+                ts_ms = int(r[0])
+                if ts_ms in seen_ts:
+                    continue
+                seen_ts.add(ts_ms)
+                o_v, h_v, l_v, c_v = float(r[1]) * scale, float(r[2]) * scale, float(r[3]) * scale, float(r[4]) * scale
+                vol_v = (float(r[6]) if len(r) > 6 else float(r[5])) / scale
+                qv_v = float(r[7]) if len(r) > 7 else (c_v * vol_v)
+                rows.append(
+                    {
+                        "timestamp": pd.to_datetime(ts_ms, unit="ms", utc=True),
+                        "open": o_v,
+                        "high": h_v,
+                        "low": l_v,
+                        "close": c_v,
+                        "volume": vol_v,
+                        "quote_vol": qv_v,
+                        "num_trades": 0.0,
+                        "taker_buy_vol": 0.5 * vol_v,
+                        "taker_buy_quote_vol": 0.5 * qv_v,
+                    }
+                )
+            out_df = pd.DataFrame(rows).tail(limit).reset_index(drop=True)
+            out_df.attrs["has_true_orderflow"] = False
+            out_df.attrs["data_source"] = f"OKX 24/7 Perps ({inst_id})"
+            out_df.attrs["is_reliable_24_7_feed"] = True
+            return out_df
+        except Exception:
+            return pd.DataFrame()
 
     def _fetch_bybit(self, symbol: str, interval: str, limit: int) -> pd.DataFrame:
         bybit_interval_map = {
@@ -203,8 +306,6 @@ class MarketDataFeed:
             for r in reversed(lst):
                 o_v, h_v, l_v, c_v, vol_v = float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])
                 qv_v = float(r[6]) if len(r) > 6 else (c_v * vol_v)
-                clv = ((2.0 * c_v - h_v - l_v) / max(h_v - l_v, 1e-9)) if h_v > l_v else 0.0
-                tb_frac = max(0.18, min(0.82, 0.50 + 0.28 * clv))
                 rows.append(
                     {
                         "timestamp": pd.to_datetime(int(r[0]), unit="ms", utc=True),
@@ -214,13 +315,15 @@ class MarketDataFeed:
                         "close": c_v,
                         "volume": vol_v,
                         "quote_vol": qv_v,
-                        "num_trades": max(1.0, vol_v * 0.1),
-                        "taker_buy_vol": vol_v * tb_frac,
-                        "taker_buy_quote_vol": qv_v * tb_frac,
+                        "num_trades": 0.0,
+                        "taker_buy_vol": 0.5 * vol_v,
+                        "taker_buy_quote_vol": 0.5 * qv_v,
                     }
                 )
             out_df = pd.DataFrame(rows)
             out_df.attrs["has_true_orderflow"] = False
+            out_df.attrs["data_source"] = f"Bybit 24/7 Perps ({symbol})"
+            out_df.attrs["is_reliable_24_7_feed"] = True
             return out_df
         except Exception:
             return pd.DataFrame()
@@ -284,8 +387,6 @@ class MarketDataFeed:
                     continue
                 o_v, h_v, l_v, c_v, vol_v = float(o), float(h), float(l), float(c), float(v or 0.0)
                 qv_v = c_v * vol_v
-                clv = ((2.0 * c_v - h_v - l_v) / max(h_v - l_v, 1e-9)) if h_v > l_v else 0.0
-                tb_frac = max(0.18, min(0.82, 0.50 + 0.28 * clv))
                 rows.append(
                     {
                         "timestamp": pd.to_datetime(int(ts), unit="s", utc=True),
@@ -295,9 +396,9 @@ class MarketDataFeed:
                         "close": c_v,
                         "volume": vol_v,
                         "quote_vol": qv_v,
-                        "num_trades": max(1.0, vol_v * 0.05),
-                        "taker_buy_vol": vol_v * tb_frac,
-                        "taker_buy_quote_vol": qv_v * tb_frac,
+                        "num_trades": 0.0,
+                        "taker_buy_vol": 0.5 * vol_v,
+                        "taker_buy_quote_vol": 0.5 * qv_v,
                     }
                 )
             df = pd.DataFrame(rows)
@@ -325,6 +426,8 @@ class MarketDataFeed:
                 )
             out_df = df.tail(limit).reset_index(drop=True)
             out_df.attrs["has_true_orderflow"] = False
+            out_df.attrs["data_source"] = f"Yahoo Fallback ({ticker})"
+            out_df.attrs["is_reliable_24_7_feed"] = False
             return out_df
         except Exception:
             return pd.DataFrame()
@@ -414,8 +517,7 @@ class MarketDataFeed:
                         b_lo = float(df_tf["low"].iloc[-5:-1].min())
                         b_rng = max(b_hi - b_lo, 1e-9)
                         t_span = max(2.5 * b_atr, 2.2 * b_rng)
-                        is_gold = any(k in symbol.upper() for k in ("XAU", "GOLD", "XAG", "SILVER"))
-                        side_1d = "LONG" if (is_gold or abs(b_hi - c) <= abs(c - b_lo)) else "SHORT"
+                        side_1d = "LONG" if abs(b_hi - c) <= abs(c - b_lo) else "SHORT"
                         prec = 8 if c < 0.001 else (5 if c < 1.0 else 4)
                         if side_1d == "LONG":
                             e_1d = round(b_hi + 0.03 * b_atr, prec)

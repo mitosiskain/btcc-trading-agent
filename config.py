@@ -73,11 +73,26 @@ class AssetProfile:
     btcc_symbol: str             # BTCC contract name, e.g., "ETHUSDT"
     category: str                # "crypto" or "rwa"
     binance_symbol: str          # Public futures/spot feed symbol
-    yfinance_ticker: str         # Yahoo Finance fallback for tokenized RWAs (Gold, Silver, NVDA, TSLA)
+    yfinance_ticker: str         # Yahoo Finance fallback for macro/chart reference only (never live breakout alerts)
     max_btcc_leverage: int       # e.g., ETH 500x, Gold 150x-200x, Stocks 50x
     default_impulse_pct: float   # Asset-specific minimum impulse % on 5m
     min_lot_label: str = "0.01"  # Minimum contract lot on BTCC
     min_notional_usd: float = 15.0  # Approximate minimum notional value ($) per order
+    okx_inst_id: str = ""        # Non-geo-blocked 24/7 perpetual swap fallback (e.g. "ETH-USDT-SWAP")
+    validated_for_alerts: bool = False  # True ONLY for multi-year backtested & hold-out verified 24/7 assets
+
+
+# Hold-out verified 24/7 universe (benchmark_krypton.py: 4h PF 1.62 / +$1,068 under live 3L/1S cap, 1h PF 1.43 / +$884).
+VALIDATED_WATCHLIST: List[str] = [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT",
+    "SUIUSDT",
+    "AVAXUSDT",
+    "XAUUSDT",
+]
 
 
 DEFAULT_ASSETS: Dict[str, AssetProfile] = {
@@ -91,6 +106,8 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=0.70,
         min_lot_label="0.01 ETH",
         min_notional_usd=21.0,
+        okx_inst_id="ETH-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "BTCUSDT": AssetProfile(
         symbol="BTCUSDT",
@@ -102,6 +119,8 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=0.55,
         min_lot_label="0.001 BTC",
         min_notional_usd=76.0,
+        okx_inst_id="BTC-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "SOLUSDT": AssetProfile(
         symbol="SOLUSDT",
@@ -113,39 +132,47 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=1.00,
         min_lot_label="0.1 SOL",
         min_notional_usd=9.0,
+        okx_inst_id="SOL-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "XAUUSDT": AssetProfile(
         symbol="XAUUSDT",
         btcc_symbol="GOLDUSDT",
         category="rwa",
-        binance_symbol="PAXGUSDT",  # Tokenized gold 24/7 feed + GC=F
+        binance_symbol="PAXGUSDT",  # Tokenized gold 24/7 feed + OKX XAU-USDT-SWAP
         yfinance_ticker="GC=F",
         max_btcc_leverage=200,
         default_impulse_pct=0.35,
         min_lot_label="0.01 oz",
         min_notional_usd=45.0,
+        okx_inst_id="XAU-USDT-SWAP",
+        validated_for_alerts=True,
     ),
+    # Unvalidated / insufficient-history / OOS-negative assets below: kept in DEFAULT_ASSETS so existing manual
+    # positions or explicit /price lookups still work, but excluded from live watchlist notifications by default.
     "NVDAUSDT": AssetProfile(
         symbol="NVDAUSDT",
         btcc_symbol="NVDAUSDT",
         category="rwa",
-        binance_symbol="NVDAUSDT",     # Binance USDT-M equity perp (24/7, since 2026-03-26); Yahoo NVDA = fallback
+        binance_symbol="NVDAUSDT",     # Listed 2026-03-26 (0 pre-holdout dev history; 1h OOS PF 0.79)
         yfinance_ticker="NVDA",
         max_btcc_leverage=50,
         default_impulse_pct=0.85,
         min_lot_label="0.1 NVDA",
         min_notional_usd=18.0,
+        validated_for_alerts=False,
     ),
     "SPACEXUSDT": AssetProfile(
         symbol="SPACEXUSDT",
         btcc_symbol="SPACEXUSDT",      # BTCC tokenized-stock perpetual (up to 50x)
         category="rwa",
-        binance_symbol="SPCXUSDT",     # Binance USDT-M equity perp (24/7, since 2026-05-21) for klines + funding
-        yfinance_ticker="SPCX",        # Nasdaq: SPCX (IPO 2026-06-12) fallback
+        binance_symbol="SPCXUSDT",     # Listed 2026-05-21 (0 pre-holdout dev history; ~1,047 4h bars)
+        yfinance_ticker="SPCX",        # Nasdaq: SPCX (IPO 2026-06-12) regular-hours only
         max_btcc_leverage=50,
         default_impulse_pct=0.80,
         min_lot_label="0.1 SPCX",
         min_notional_usd=15.0,
+        validated_for_alerts=False,
     ),
     "XRPUSDT": AssetProfile(
         symbol="XRPUSDT",
@@ -157,6 +184,8 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=0.45,
         min_lot_label="1 XRP",
         min_notional_usd=1.5,
+        okx_inst_id="XRP-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "DOGEUSDT": AssetProfile(
         symbol="DOGEUSDT",
@@ -168,6 +197,8 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=0.50,
         min_lot_label="10 DOGE",
         min_notional_usd=1.2,
+        okx_inst_id="DOGE-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "SUIUSDT": AssetProfile(
         symbol="SUIUSDT",
@@ -179,28 +210,34 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=0.60,
         min_lot_label="1 SUI",
         min_notional_usd=1.2,
+        okx_inst_id="SUI-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "XAGUSDT": AssetProfile(
         symbol="XAGUSDT",
         btcc_symbol="SILVERUSDT",
         category="rwa",
-        binance_symbol="XAGUSDT",      # Binance USDT-M commodity perp (24/7, since 2026-01-07); Yahoo SI=F = fallback
+        binance_symbol="XAGUSDT",      # Listed 2026-01-07 (0 dev history; OOS PF 0.82 on 4h / 0.79 on 1h)
         yfinance_ticker="SI=F",
         max_btcc_leverage=150,
         default_impulse_pct=0.45,
         min_lot_label="0.1 oz",
         min_notional_usd=10.0,
+        okx_inst_id="XAG-USDT-SWAP",
+        validated_for_alerts=False,
     ),
     "PEPEUSDT": AssetProfile(
         symbol="PEPEUSDT",
         btcc_symbol="1000PEPEUSDT",
         category="crypto",
-        binance_symbol="PEPEUSDT",
+        binance_symbol="1000PEPEUSDT",  # Match BTCC 1000PEPEUSDT denomination directly (OOS PF 0.65 -> alerts off)
         yfinance_ticker="PEPE24478-USD",
         max_btcc_leverage=100,
         default_impulse_pct=0.70,
         min_lot_label="100k PEPE",
         min_notional_usd=5.0,
+        okx_inst_id="PEPE-USDT-SWAP",
+        validated_for_alerts=False,
     ),
     "AVAXUSDT": AssetProfile(
         symbol="AVAXUSDT",
@@ -212,28 +249,34 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         default_impulse_pct=0.60,
         min_lot_label="0.1 AVAX",
         min_notional_usd=5.0,
+        okx_inst_id="AVAX-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "WIFUSDT": AssetProfile(
         symbol="WIFUSDT",
         btcc_symbol="WIFUSDT",
         category="crypto",
-        binance_symbol="WIFUSDT",
+        binance_symbol="WIFUSDT",      # OOS PF 0.36 (-$430 on 4h) -> excluded from live alerts
         yfinance_ticker="WIF-USD",
         max_btcc_leverage=100,
         default_impulse_pct=0.70,
         min_lot_label="1 WIF",
         min_notional_usd=5.0,
+        okx_inst_id="WIF-USDT-SWAP",
+        validated_for_alerts=False,
     ),
     "INJUSDT": AssetProfile(
         symbol="INJUSDT",
         btcc_symbol="INJUSDT",
         category="crypto",
-        binance_symbol="INJUSDT",
+        binance_symbol="INJUSDT",      # OOS PF 0.81 (-$106 on 4h) -> excluded from live alerts
         yfinance_ticker="INJ-USD",
         max_btcc_leverage=100,
         default_impulse_pct=0.65,
         min_lot_label="0.1 INJ",
         min_notional_usd=5.0,
+        okx_inst_id="INJ-USDT-SWAP",
+        validated_for_alerts=False,
     ),
 }
 
@@ -251,20 +294,9 @@ class AppConfig:
     )
     watchlist: List[str] = field(
         default_factory=lambda: [
-            "XRPUSDT",
-            "DOGEUSDT",
-            "SUIUSDT",
-            "SOLUSDT",
-            "ETHUSDT",
-            "BTCUSDT",
-            "XAUUSDT",
-            "XAGUSDT",
-            "PEPEUSDT",
-            "AVAXUSDT",
-            "WIFUSDT",
-            "INJUSDT",
-            "NVDAUSDT",
-            "SPACEXUSDT",
+            s.strip().upper()
+            for s in os.getenv("WATCHLIST", ",".join(VALIDATED_WATCHLIST)).split(",")
+            if s.strip()
         ]
     )
     strategy: StrategyParams = field(default_factory=StrategyParams)

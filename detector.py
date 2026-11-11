@@ -228,11 +228,8 @@ class ImpulseFlatlineDetector:
                         ema20_val = float(cols["ema20"][idx])
                         sym_u = symbol.upper()
                         is_macro_leader = any(k in sym_u for k in ("BTC", "ETH", "XAU", "GOLD"))
-                        is_gold = any(k in sym_u for k in ("XAU", "GOLD"))
                         if is_macro_leader:
                             if broke_up and entry_price < ema50_val and not (has_impulse and b_net_move < 0 and float(rsi_a[b_flat_end]) <= 40.0):
-                                macro_ok = False
-                            elif broke_down and is_gold and ema20_val >= ema50_val * 0.975:
                                 macro_ok = False
                             elif broke_down and entry_price > ema50_val and not (has_impulse and b_net_move > 0 and float(rsi_a[b_flat_end]) >= 60.0):
                                 macro_ok = False
@@ -380,9 +377,6 @@ class ImpulseFlatlineDetector:
 
         if net_move > 0:
             # UP_SPIKE -> Flatlining near the top -> Look to SHORT the reversal
-            if self.params.timeframe in ("1d", "1w", "1M") and any(k in symbol.upper() for k in ("XAU", "GOLD")):
-                if float(cols["ema20"][idx]) >= float(cols["ema50"][idx]) * 0.975:
-                    return None
             impulse_direction = "UP_SPIKE"
             trade_side = "SHORT"
 
@@ -698,7 +692,7 @@ class ImpulseFlatlineDetector:
         # Pre-calculate exact Pending Limit / Trigger Order Prices (Entry, SL, TP1, TP2)
         # Never default to SHORT when 4h/15m RSI is oversold at the floor of a box (that's a support bounce zone, not a breakdown zone!)
         target_span_plan = max(2.5 * b_atr, 2.2 * box_range)
-        if c_bouncing_long or macro_min_rsi <= 36.5 or macro_rsi <= 38.0 or symbol in ("XAUUSDT", "XAGUSDT"):
+        if c_bouncing_long or macro_min_rsi <= 36.5 or macro_rsi <= 38.0:
             prefer_side = "LONG"
         elif c_rejecting_short or macro_max_rsi >= 64.0 or macro_rsi >= 62.0:
             prefer_side = "SHORT"

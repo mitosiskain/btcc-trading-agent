@@ -478,32 +478,47 @@ class KryptonLiveBridge:
         blk = self.oos_stats.get(self._tf_bucket(timeframe), {}) or {}
         port = blk.get("krypton_v3_oos", {}) or {}
         sym = (blk.get("krypton_per_symbol") or {}).get(symbol.upper())
+        has_asset_oos = bool(sym and int(sym.get("total_trades", 0)) > 0)
         base = {
             "portfolio_pf": float(port.get("profit_factor", 0.0)),
             "absorption_pf": float(port.get("profit_factor", 0.0)),
-            "expectancy_r": float(port.get("expectancy_r", 0.0)),
+            "expectancy_r": float(port.get("expectancy_r", 0.0)) if has_asset_oos else 0.0,
+            "validated": has_asset_oos,
         }
-        src = sym if (sym and int(sym.get("total_trades", 0)) > 0) else port
-        base.update(
-            {
-                "scope": "ASSET_OOS" if src is sym else "PORTFOLIO_OOS",
-                "win_rate_pct": float(src.get("win_rate_pct", 0.0)),
-                "profit_factor": float(src.get("profit_factor", 0.0)),
-                "total_net_pnl_usd": float(src.get("total_net_pnl_usd", 0.0)),
-                "max_drawdown_usd": float(src.get("max_drawdown_usd", 0.0)),
-                "total_trades": int(src.get("total_trades", 0)),
-            }
-        )
+        if has_asset_oos and sym is not None:
+            base.update(
+                {
+                    "scope": "ASSET_OOS",
+                    "win_rate_pct": float(sym.get("win_rate_pct", 0.0)),
+                    "profit_factor": float(sym.get("profit_factor", 0.0)),
+                    "total_net_pnl_usd": float(sym.get("total_net_pnl_usd", 0.0)),
+                    "max_drawdown_usd": float(sym.get("max_drawdown_usd", 0.0)),
+                    "total_trades": int(sym.get("total_trades", 0)),
+                }
+            )
+        else:
+            base.update(
+                {
+                    "scope": "UNVALIDATED",
+                    "win_rate_pct": 0.0,
+                    "profit_factor": 0.0,
+                    "total_net_pnl_usd": 0.0,
+                    "max_drawdown_usd": 0.0,
+                    "total_trades": 0,
+                }
+            )
         return base
 
     def compute_safe_leverage(self, symbol: str, side: str, entry_price: float, stop_dist_pct: float) -> Tuple[int, float]:
-        """Same isolated-margin rule as Carbon's live bridge: SL loses ~target_sl_margin_risk_pct of margin, capped by config."""
+        """Same isolated-margin rule as Carbon's live bridge: SL loses ~target_sl_margin_risk_pct of margin, capped safely below liquidation."""
         from config import DEFAULT_ASSETS
 
         profile = DEFAULT_ASSETS.get(symbol.upper())
         asset_max = profile.max_btcc_leverage if profile else self.risk_cfg.max_leverage
-        max_allowed = min(self.risk_cfg.max_leverage, asset_max)
-        min_lot_lev = self.risk_cfg.min_leverage
+        # Never allow leverage where isolated liquidation (~90%/lev) sits inside or right on top of the stop-loss.
+        liq_safe_max = max(1, int(math.floor(70.0 / max(stop_dist_pct, 0.15))))
+        max_allowed = max(1, min(self.risk_cfg.max_leverage, asset_max, liq_safe_max))
+        min_lot_lev = min(self.risk_cfg.min_leverage, max_allowed)
         if profile and self.risk_cfg.margin_per_trade_usd > 0:
             need = int(math.ceil(profile.min_notional_usd / self.risk_cfg.margin_per_trade_usd))
             min_lot_lev = max(min_lot_lev, min(need, max_allowed))
@@ -553,15 +568,23 @@ class KryptonLiveBridge:
         bdfc = closed_bars_only(btc_df, timeframe) if btc_df is not None else None
         prec = self._price_precision(live_price)
         oos = self.get_oos_asset_summary(symbol, timeframe)
+        from config import DEFAULT_ASSETS as _DEF_ASSETS
+
+        prof = _DEF_ASSETS.get(symbol.upper())
+        reliable_feed = bool(df.attrs.get("is_reliable_24_7_feed", True))
+        asset_validated = bool(getattr(prof, "validated_for_alerts", False)) and bool(oos.get("validated", False))
         tel: Dict[str, Any] = {
             "engine": self.engine_name,
             "execution_style": "MARKET_ON_CANDLE_CLOSE",
-            "preset_validated": timeframe in ("1h", "4h"),
+            "preset_validated": timeframe in ("1h", "4h") and asset_validated,
+            "asset_validated": asset_validated,
+            "is_reliable_24_7_feed": reliable_feed,
+            "data_source": str(df.attrs.get("data_source", "Unknown")),
             "meta_pred_r": round(float(oos.get("expectancy_r", 0.0)), 3),
             "meta_win_prob_pct": round(float(oos.get("win_rate_pct", 30.0)), 1),
             "meta_threshold_r": 0.0,
             "kelly_risk_scale": 1.0,
-            "has_true_orderflow": bool(df.attrs.get("has_true_orderflow", True)),
+            "has_true_orderflow": bool(df.attrs.get("has_true_orderflow", False)),
         }
         tel.update(self._orderflow_telemetry(df, btc_df))
 
@@ -601,8 +624,9 @@ class KryptonLiveBridge:
         )
 
         # ---- 1. Active signal: fresh breakout within the last few closed bars that is still alive
+        # Never synthesize live 24/7 perpetual breakout entries from gappy Yahoo fallback feeds or unvalidated symbols.
         max_age = 2 if self._tf_bucket(timeframe) == "4h" else 3
-        sigs = generate_signals(f, symbol, p, start_idx=max(0, n - 1 - max_age))
+        sigs = generate_signals(f, symbol, p, start_idx=max(0, n - 1 - max_age)) if (reliable_feed and asset_validated) else {}
         active_sig, bars_ago, cand_info = None, None, None
         for i in sorted(sigs, reverse=True):
             s = sigs[i]

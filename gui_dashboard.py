@@ -21,6 +21,7 @@ from aiohttp import web
 from config import AppConfig, DEFAULT_ASSETS, StrategyParams
 from detector import ImpulseFlatlineDetector, ReversalSetupSignal
 from execution_engine import OpenPosition
+from krypton_engine import live_params_for
 from main import BTCCTradingOrchestrator
 
 
@@ -42,12 +43,8 @@ def fmt_price(val: float) -> str:
 class DashboardController:
     def __init__(self, port: int = 8765):
         self.port = port
+        self.runner_id: str = "local"
         self.config = AppConfig()
-        # Include NVDAUSDT in the GUI watchlist if not already present
-        for sym in ["XRPUSDT", "DOGEUSDT", "SUIUSDT", "SOLUSDT", "ETHUSDT", "BTCUSDT", "XAUUSDT", "NVDAUSDT"]:
-            if sym not in self.config.watchlist:
-                self.config.watchlist.append(sym)
-
         self.orchestrator = BTCCTradingOrchestrator(self.config)
         self.timeframe: str = "4h"
         self.poll_interval_sec: int = 15
@@ -81,10 +78,14 @@ class DashboardController:
             }
             return
         sym = symbol.upper()
+        sl = sym.lower()
         self.sentiment_alert_cooldowns = {
             k: v
             for k, v in self.sentiment_alert_cooldowns.items()
-            if not k.startswith(f"exit_{sym}_") and not (k.startswith(f"{sym}_") and k.endswith("_OPEN"))
+            if not k.startswith(f"exit_{sym}_")
+            and not k.startswith(f"exit_manual-{sl}-")
+            and not k.startswith(f"exit_screenshot-{sl}-")
+            and not (k.startswith(f"{sym}_") and k.endswith("_OPEN"))
         }
 
     def pull_remote_portfolio_if_newer(self, min_interval_sec: float = 45.0) -> bool:
@@ -150,6 +151,8 @@ class DashboardController:
                     self.sentiment_alert_cooldowns[str(k)] = max(
                         float(v), float(self.sentiment_alert_cooldowns.get(str(k), 0.0))
                     )
+                for bk in (rem_cache.get("alerted_bar_keys") or []):
+                    self.orchestrator.alerted_bar_keys.add(str(bk))
                 self._save_alert_cache()
         except Exception:
             pass
@@ -241,20 +244,23 @@ class DashboardController:
             pass
 
     def get_system_diagnostics(self) -> Dict[str, Any]:
-        """Return clear status of Carbon V2 Quantitative Engine and live system components."""
+        """Return clear status of active Quantitative Engine, per-asset OOS validation, and live 24/7 feeds."""
         state_dir = Path(__file__).resolve().parent / "state"
         opt_profiles = {}
+        expected_opt_engine = "KRYPTON_V3_TREND_BREAKOUT" if self.orchestrator.is_krypton else "CARBON_V2_PURGED_META"
         for sym in self.config.watchlist:
+            prof = DEFAULT_ASSETS.get(sym)
             oos = self.orchestrator.engine_bridge.get_oos_asset_summary(sym, self.timeframe)
             opt_file = state_dir / f"optimized_{sym.lower()}_{self.timeframe}.json"
             used_custom = False
-            if opt_file.exists():
+            if opt_file.exists() and not self.orchestrator.is_krypton:
                 try:
                     data = json.loads(opt_file.read_text())
-                    if data.get("engine") == "CARBON_V2_PURGED_META":
+                    if data.get("engine") == expected_opt_engine:
                         bm = data.get("best_metrics", {})
                         opt_profiles[sym] = {
                             "optimized": True,
+                            "validated_for_alerts": bool(getattr(prof, "validated_for_alerts", False)),
                             "profitable": float(bm.get("profit_factor", 0.0)) >= 1.0,
                             "win_rate_pct": bm.get("win_rate_pct", 0.0),
                             "profit_factor": bm.get("profit_factor", 0.0),
@@ -266,14 +272,19 @@ class DashboardController:
                 except Exception:
                     pass
             if not used_custom:
-                pf_val = float(oos.get("profit_factor", 1.26))
+                is_val = bool(oos.get("validated", oos.get("scope") == "ASSET_OOS")) and bool(
+                    getattr(prof, "validated_for_alerts", False)
+                )
+                pf_val = float(oos.get("profit_factor", 0.0))
                 opt_profiles[sym] = {
-                    "optimized": True,
-                    "profitable": pf_val >= 1.0,
-                    "win_rate_pct": round(float(oos.get("win_rate_pct", 58.6)), 1),
+                    "optimized": is_val,
+                    "validated_for_alerts": is_val,
+                    "scope": str(oos.get("scope", "UNVALIDATED")),
+                    "profitable": is_val and (pf_val >= 1.0 or float(oos.get("portfolio_pf", 0.0)) >= 1.2),
+                    "win_rate_pct": round(float(oos.get("win_rate_pct", 0.0)), 1),
                     "profit_factor": round(min(pf_val, 99.0), 2),
-                    "total_net_pnl_usd": round(float(oos.get("total_net_pnl_usd", 247.26)), 2),
-                    "total_trades": int(oos.get("total_trades", 76)),
+                    "total_net_pnl_usd": round(float(oos.get("total_net_pnl_usd", 0.0)), 2),
+                    "total_trades": int(oos.get("total_trades", 0)),
                     "profit_stall_exits": 0,
                 }
 
@@ -285,8 +296,14 @@ class DashboardController:
         telegram_ok = bool(has_tg_token and self.config.telegram_chat_id)
         btcc_api_ok = bool(self.config.btcc_api_key and self.config.btcc_api_secret)
 
-        feeds_online = sum(1 for v in self.feed_health.values() if v.get("ok"))
+        wl_set = set(self.config.watchlist)
+        feeds_online = sum(1 for k, v in self.feed_health.items() if k in wl_set and v.get("ok") and v.get("reliable_24_7", True))
+        feeds_fallback = sum(1 for k, v in self.feed_health.items() if k in wl_set and v.get("ok") and not v.get("reliable_24_7", True))
         feeds_total = len(self.config.watchlist)
+        feed_status_str = (
+            f"{feeds_online}/{feeds_total} VERIFIED 24/7 FEEDS"
+            + (f" ({feeds_fallback} YAHOO FALLBACK — ALERTS MUTED)" if feeds_fallback else "")
+        )
 
         return {
             "scanner_daemon": {
@@ -296,8 +313,8 @@ class DashboardController:
             },
             "market_data_feeds": {
                 "working": feeds_online > 0,
-                "status": f"{feeds_online}/{feeds_total} 12-COL ORDERFLOW FEEDS",
-                "detail": "Perpetual OHLCV + Taker Buy/Sell CVD + Whale Prints + 8h Funding + BTC Beta",
+                "status": feed_status_str,
+                "detail": "24/7 Binance Perps / Binance Vision 12-Col / OKX Perps (Yahoo fallback suppressed for live alerts)",
                 "per_symbol": self.feed_health,
             },
             "strategy_optimizers": {
@@ -366,7 +383,19 @@ class DashboardController:
             self.pull_remote_portfolio_if_newer(min_interval_sec=45.0)
             self.orchestrator.execution._load_state()
             kr_queue: List[Dict[str, Any]] = []  # Krypton ENTER NOW alerts, sent after the portfolio cap is applied
-            for symbol in self.config.watchlist:
+            scan_symbols = list(
+                dict.fromkeys(list(self.config.watchlist) + list(self.orchestrator.execution.open_positions.keys()))
+            )
+            # Prune stale cards/health for removed unvalidated symbols once no longer open
+            for stale_sym in list(self.asset_cards.keys()):
+                if stale_sym not in scan_symbols:
+                    self.asset_cards.pop(stale_sym, None)
+            for stale_sym in list(self.feed_health.keys()):
+                if stale_sym not in scan_symbols:
+                    self.feed_health.pop(stale_sym, None)
+
+            for symbol in scan_symbols:
+                in_watchlist = symbol in self.config.watchlist
                 f_t0 = time.time()
                 sym_detector = self.orchestrator.get_detector_for_symbol(symbol, tf)
                 params = sym_detector.params
@@ -377,16 +406,21 @@ class DashboardController:
                         symbol=symbol, interval=tf, limit=self.orchestrator.scan_bars(tf)
                     )
                     latency_ms = int((time.time() - f_t0) * 1000)
+                    actual_source = str(df.attrs.get("data_source", "Unknown Feed"))
+                    reliable_24_7 = bool(df.attrs.get("is_reliable_24_7_feed", False))
                     self.feed_health[symbol] = {
                         "ok": True,
+                        "reliable_24_7": reliable_24_7,
+                        "has_true_orderflow": bool(df.attrs.get("has_true_orderflow", False)),
                         "latency_ms": latency_ms,
                         "bars": len(df),
-                        "source": "Binance Perps 12-Col Orderflow" if (profile and profile.binance_symbol) else f"Yahoo RWA ({profile.yfinance_ticker if profile else symbol})",
+                        "source": actual_source,
                         "updated_at": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
                     }
                 except Exception as e:
                     self.feed_health[symbol] = {
                         "ok": False,
+                        "reliable_24_7": False,
                         "error": str(e),
                         "updated_at": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
                     }
@@ -448,10 +482,12 @@ class DashboardController:
                             peak_favorable_price=float(getattr(pos, "peak_favorable_price", 0.0)),
                         )
                     if exit_sig is not None:
+                        pos_id_tag = str(getattr(pos, "position_id", symbol))
                         closed_rec = self.orchestrator.execution.process_exit_signal(exit_sig)
-                        exit_cd_key = f"exit_{symbol}_{exit_sig.reason}"
+                        exit_cd_key = f"exit_{pos_id_tag}_{exit_sig.reason}"
                         now_exit_ts = time.time()
-                        if now_exit_ts - self.sentiment_alert_cooldowns.get(exit_cd_key, 0.0) >= 3600:
+                        # Alert immediately once per position+reason; remind at most every 12h if still manually open
+                        if now_exit_ts - self.sentiment_alert_cooldowns.get(exit_cd_key, 0.0) >= 43200:
                             self.sentiment_alert_cooldowns[exit_cd_key] = now_exit_ts
                             self.orchestrator.telegram.send_exit_or_stall_alert(exit_sig, closed_rec)
                         self.recent_alerts.insert(
@@ -470,6 +506,11 @@ class DashboardController:
                             },
                         )
                         self.recent_alerts = self.recent_alerts[:25]
+
+                # If this symbol is NOT in the validated watchlist (e.g. an older manual position like NVDAUSDT),
+                # keep updating its live price/exit monitor above, but do NOT generate new entry cards/alerts for it.
+                if not in_watchlist:
+                    continue
 
                 # 2. Evaluate the active alpha engine (Krypton V3 trend breakout by default; Carbon V2 via ENGINE_VERSION)
                 is_kr = self.orchestrator.is_krypton
@@ -682,20 +723,39 @@ class DashboardController:
                     f"Safe Entry: ${trade_plan['safe_entry_str']} | TP1: ${trade_plan['tp1_str']} | TP2: ${trade_plan['tp2_str']} | SL: ${trade_plan['sl_str']} • {simple_why}"
                 )
 
-                # Single Unified Telegram Alert (respects user's configurable alert_confidence_threshold)
-                should_alert = (u_conf >= self.alert_confidence_threshold) and (
+                # Single Unified Telegram Alert — strictly gated on:
+                #   1. Backtest-validated asset (`profile.validated_for_alerts` and OOS `validated`)
+                #   2. Reliable 24/7 exchange feed (`reliable_24_7` — NEVER fire off gappy Yahoo fallback data!)
+                #   3. Sufficient bar warmup (`archetype != INSUFFICIENT_HISTORY`)
+                #   4. Bar-timestamp deduplication for Krypton breakouts (1 alert per breakout bar, not hourly repeats!)
+                asset_alert_eligible = (
+                    in_watchlist
+                    and bool(getattr(profile, "validated_for_alerts", False))
+                    and reliable_24_7
+                    and c_tel.get("archetype") != "INSUFFICIENT_HISTORY"
+                    and (not is_kr or bool(c_oos.get("validated", False)))
+                )
+                should_alert = asset_alert_eligible and (u_conf >= self.alert_confidence_threshold) and (
                     u_mode == "ENTER NOW" or flatline_met or u_conf >= self.alert_confidence_threshold
                 )
-                if is_kr and u_mode == "ENTER NOW":
-                    should_alert = True  # every live Krypton breakout is a system trade -> always alert (cooldown still applies)
+                if is_kr:
+                    # Under Krypton V3, ONLY fire push alerts on genuine confirmed breakouts ("ENTER NOW") on validated 24/7 feeds
+                    should_alert = asset_alert_eligible and (u_mode == "ENTER NOW")
                 if is_kr and symbol in self.orchestrator.execution.open_positions:
                     should_alert = False  # open Krypton positions are managed by the exit monitor (trail / channel alerts)
                 if should_alert and self.orchestrator.telegram.is_configured:
                     open_pos = self.orchestrator.execution.open_positions.get(symbol)
-                    alert_key = f"{symbol}_{tf}_{u_side}_{u_mode}_{'OPEN' if open_pos else 'NEW'}"
+                    sig_bar_ts = str(active_signal.timestamp) if active_signal is not None else ""
+                    bar_dedup_key = f"kr_brk:{symbol}:{tf}:{u_side}:{sig_bar_ts}" if (is_kr and sig_bar_ts) else ""
+                    alert_key = (
+                        bar_dedup_key
+                        if bar_dedup_key
+                        else f"{symbol}_{tf}_{u_side}_{u_mode}_{'OPEN' if open_pos else 'NEW'}"
+                    )
                     now_ts = time.time()
-                    cooldown = 3600 if u_mode == "ENTER NOW" else 14400
-                    if now_ts - self.sentiment_alert_cooldowns.get(alert_key, 0.0) >= cooldown:
+                    cooldown = 86400 if bar_dedup_key else (14400 if u_mode == "ENTER NOW" else 21600)
+                    already_sent_bar = bool(bar_dedup_key and bar_dedup_key in self.orchestrator.alerted_bar_keys)
+                    if (not already_sent_bar) and (now_ts - self.sentiment_alert_cooldowns.get(alert_key, 0.0) >= cooldown):
                         self.sentiment_alert_cooldowns[alert_key] = now_ts
                         if open_pos is not None:
                             pnl_usd = open_pos.unrealized_pnl_usd()
@@ -723,7 +783,7 @@ class DashboardController:
                                 ex_word = "below" if u_side == "LONG" else "above"
                                 tg_msg = (
                                     f"{icon} *KRYPTON V3 SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'}*\n"
-                                    f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()} trend breakout)_\n"
+                                    f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()} trend breakout • {actual_source})_\n"
                                     f"• *Entry*: `{trade_plan['safe_entry_str']}` _(market — breakout confirmed on candle close)_\n"
                                     f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(= 1R • ${margin_usd:.0f} @ {u_lev}x)_\n"
                                     f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a {tf} candle closes {ex_word} the exit channel\n"
@@ -740,7 +800,7 @@ class DashboardController:
                                     f"• *Why*: _{simple_why}_"
                                 )
                         if is_kr and open_pos is None and u_mode == "ENTER NOW":
-                            kr_queue.append({"symbol": symbol, "msg": tg_msg, "key": alert_key})
+                            kr_queue.append({"symbol": symbol, "msg": tg_msg, "key": alert_key, "bar_key": bar_dedup_key})
                         else:
                             self.orchestrator.telegram.send_message(tg_msg, reply_markup=tg_markup)
 
@@ -840,6 +900,8 @@ class DashboardController:
             side_ct[tp["side"]] = side_ct.get(tp["side"], 0) + 1
         for item in kr_queue:
             if item["symbol"] in allowed:
+                if item.get("bar_key"):
+                    self.orchestrator.alerted_bar_keys.add(item["bar_key"])
                 self.orchestrator.telegram.send_message(item["msg"])
             else:
                 # Do not burn the cooldown: if a slot frees up while the breakout is still valid, alert then.
@@ -854,6 +916,8 @@ class DashboardController:
             open_pos_list.append(d)
 
         return {
+            "runner_id": getattr(self, "runner_id", "local"),
+            "heartbeat_epoch": round(time.time(), 1),
             "timeframe": self.timeframe,
             "poll_interval_sec": self.poll_interval_sec,
             "auto_scan_enabled": self.auto_scan_enabled,
@@ -1271,6 +1335,8 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
             margin = float(item.get("margin_usd") or self.config.risk.margin_per_trade_usd)
 
             # Calculate recommended SL / TP1 / TP2
+            is_kr_pos = self.orchestrator.is_krypton
+            kr_p = live_params_for(self.timeframe) if is_kr_pos else None
             if (
                 tp_plan
                 and tp_plan.get("side") == side
@@ -1280,6 +1346,16 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 sl = float(tp_plan["sl"])
                 tp1 = float(tp_plan["tp1"])
                 tp2 = float(tp_plan["tp2"])
+            elif is_kr_pos and kr_p is not None:
+                r_dist = max(kr_p.init_stop_atr * curr_atr, kr_p.min_stop_pct * entry_p)
+                if side == "LONG":
+                    sl = entry_p - r_dist
+                    tp1 = entry_p + 3.0 * r_dist
+                    tp2 = entry_p + 6.0 * r_dist
+                else:
+                    sl = entry_p + r_dist
+                    tp1 = entry_p - 3.0 * r_dist
+                    tp2 = entry_p - 6.0 * r_dist
             else:
                 if side == "LONG":
                     sl = entry_p - 1.5 * curr_atr
@@ -1318,6 +1394,11 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 opened_at=datetime.now(timezone.utc).isoformat(),
                 sentiment_decision="SCREENSHOT_BTCC_SYNC",
                 sentiment_reasoning="Imported from Telegram BTCC Screenshot",
+                archetype="KRYPTON_TREND_BREAKOUT" if is_kr_pos else "CARBON_ABSORPTION_REVERSAL",
+                order_type="MARKET_ON_CANDLE_CLOSE" if is_kr_pos else "POST_ONLY_LIMIT",
+                partial_frac=0.0 if is_kr_pos else 0.48,
+                trail_atr_mult=float(kr_p.trail_atr) if (is_kr_pos and kr_p is not None) else 1.75,
+                peak_favorable_price=entry_p,
             )
             self.orchestrator.execution.open_positions[sym] = pos
             pnl_usd = pos.unrealized_pnl_usd()
@@ -1597,6 +1678,8 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 entry_p = live_price if live_price > 0 else float(tp_plan.get("safe_entry") or 1.0)
 
             # Compute default SL / TP1 / TP2 around entry_p
+            is_kr_pos = self.orchestrator.is_krypton
+            kr_p = live_params_for(self.timeframe) if is_kr_pos else None
             if (
                 tp_plan
                 and tp_plan.get("side") == side
@@ -1606,6 +1689,16 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 sl = float(tp_plan["sl"])
                 tp1 = float(tp_plan["tp1"])
                 tp2 = float(tp_plan["tp2"])
+            elif is_kr_pos and kr_p is not None:
+                r_dist = max(kr_p.init_stop_atr * curr_atr, kr_p.min_stop_pct * entry_p)
+                if side == "LONG":
+                    sl = entry_p - r_dist
+                    tp1 = entry_p + 3.0 * r_dist
+                    tp2 = entry_p + 6.0 * r_dist
+                else:
+                    sl = entry_p + r_dist
+                    tp1 = entry_p - 3.0 * r_dist
+                    tp2 = entry_p - 6.0 * r_dist
             else:
                 if side == "LONG":
                     sl = entry_p - 1.5 * curr_atr
@@ -1641,6 +1734,11 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 opened_at=datetime.now(timezone.utc).isoformat(),
                 sentiment_decision="MANUAL_BTCC_TRADE",
                 sentiment_reasoning=f"Reported via Telegram: {raw[:80]}",
+                archetype="KRYPTON_TREND_BREAKOUT" if is_kr_pos else "CARBON_ABSORPTION_REVERSAL",
+                order_type="MARKET_ON_CANDLE_CLOSE" if is_kr_pos else "POST_ONLY_LIMIT",
+                partial_frac=0.0 if is_kr_pos else 0.48,
+                trail_atr_mult=float(kr_p.trail_atr) if (is_kr_pos and kr_p is not None) else 1.75,
+                peak_favorable_price=entry_p,
             )
             self.orchestrator.execution.open_positions[sym_in_msg] = pos
             self.orchestrator.execution.touch_positions_version()
@@ -2533,35 +2631,8 @@ def create_app(controller: DashboardController) -> web.Application:
         )
 
     async def handle_state(request: web.Request) -> web.Response:
-        open_pos_list = []
-        for sym, p in controller.orchestrator.execution.open_positions.items():
-            d = asdict(p)
-            d["unrealized_pnl_usd"] = round(p.unrealized_pnl_usd(), 2)
-            d["unrealized_roe_pct"] = round(p.unrealized_roe_pct(), 2)
-            open_pos_list.append(d)
-
-        payload = {
-            "timeframe": controller.timeframe,
-            "poll_interval_sec": controller.poll_interval_sec,
-            "auto_scan_enabled": controller.auto_scan_enabled,
-            "is_scanning": controller.is_scanning,
-            "last_scan_ts": controller.last_scan_ts,
-            "last_scan_duration_ms": controller.last_scan_duration_ms,
-            "scan_count": controller.scan_count,
-            "diagnostics": controller.get_system_diagnostics(),
-            "risk": asdict(controller.config.risk),
-            "asset_cards": controller.asset_cards,
-            "portfolio": {
-                "account_balance_usd": controller.orchestrator.execution.account_balance_usd,
-                "daily_realized_pnl_usd": controller.orchestrator.execution.daily_realized_pnl_usd,
-                "open_positions": open_pos_list,
-                "closed_trades": [asdict(c) for c in controller.orchestrator.execution.closed_trades],
-            },
-            "recent_alerts": controller.recent_alerts,
-            "backtest_jobs": controller.backtest_jobs,
-        }
         return web.json_response(
-            payload,
+            controller.get_state_payload(),
             headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"},
         )
 

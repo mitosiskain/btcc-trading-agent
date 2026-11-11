@@ -51,6 +51,7 @@ class OpenPosition:
     trail_atr_mult: float = 1.75
     peak_favorable_price: float = 0.0
     meta_pred_r: float = 0.0
+    exit_alert_sent_reason: str = ""
 
     def unrealized_pnl_usd(self) -> float:
         if self.side == "LONG":
@@ -296,6 +297,8 @@ class ExecutionEngine:
                 pos.warning_sent = True
             elif exit_sig.urgency == "TAKE_PARTIAL_AND_TRAIL" and not pos.tp1_hit:
                 pos.tp1_hit = True
+            else:
+                pos.exit_alert_sent_reason = str(exit_sig.reason)
             self._save_state()
             return None
 
