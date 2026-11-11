@@ -129,7 +129,7 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         symbol="NVDAUSDT",
         btcc_symbol="NVDAUSDT",
         category="rwa",
-        binance_symbol="",
+        binance_symbol="NVDAUSDT",     # Binance USDT-M equity perp (24/7, since 2026-03-26); Yahoo NVDA = fallback
         yfinance_ticker="NVDA",
         max_btcc_leverage=50,
         default_impulse_pct=0.85,
@@ -184,7 +184,7 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         symbol="XAGUSDT",
         btcc_symbol="SILVERUSDT",
         category="rwa",
-        binance_symbol="",
+        binance_symbol="XAGUSDT",      # Binance USDT-M commodity perp (24/7, since 2026-01-07); Yahoo SI=F = fallback
         yfinance_ticker="SI=F",
         max_btcc_leverage=150,
         default_impulse_pct=0.45,
