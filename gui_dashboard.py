@@ -811,11 +811,15 @@ class DashboardController:
 
     def _apply_krypton_portfolio_cap(self, kr_queue: List[Dict[str, Any]]) -> None:
         """
-        Mirror the benchmarked portfolio rule (max 3 concurrent, max 2 same side): rank live ENTER NOW breakouts
+        Apply the portfolio limits (default 4 open, max 3 long, max 1 short): rank live ENTER NOW breakouts
         by breakout strength, mark the ones beyond the cap as skips, and only send Telegram alerts for the rest.
         """
-        max_conc = int(getattr(self.config.risk, "max_concurrent_positions", 3))
-        max_side = int(getattr(self.config.risk, "max_same_side_positions", 2))
+        max_conc = int(getattr(self.config.risk, "max_concurrent_positions", 4))
+        legacy = int(getattr(self.config.risk, "max_same_side_positions", 2))
+        side_lim = {
+            "LONG": int(getattr(self.config.risk, "max_long_positions", legacy)),
+            "SHORT": int(getattr(self.config.risk, "max_short_positions", legacy)),
+        }
         opens = self.orchestrator.execution.open_positions
         n_open = len(opens)
         side_ct = {"LONG": sum(1 for p in opens.values() if p.side == "LONG"), "SHORT": sum(1 for p in opens.values() if p.side == "SHORT")}
@@ -827,7 +831,7 @@ class DashboardController:
         allowed = set()
         for c in live:
             tp = c["trade_plan"]
-            if n_open >= max_conc or side_ct.get(tp["side"], 0) >= max_side:
+            if n_open >= max_conc or side_ct.get(tp["side"], 0) >= side_lim.get(tp["side"], legacy):
                 tp["portfolio_cap_skip"] = True
                 continue
             tp["portfolio_cap_skip"] = False
@@ -1080,7 +1084,11 @@ class DashboardController:
                 trig = "Entry" if mode == "ENTER NOW" else ("Trigger (close beyond)" if "STAND ASIDE" not in str(mode) else "No trend — level")
                 mode_txt = mode
                 if mode == "ENTER NOW" and tp.get("portfolio_cap_skip") and not is_open:
-                    icon, mode_txt = "⛔", "BREAKOUT — SKIP (max 3 open / 2 same side)"
+                    r_ = self.config.risk
+                    icon, mode_txt = "⛔", (
+                        f"BREAKOUT — SKIP (limit {r_.max_concurrent_positions} open / "
+                        f"{r_.max_long_positions} long / {r_.max_short_positions} short)"
+                    )
                 lines.append(
                     f"{icon} *{lbl}* — *{side} {arrow}* (`{mode_txt}`)\n"
                     f"   {trig}: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}` | {tp.get('leverage', 5)}x)_ | SL: `{tp.get('sl_str')}`"

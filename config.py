@@ -54,8 +54,12 @@ class LeverageRiskConfig:
     min_leverage: int = int(os.getenv("MIN_LEVERAGE", "2"))                          # 2x minimum leverage
     target_sl_margin_risk_pct: float = float(os.getenv("TARGET_SL_MARGIN_RISK_PCT", "15.0"))  # ~15% of $5 = $0.75 risk at SL
     auto_adjust_leverage_to_stop: bool = True  # Dynamically scale leverage so SL triggers well before isolated liquidation
-    max_concurrent_positions: int = 3
-    max_same_side_positions: int = 2           # Correlation guard: max 2 LONG or 2 SHORT concurrently
+    # Portfolio limits (risk guard, not an exchange limit). Re-tested for Krypton V3 on 2019-2026 data:
+    # longs carry most of the edge, so allow 3 concurrent longs but only 1 short, 4 positions in total.
+    max_concurrent_positions: int = int(os.getenv("MAX_CONCURRENT_POSITIONS", "4"))
+    max_long_positions: int = int(os.getenv("MAX_LONG_POSITIONS", "3"))
+    max_short_positions: int = int(os.getenv("MAX_SHORT_POSITIONS", "1"))
+    max_same_side_positions: int = 2           # Legacy symmetric correlation guard (used only if per-side limits are absent)
     daily_max_loss_usd: float = float(os.getenv("DAILY_MAX_LOSS_USD", "15.0"))       # Kill-switch if daily losses exceed 3x trade margin
     btcc_taker_fee_pct: float = 0.045          # 0.045% per side typical BTCC VIP/standard perp taker fee
     btcc_maker_fee_pct: float = 0.020          # 0.020% per side post-only / maker limit fee

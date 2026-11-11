@@ -181,7 +181,8 @@ class ExecutionEngine:
         if len(self.open_positions) >= self.risk.max_concurrent_positions:
             return False, f"Max concurrent positions ({self.risk.max_concurrent_positions}) reached"
         if side is not None:
-            max_same = int(getattr(self.risk, "max_same_side_positions", 2))
+            legacy = int(getattr(self.risk, "max_same_side_positions", 2))
+            max_same = int(getattr(self.risk, "max_long_positions" if side.upper() == "LONG" else "max_short_positions", legacy))
             same_cnt = sum(1 for p in self.open_positions.values() if p.side.upper() == side.upper())
             if same_cnt >= max_same:
                 return False, f"Max correlated {side.upper()} positions ({max_same}) reached"

@@ -12,7 +12,9 @@ The live scanner, GitHub cloud runner, web dashboard and Telegram bot now run **
 - **Entry:** first candle *close* beyond the prior 20-bar (4h) / 160-bar (1h) Donchian channel, only in the direction of the 50/200 EMA trend.
 - **Risk:** initial stop = 2 ATR (4h) / 3 ATR (1h) = 1R; leverage sized from the stop as before.
 - **Exit:** no fixed take-profit. Chandelier trail (the bot tells you when to raise your stop) + close when a candle closes through the 10-bar (4h) / 80-bar (1h) exit channel.
-- **Portfolio rule:** max 3 open positions, max 2 in the same direction (breakouts beyond the cap are shown as `SKIP`).
+- **Portfolio rule:** max 4 open positions: up to 3 longs and 1 short (breakouts beyond the limit are shown as `SKIP`).
+  Override with `MAX_CONCURRENT_POSITIONS` / `MAX_LONG_POSITIONS` / `MAX_SHORT_POSITIONS`. (The head-to-head benchmark keeps the
+  original 3-open / 2-same-side rule so Krypton, Carbon and Argon stay directly comparable.)
 - **Evidence:** [`benchmark_krypton.py`](./benchmark_krypton.py) re-uses the exact Argon/Carbon simulator and OOS windows.
   Hold-out: 4h PF 1.29 / +$592 (Carbon V2: PF 1.26 / +$247), 1h PF 1.80 / +$821 (Carbon V2: PF 0.82 / −$224).
   Expect a ~25–35% win rate: the edge comes from a few large trend winners.
