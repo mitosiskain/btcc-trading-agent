@@ -978,7 +978,7 @@ class DashboardController:
             pos_block = (
                 f"\n🟠 *YOUR OPEN POSITION*: `{open_pos.side}` ({open_pos.leverage}x)\n"
                 f"• *Entry*: `{fmt_price(open_pos.entry_price)}` → *Now*: `{c.get('price_str')}` (`${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)\n"
-                f"• *Your Active Targets*: TP1 `{fmt_price(open_pos.tp1_price)}` | TP2 `{fmt_price(open_pos.tp2_price)}` | SL `{fmt_price(open_pos.stop_loss)}`\n"
+                f"• *Your Active Targets*: {self._targets_text(open_pos.tp1_price, open_pos.tp2_price)} | SL `{fmt_price(open_pos.stop_loss)}`\n"
             )
         entry_lbl = "Maker Limit Entry" if mode == "ENTER NOW" else "Resting Maker Trap"
         if self.orchestrator.is_krypton:
@@ -1010,6 +1010,15 @@ class DashboardController:
             + f"\n\n💡 _Tell me e.g. \"I went {side.lower()} on {sym.replace('USDT', '')} at {tp.get('safe_entry_str')} {tp.get('leverage', 5)}x\" when you enter!_"
         )
 
+    def _targets_text(self, tp1: float, tp2: float) -> str:
+        """Krypton has no fixed take-profit: show the trail/exit-channel rule and treat TP1/TP2 as info-only milestones."""
+        if self.orchestrator.is_krypton:
+            return (
+                f"no fixed TP — trailing stop + exit when a {self.timeframe} candle closes through the exit channel "
+                f"_(milestones `{fmt_price(tp1)}` / `{fmt_price(tp2)}`, info only)_"
+            )
+        return f"TP1 `{fmt_price(tp1)}` | TP2 `{fmt_price(tp2)}`"
+
     def _format_open_positions(self) -> str:
         self.orchestrator.execution._load_state()
         if not self.orchestrator.execution.open_positions:
@@ -1032,7 +1041,7 @@ class DashboardController:
                 f"\n🟠 *{sym} — {pos.side} ({pos.leverage}x)*\n"
                 f"   • *Entry*: `{fmt_price(pos.entry_price)}` → *Now*: `{fmt_price(pos.current_price)}`\n"
                 f"   • *Open PnL*: `${pnl_usd:+.2f}` (`{roe_pct:+.1f}% ROE` on `${pos.remaining_margin_usd:.0f}` margin)\n"
-                f"   • *Targets*: TP1 `{fmt_price(pos.tp1_price)}` | TP2 `{fmt_price(pos.tp2_price)}` | SL `{fmt_price(pos.stop_loss)}`"
+                f"   • *Targets*: {self._targets_text(pos.tp1_price, pos.tp2_price)} | SL `{fmt_price(pos.stop_loss)}`"
             )
         lines.append("\n👉 _Reply \"closed BTC\" or \"move BTC SL to 74000\" anytime to update!_")
         return "\n".join(lines)
@@ -1323,7 +1332,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
             reply_blocks.append(
                 f"\n🟠 *{sym} — {side} ({lev}x)*\n"
                 f"   • *Entry*: `{fmt_price(entry_p)}` → *Live*: `{fmt_price(pos.current_price)}` (`${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)\n"
-                f"   • *Set TP1*: `{fmt_price(tp1)}` | *TP2*: `{fmt_price(tp2)}`\n"
+                f"   • *Exit plan*: {self._targets_text(tp1, tp2)}\n"
                 f"   • *Set SL*: `{fmt_price(sl)}` _(${margin:.0f} margin)_\n"
                 f"   • *AI Check*: {align_note}"
             )
@@ -1640,7 +1649,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
             return (
                 f"🟠 *Position Tracked: {sym_in_msg} — {side} ({lev}x)*\n"
                 f"• *Your Entry*: `{fmt_price(entry_p)}` _(Live: `{fmt_price(pos.current_price)}` | `${pnl_usd:+.2f}` / `{roe_pct:+.1f}% ROE`)_\n"
-                f"• *Take-Profit*: TP1 `{fmt_price(tp1)}` | TP2 `{fmt_price(tp2)}`\n"
+                f"• *Exit plan*: {self._targets_text(tp1, tp2)}\n"
                 f"• *Stop-Loss (SL)*: `{fmt_price(sl)}`\n"
                 f"• _Monitoring 24/7 — tap *✅ Mark Closed* below or reply \"closed {sym_in_msg.replace('USDT', '')}\" anytime you exit!_"
             )
