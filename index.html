@@ -520,7 +520,7 @@ function renderDashboard(data) {
     const whaleRatio = typeof ctel.whale_print_ratio === 'number' ? `${ctel.whale_print_ratio.toFixed(2)}x` : 'n/a';
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
     const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
-    const isKr = tp.engine === 'Krypton V3';
+    const isKr = !!tp.entry_label;
 
     return `
       <div class="asset-card rec-${c.rec_color}">
