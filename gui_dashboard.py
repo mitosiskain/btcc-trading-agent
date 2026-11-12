@@ -792,12 +792,16 @@ class DashboardController:
                                     f"{icon} *{eng_lbl.upper()} SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'}*\n"
                                     f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | "
                                     f"{'daily-close' if c_tel.get('decision_label') else tf.upper()} trend breakout • {actual_source})_\n"
-                                    f"• *Entry*: `{trade_plan['safe_entry_str']}` _(market — breakout confirmed on candle close)_\n"
+                                    f"• *Entry*: `{trade_plan['safe_entry_str']}` _(market — breakout confirmed on the {c_tel.get('decision_label', 'candle close')})_\n"
                                     f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(= 1R • ${margin_usd:.0f} @ {u_lev}x)_\n"
                                     f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a "
                                     f"{c_tel.get('decision_label', tf + ' candle close')} is {ex_word} the exit channel\n"
                                     f"• *Milestones*: +3R `{trade_plan['tp1_str']}` | +6R `{trade_plan['tp2_str']}` _(info only)_\n"
-                                    f"• _Expect ~25-35% winners; the edge comes from letting the big trends run._"
+                                    + (
+                                        f"• _Gold/silver trend system: ~40% winners, ~4 trades per metal per year — the edge comes from letting trends run._"
+                                        if c_tel.get("decision_label")
+                                        else f"• _Expect ~25-35% winners; the edge comes from letting the big trends run._"
+                                    )
                                 )
                             else:
                                 tg_msg = (
