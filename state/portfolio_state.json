@@ -1,38 +1,8 @@
 {
-  "account_balance_usd": 10067.96,
-  "daily_realized_pnl_usd": 67.96,
-  "positions_version_ts": 1794582421.356,
-  "open_positions": {
-    "BTCUSDT": {
-      "position_id": "manual-btcusdt-1794582421",
-      "symbol": "BTCUSDT",
-      "side": "SHORT",
-      "entry_price": 68965.0,
-      "current_price": 68173.7,
-      "stop_loss": 70959.98,
-      "tp1_price": 62922.07,
-      "tp2_price": 56833.34,
-      "leverage": 16,
-      "initial_margin_usd": 5.0,
-      "remaining_margin_usd": 5.0,
-      "notional_usd": 80.0,
-      "liq_price": 72844.28125,
-      "opened_at": "2026-11-13T15:07:01.356167+00:00",
-      "bars_held": 2,
-      "tp1_hit": false,
-      "warning_sent": false,
-      "realized_partial_pnl_usd": 0.0,
-      "sentiment_decision": "MANUAL_BTCC_TRADE",
-      "sentiment_reasoning": "Reported via Telegram: /open btc short at 68965",
-      "archetype": "KRYPTON_TREND_BREAKOUT",
-      "order_type": "MARKET_ON_CANDLE_CLOSE",
-      "partial_frac": 0.0,
-      "trail_atr_mult": 8.0,
-      "peak_favorable_price": 67843.1,
-      "meta_pred_r": 0.0,
-      "exit_alert_sent_reason": ""
-    }
-  },
+  "account_balance_usd": 10068.81,
+  "daily_realized_pnl_usd": 68.81,
+  "positions_version_ts": 1794616555.118,
+  "open_positions": {},
   "closed_trades": [
     {
       "position_id": "manual-ethusdt-1794149895",
@@ -303,6 +273,21 @@
       "opened_at": "2026-11-12T18:10:01.320303+00:00",
       "closed_at": "2026-11-13T14:53:58.733711+00:00",
       "bars_held": 5
+    },
+    {
+      "position_id": "manual-btcusdt-1794582421",
+      "symbol": "BTCUSDT",
+      "side": "SHORT",
+      "leverage": 16,
+      "entry_price": 68965.0,
+      "exit_price": 68204.0,
+      "initial_margin_usd": 5.0,
+      "net_pnl_usd": 0.85,
+      "roe_pct": 16.94,
+      "exit_reason": "MANUAL_CLOSE",
+      "opened_at": "2026-11-13T15:07:01.356167+00:00",
+      "closed_at": "2026-11-14T00:35:55.117976+00:00",
+      "bars_held": 2
     }
   ]
 }
