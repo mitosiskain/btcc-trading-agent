@@ -60,6 +60,10 @@ so the rules behave identically on session data and on 24/7 perpetual data.
 
 ## Quick Start
 
+### Live Web Dashboard
+- **Live Control Center (GitHub Pages):** [https://mitosiskain.github.io/btcc-trading-agent/](https://mitosiskain.github.io/btcc-trading-agent/) *(24/7 mobile & desktop view, auto-synced with live signals and portfolio state)*
+- **Local Control Center GUI:** `./btcc_trading_agents/start_gui.sh` *(runs locally on `http://localhost:8765`)*
+
 ### 1. Configure `.env`
 ```bash
 cp btcc_trading_agents/.env.example btcc_trading_agents/.env
