@@ -1,7 +1,7 @@
 {
   "account_balance_usd": 10066.77,
   "daily_realized_pnl_usd": 66.77,
-  "positions_version_ts": 1795214100.796,
+  "positions_version_ts": 1795214119.694,
   "open_positions": {
     "BTCUSDT": {
       "position_id": "manual-btcusdt-1795033209",
@@ -58,6 +58,35 @@
       "partial_frac": 0.0,
       "trail_atr_mult": 12.0,
       "peak_favorable_price": 1619.93,
+      "meta_pred_r": 0.0,
+      "exit_alert_sent_reason": ""
+    },
+    "XRPUSDT": {
+      "position_id": "manual-xrpusdt-1795214119",
+      "symbol": "XRPUSDT",
+      "side": "SHORT",
+      "entry_price": 0.9067,
+      "current_price": 0.9115,
+      "stop_loss": 0.92485,
+      "tp1_price": 0.80035,
+      "tp2_price": 0.68921,
+      "leverage": 5,
+      "initial_margin_usd": 5.0,
+      "remaining_margin_usd": 5.0,
+      "notional_usd": 25.0,
+      "liq_price": 1.0699059999999998,
+      "opened_at": "2026-11-20T22:35:19.693579+00:00",
+      "bars_held": 0,
+      "tp1_hit": false,
+      "warning_sent": false,
+      "realized_partial_pnl_usd": 0.0,
+      "sentiment_decision": "MANUAL_BTCC_TRADE",
+      "sentiment_reasoning": "Reported via Telegram: /open xrp short @ $0.9067",
+      "archetype": "KRYPTON_TREND_BREAKOUT",
+      "order_type": "MARKET_ON_CANDLE_CLOSE",
+      "partial_frac": 0.0,
+      "trail_atr_mult": 12.0,
+      "peak_favorable_price": 0.9067,
       "meta_pred_r": 0.0,
       "exit_alert_sent_reason": ""
     }
