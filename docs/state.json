@@ -1,19 +1,19 @@
 {
   "runner_id": "local",
-  "heartbeat_epoch": 1795295583.0,
+  "heartbeat_epoch": 1795295585.9,
   "timeframe": "1h",
   "poll_interval_sec": 15,
   "auto_scan_enabled": true,
-  "is_scanning": true,
-  "last_scan_ts": "2026-11-21 21:12:44 UTC",
-  "last_scan_duration_ms": 4833,
-  "scan_count": 8909,
+  "is_scanning": false,
+  "last_scan_ts": "2026-11-21 21:13:03 UTC",
+  "last_scan_duration_ms": 3908,
+  "scan_count": 8910,
   "alert_confidence_threshold": 80,
   "diagnostics": {
     "scanner_daemon": {
       "working": true,
       "status": "ACTIVE (AUTO-RUNNING)",
-      "detail": "Scans every 15s (8909 scans completed, 4833ms last pass)"
+      "detail": "Scans every 15s (8910 scans completed, 3908ms last pass)"
     },
     "market_data_feeds": {
       "working": true,
@@ -105,10 +105,10 @@
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 362,
+          "latency_ms": 365,
           "bars": 1500,
           "source": "Binance Perps 12-Col",
-          "updated_at": "21:12:44 UTC"
+          "updated_at": "21:13:03 UTC"
         }
       }
     },
@@ -2677,16 +2677,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "1h",
-      "price": 275.14,
-      "price_str": "275.14",
-      "rsi": 60.9,
+      "price": 274.81,
+      "price_str": "274.81",
+      "rsi": 60.0,
       "atr": 1.92,
       "atr_str": "1.9156",
       "range_low": 262.16,
       "range_low_str": "262.16",
       "range_high": 283.45,
       "range_high_str": "283.45",
-      "range_pos_pct": 61.0,
+      "range_pos_pct": 59.4,
       "recommendation": "LONG \ud83d\udcc8 \u2014 33% CONFIDENCE (NO TREND \u2014 STAND ASIDE)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $354.82 | TP1: $445.86 | TP2: $536.90 | SL: $324.47 \u2022 Equities Trend no trend (trend DOWN, backtest E[+0.53R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $271.38 \u2022 Macro BEARISH \u2022 Sent 70% Bear",
@@ -2723,7 +2723,7 @@
         "impulse_met": true,
         "flatline_range_atr": 0.78,
         "req_flatline_atr": 0.95,
-        "body_decay": 0.24,
+        "body_decay": 0.22,
         "req_body_decay": 0.78,
         "flatline_met": false
       },
@@ -2735,11 +2735,11 @@
         "up_breakout_trigger": 273.75,
         "down_breakout_trigger": 272.12,
         "box_range_atr": 0.78,
-        "dist_to_up_breakout_pct": -0.51,
-        "dist_to_down_breakout_pct": 1.1,
+        "dist_to_up_breakout_pct": -0.39,
+        "dist_to_down_breakout_pct": 0.98,
         "prefer_side": "LONG",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Equities Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $354.82 (28.96% away)",
+        "closeup_status": "\ud83d\udc40 Equities Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $354.82 (29.11% away)",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "NO_TREND_STAND_ASIDE",
@@ -2833,14 +2833,14 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 275.14,
+        "early_entry_price": 274.81,
         "trigger_entry_price": 272.02422,
-        "stop_loss": 277.34293,
-        "tp1_price": 265.64177,
-        "tp2_price": 259.25932,
+        "stop_loss": 277.01293,
+        "tp1_price": 266.03777,
+        "tp2_price": 260.05132,
         "recommended_leverage": 6,
         "overlap_factors": [
-          "Non-Exhausted RSI (60.9 >= 34) leaves room for downside breakdown",
+          "Non-Exhausted RSI (60.0 >= 34) leaves room for downside breakdown",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH)"
         ],
         "top_headlines": [
@@ -2862,20 +2862,20 @@
         "meta_threshold_r": 0.0,
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
-        "delta_norm_pct": -11.4,
-        "delta_z": 0.05,
-        "cvd_6_pct": -0.4,
-        "whale_print_ratio": 0.87,
-        "vol_ratio": 0.97,
+        "delta_norm_pct": -11.8,
+        "delta_z": 0.03,
+        "cvd_6_pct": -0.8,
+        "whale_print_ratio": 0.86,
+        "vol_ratio": 0.98,
         "vol_regime": 0.85,
-        "ker20": 0.24,
-        "vwap_anchor": 269.86334619385616,
-        "z_vwap": 2.75,
+        "ker20": 0.22,
+        "vwap_anchor": 269.8589438515706,
+        "z_vwap": 2.58,
         "funding_z": 0.0,
         "btc_trend_score": 0.23,
-        "btc_residual_z": 0.42,
+        "btc_residual_z": 0.35,
         "htf_trend_atr": -0.91,
-        "rsi14": 60.9,
+        "rsi14": 60.0,
         "atr14": 12.14,
         "trend": "DOWN",
         "breakout_long_level": 354.82,
@@ -2888,7 +2888,7 @@
         "trail_atr": 4.0,
         "last_closed_bar": "2026-11-20",
         "sma150": 347.72,
-        "dist_to_trap_pct": 28.96,
+        "dist_to_trap_pct": 29.11,
         "archetype": "NO_TREND"
       },
       "carbon_oos": {
@@ -2930,13 +2930,13 @@
         272.65,
         273.34,
         273.69,
-        275.14
+        274.81
       ]
     }
   },
   "portfolio": {
-    "account_balance_usd": 10065.713951767979,
-    "daily_realized_pnl_usd": 65.71395176797762,
+    "account_balance_usd": 10064.981864591375,
+    "daily_realized_pnl_usd": 64.98186459137531,
     "open_positions": [
       {
         "position_id": "manual-btcusdt-1795033209",
@@ -2968,37 +2968,6 @@
         "exit_alert_sent_reason": "",
         "unrealized_pnl_usd": 8.99,
         "unrealized_roe_pct": 179.85
-      },
-      {
-        "position_id": "manual-xrpusdt-1795214119",
-        "symbol": "XRPUSDT",
-        "side": "SHORT",
-        "entry_price": 0.9067,
-        "current_price": 0.92485,
-        "stop_loss": 0.92485,
-        "tp1_price": 0.80035,
-        "tp2_price": 0.68921,
-        "leverage": 5,
-        "initial_margin_usd": 5.0,
-        "remaining_margin_usd": 5.0,
-        "notional_usd": 25.0,
-        "liq_price": 1.0699059999999998,
-        "opened_at": "2026-11-20T22:35:19.693579+00:00",
-        "bars_held": 22,
-        "tp1_hit": false,
-        "warning_sent": false,
-        "realized_partial_pnl_usd": 0.0,
-        "sentiment_decision": "MANUAL_BTCC_TRADE",
-        "sentiment_reasoning": "Reported via Telegram: /open xrp short @ $0.9067",
-        "archetype": "KRYPTON_TREND_BREAKOUT",
-        "order_type": "MARKET_ON_CANDLE_CLOSE",
-        "partial_frac": 0.0,
-        "trail_atr_mult": 12.0,
-        "peak_favorable_price": 0.8618,
-        "meta_pred_r": 0.0,
-        "exit_alert_sent_reason": "STOP_LOSS_HIT",
-        "unrealized_pnl_usd": -0.5,
-        "unrealized_roe_pct": -10.01
       }
     ],
     "closed_trades": [
@@ -3360,6 +3329,21 @@
         "exit_reason": "MANUAL_CLOSE",
         "opened_at": "2026-11-20T22:34:49.861547+00:00",
         "closed_at": "2026-11-21T21:13:02.949749+00:00",
+        "bars_held": 22
+      },
+      {
+        "position_id": "manual-xrpusdt-1795214119",
+        "symbol": "XRPUSDT",
+        "side": "SHORT",
+        "leverage": 5,
+        "entry_price": 0.9067,
+        "exit_price": 0.9327,
+        "initial_margin_usd": 5.0,
+        "net_pnl_usd": -0.73,
+        "roe_pct": -14.56,
+        "exit_reason": "MANUAL_CLOSE",
+        "opened_at": "2026-11-20T22:35:19.693579+00:00",
+        "closed_at": "2026-11-21T21:13:05.860922+00:00",
         "bars_held": 22
       }
     ]
