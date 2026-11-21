@@ -1,14 +1,14 @@
 {
-  "account_balance_usd": 10066.77,
-  "daily_realized_pnl_usd": 66.77,
-  "positions_version_ts": 1795237217.566,
+  "account_balance_usd": 10065.71,
+  "daily_realized_pnl_usd": 65.71,
+  "positions_version_ts": 1795295582.95,
   "open_positions": {
     "BTCUSDT": {
       "position_id": "manual-btcusdt-1795033209",
       "symbol": "BTCUSDT",
       "side": "SHORT",
       "entry_price": 62718.0,
-      "current_price": 60441.9,
+      "current_price": 60462.0,
       "stop_loss": 63340.53,
       "tp1_price": 55522.98,
       "tp2_price": 48327.95,
@@ -31,35 +31,6 @@
       "peak_favorable_price": 55359.3,
       "meta_pred_r": 0.0,
       "exit_alert_sent_reason": ""
-    },
-    "ETHUSDT": {
-      "position_id": "manual-ethusdt-1795214089",
-      "symbol": "ETHUSDT",
-      "side": "SHORT",
-      "entry_price": 1619.93,
-      "current_price": 1681.66,
-      "stop_loss": 1681.66,
-      "tp1_price": 1423.38,
-      "tp2_price": 1225.94,
-      "leverage": 5,
-      "initial_margin_usd": 5.0,
-      "remaining_margin_usd": 5.0,
-      "notional_usd": 25.0,
-      "liq_price": 1911.5174,
-      "opened_at": "2026-11-20T22:34:49.861547+00:00",
-      "bars_held": 22,
-      "tp1_hit": false,
-      "warning_sent": false,
-      "realized_partial_pnl_usd": 0.0,
-      "sentiment_decision": "MANUAL_BTCC_TRADE",
-      "sentiment_reasoning": "Reported via Telegram: /open eth short @ $1619.93",
-      "archetype": "KRYPTON_TREND_BREAKOUT",
-      "order_type": "MARKET_ON_CANDLE_CLOSE",
-      "partial_frac": 0.0,
-      "trail_atr_mult": 12.0,
-      "peak_favorable_price": 1537.92,
-      "meta_pred_r": 0.0,
-      "exit_alert_sent_reason": "STOP_LOSS_HIT"
     },
     "XRPUSDT": {
       "position_id": "manual-xrpusdt-1795214119",
@@ -436,6 +407,21 @@
       "opened_at": "2026-11-20T22:34:17.822253+00:00",
       "closed_at": "2026-11-20T22:35:00.796227+00:00",
       "bars_held": 0
+    },
+    {
+      "position_id": "manual-ethusdt-1795214089",
+      "symbol": "ETHUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_price": 1619.93,
+      "exit_price": 1687.63,
+      "initial_margin_usd": 5.0,
+      "net_pnl_usd": -1.06,
+      "roe_pct": -21.12,
+      "exit_reason": "MANUAL_CLOSE",
+      "opened_at": "2026-11-20T22:34:49.861547+00:00",
+      "closed_at": "2026-11-21T21:13:02.949749+00:00",
+      "bars_held": 22
     }
   ]
 }
