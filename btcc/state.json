@@ -1,19 +1,19 @@
 {
   "runner_id": "local",
-  "heartbeat_epoch": 1795491515.0,
+  "heartbeat_epoch": 1795491698.1,
   "timeframe": "4h",
   "poll_interval_sec": 15,
   "auto_scan_enabled": true,
   "is_scanning": true,
-  "last_scan_ts": "2026-11-24 03:38:35 UTC",
-  "last_scan_duration_ms": 7919,
-  "scan_count": 5897,
+  "last_scan_ts": "2026-11-24 03:41:38 UTC",
+  "last_scan_duration_ms": 3887,
+  "scan_count": 5906,
   "alert_confidence_threshold": 80,
   "diagnostics": {
     "scanner_daemon": {
       "working": true,
       "status": "ACTIVE (AUTO-RUNNING)",
-      "detail": "Scans every 15s (5897 scans completed, 7919ms last pass)"
+      "detail": "Scans every 15s (5906 scans completed, 3887ms last pass)"
     },
     "market_data_feeds": {
       "working": true,
@@ -24,28 +24,28 @@
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 556,
+          "latency_ms": 315,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:27 UTC"
+          "updated_at": "03:41:34 UTC"
         },
         "ETHUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 312,
+          "latency_ms": 554,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:28 UTC"
+          "updated_at": "03:41:35 UTC"
         },
         "SOLUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 328,
+          "latency_ms": 307,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:30 UTC"
+          "updated_at": "03:41:35 UTC"
         },
         "XRPUSDT": {
           "ok": true,
@@ -54,61 +54,61 @@
           "latency_ms": 310,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:31 UTC"
+          "updated_at": "03:41:35 UTC"
         },
         "DOGEUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 312,
+          "latency_ms": 326,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:32 UTC"
+          "updated_at": "03:41:36 UTC"
         },
         "SUIUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 318,
+          "latency_ms": 307,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:33 UTC"
+          "updated_at": "03:41:36 UTC"
         },
         "AVAXUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 309,
+          "latency_ms": 616,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:33 UTC"
+          "updated_at": "03:41:37 UTC"
         },
         "XAUUSDT": {
-          "ok": true,
-          "reliable_24_7": true,
-          "has_true_orderflow": true,
-          "latency_ms": 533,
-          "bars": 1000,
-          "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:34 UTC"
-        },
-        "XAGUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
           "latency_ms": 314,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:34 UTC"
+          "updated_at": "03:41:37 UTC"
+        },
+        "XAGUSDT": {
+          "ok": true,
+          "reliable_24_7": true,
+          "has_true_orderflow": true,
+          "latency_ms": 310,
+          "bars": 1000,
+          "source": "Binance Perps 12-Col",
+          "updated_at": "03:41:37 UTC"
         },
         "GOOGLUSDT": {
           "ok": true,
           "reliable_24_7": true,
           "has_true_orderflow": true,
-          "latency_ms": 334,
+          "latency_ms": 307,
           "bars": 1000,
           "source": "Binance Perps 12-Col",
-          "updated_at": "03:38:35 UTC"
+          "updated_at": "03:41:38 UTC"
         }
       }
     },
@@ -276,16 +276,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 60288.8,
-      "price_str": "60288.80",
-      "rsi": 44.6,
+      "price": 60358.6,
+      "price_str": "60358.60",
+      "rsi": 44.9,
       "atr": 1508.98,
       "atr_str": "1508.98",
       "range_low": 55126.7,
       "range_low_str": "55126.70",
       "range_high": 65679.2,
       "range_high_str": "65679.20",
-      "range_pos_pct": 48.9,
+      "range_pos_pct": 49.6,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 52% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $55126.70 | TP1: $46610.38 | TP2: $38094.05 | SL: $57965.47 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $64572.80 \u2022 Macro BEARISH \u2022 Sent 67% Bull",
@@ -322,7 +322,7 @@
         "impulse_met": false,
         "flatline_range_atr": 2.72,
         "req_flatline_atr": 0.95,
-        "body_decay": 0.12,
+        "body_decay": 0.13,
         "req_body_decay": 0.55,
         "flatline_met": false
       },
@@ -334,11 +334,11 @@
         "up_breakout_trigger": 64572.8,
         "down_breakout_trigger": 60719.5,
         "box_range_atr": 2.72,
-        "dist_to_up_breakout_pct": 7.11,
-        "dist_to_down_breakout_pct": -0.71,
+        "dist_to_up_breakout_pct": 6.98,
+        "dist_to_down_breakout_pct": -0.6,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $55126.70 (8.56% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $55126.70 (8.67% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -386,8 +386,8 @@
       },
       "market_intel": {
         "funding_rate_pct": 0.0044,
-        "long_short_ratio": 2.6,
-        "crowd_long_pct": 72.2,
+        "long_short_ratio": 2.68,
+        "crowd_long_pct": 72.8,
         "fear_greed_value": 11,
         "fear_greed_label": "Extreme Fear",
         "total_posts_analyzed": 50,
@@ -432,15 +432,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 60288.8,
+        "early_entry_price": 60358.6,
         "trigger_entry_price": 64648.24895,
-        "stop_loss": 58553.47414,
-        "tp1_price": 71961.97872,
-        "tp2_price": 79275.70849,
+        "stop_loss": 58623.27414,
+        "tp1_price": 71878.21872,
+        "tp2_price": 79108.18849,
         "recommended_leverage": 16,
         "overlap_factors": [
           "Holding near 4h structure [$6.072e+04\u2013$6.457e+04] before full expansion",
-          "Non-Exhausted RSI (44.6) leaves full room for upside expansion (75% WR Bridge Zone)"
+          "Non-Exhausted RSI (44.9) leaves full room for upside expansion (75% WR Bridge Zone)"
         ],
         "top_headlines": [
           "[TV/stocktwits] Bitcoin And Ethereum Get A Bigger Role In US Derivatives Markets: Here\u2019s What The CFTC Changed",
@@ -461,19 +461,19 @@
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
         "delta_norm_pct": -0.2,
-        "delta_z": 0.06,
+        "delta_z": 0.04,
         "cvd_6_pct": 1.4,
         "whale_print_ratio": 1.03,
-        "vol_ratio": 1.12,
+        "vol_ratio": 1.13,
         "vol_regime": 1.19,
-        "ker20": 0.12,
-        "vwap_anchor": 60032.58120032559,
-        "z_vwap": 0.17,
+        "ker20": 0.13,
+        "vwap_anchor": 60033.76196716024,
+        "z_vwap": 0.22,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
+        "btc_trend_score": -0.87,
         "btc_residual_z": 0.0,
         "htf_trend_atr": -1.62,
-        "rsi14": 44.6,
+        "rsi14": 44.9,
         "atr14": 1419.39,
         "trend": "DOWN",
         "breakout_long_level": 64572.8,
@@ -485,7 +485,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 8.56,
+        "dist_to_trap_pct": 8.67,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -527,7 +527,7 @@
         62867.2,
         61233.0,
         61239.9,
-        60288.8
+        60358.6
       ]
     },
     "ETHUSDT": {
@@ -541,16 +541,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 1694.14,
-      "price_str": "1694.14",
-      "rsi": 45.1,
+      "price": 1695.13,
+      "price_str": "1695.13",
+      "rsi": 45.3,
       "atr": 47.42,
       "atr_str": "47.4197",
       "range_low": 1536.1,
       "range_low_str": "1536.10",
       "range_high": 1866.21,
       "range_high_str": "1866.21",
-      "range_pos_pct": 47.9,
+      "range_pos_pct": 48.2,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 52% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $1536.10 | TP1: $1257.79 | TP2: $979.48 | SL: $1628.87 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $1845.00 \u2022 Macro BEARISH \u2022 Sent 68% Bull",
@@ -599,11 +599,11 @@
         "up_breakout_trigger": 1778.24,
         "down_breakout_trigger": 1702.38,
         "box_range_atr": 1.72,
-        "dist_to_up_breakout_pct": 4.96,
-        "dist_to_down_breakout_pct": -0.49,
+        "dist_to_up_breakout_pct": 4.9,
+        "dist_to_down_breakout_pct": -0.43,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $1536.10 (9.33% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $1536.10 (9.38% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -697,15 +697,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 1694.14,
+        "early_entry_price": 1695.13,
         "trigger_entry_price": 1780.61098,
-        "stop_loss": 1639.6074,
-        "tp1_price": 1949.81528,
-        "tp2_price": 2119.01957,
+        "stop_loss": 1640.5974,
+        "tp1_price": 1948.62728,
+        "tp2_price": 2116.64357,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$1702\u2013$1778] before full expansion",
-          "Non-Exhausted RSI (45.1) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Non-Exhausted RSI (45.3) leaves full room for upside expansion (75% WR Bridge Zone)",
           "Unwound/Short-heavy positioning (Funding -0.0037%) fuels short squeeze"
         ],
         "top_headlines": [
@@ -726,20 +726,20 @@
         "meta_threshold_r": 0.0,
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
-        "delta_norm_pct": -1.9,
-        "delta_z": -0.23,
-        "cvd_6_pct": 0.6,
+        "delta_norm_pct": -1.7,
+        "delta_z": -0.22,
+        "cvd_6_pct": 0.7,
         "whale_print_ratio": 0.97,
-        "vol_ratio": 1.05,
+        "vol_ratio": 1.06,
         "vol_regime": 1.08,
         "ker20": 0.21,
-        "vwap_anchor": 1681.941295538823,
-        "z_vwap": 0.26,
+        "vwap_anchor": 1681.9598882258222,
+        "z_vwap": 0.28,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
+        "btc_trend_score": -0.88,
         "btc_residual_z": -0.06,
         "htf_trend_atr": -1.61,
-        "rsi14": 45.1,
+        "rsi14": 45.3,
         "atr14": 46.38,
         "trend": "DOWN",
         "breakout_long_level": 1845.0,
@@ -751,7 +751,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 9.33,
+        "dist_to_trap_pct": 9.38,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -793,7 +793,7 @@
         1772.74,
         1730.95,
         1709.85,
-        1694.14
+        1695.13
       ]
     },
     "SOLUSDT": {
@@ -807,16 +807,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 71.15,
-      "price_str": "71.15",
-      "rsi": 48.4,
+      "price": 71.11,
+      "price_str": "71.11",
+      "rsi": 48.2,
       "atr": 2.1344,
       "atr_str": "2.1344",
       "range_low": 64.83,
       "range_low_str": "64.83",
       "range_high": 78.49,
       "range_high_str": "78.49",
-      "range_pos_pct": 46.3,
+      "range_pos_pct": 46.0,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 52% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $64.83 | TP1: $52.5732 | TP2: $40.3165 | SL: $68.9156 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $78.49 \u2022 Macro BEARISH \u2022 Sent 60% Bull",
@@ -853,7 +853,7 @@
         "impulse_met": false,
         "flatline_range_atr": 3.74,
         "req_flatline_atr": 0.95,
-        "body_decay": 0.15,
+        "body_decay": 0.14,
         "req_body_decay": 0.55,
         "flatline_met": false
       },
@@ -865,11 +865,11 @@
         "up_breakout_trigger": 78.49,
         "down_breakout_trigger": 71.54,
         "box_range_atr": 3.74,
-        "dist_to_up_breakout_pct": 10.32,
-        "dist_to_down_breakout_pct": -0.55,
+        "dist_to_up_breakout_pct": 10.38,
+        "dist_to_down_breakout_pct": -0.6,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $64.83 (8.88% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $64.83 (8.83% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -963,15 +963,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 71.15,
+        "early_entry_price": 71.11,
         "trigger_entry_price": 78.59672,
-        "stop_loss": 68.69545,
-        "tp1_price": 90.47824,
-        "tp2_price": 102.35977,
+        "stop_loss": 68.65545,
+        "tp1_price": 90.52624,
+        "tp2_price": 102.45577,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$71.54\u2013$78.49] before full expansion",
-          "Non-Exhausted RSI (48.4) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Non-Exhausted RSI (48.2) leaves full room for upside expansion (75% WR Bridge Zone)",
           "Unwound/Short-heavy positioning (Funding -0.0079%) fuels short squeeze"
         ],
         "top_headlines": [
@@ -992,20 +992,20 @@
         "meta_threshold_r": 0.0,
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
-        "delta_norm_pct": -0.6,
-        "delta_z": 0.0,
+        "delta_norm_pct": -0.4,
+        "delta_z": 0.03,
         "cvd_6_pct": 0.6,
         "whale_print_ratio": 0.97,
         "vol_ratio": 0.97,
         "vol_regime": 1.09,
-        "ker20": 0.15,
-        "vwap_anchor": 70.4201280363738,
-        "z_vwap": 0.34,
+        "ker20": 0.14,
+        "vwap_anchor": 70.41979661933858,
+        "z_vwap": 0.32,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.21,
+        "btc_trend_score": -0.88,
+        "btc_residual_z": 0.19,
         "htf_trend_atr": -1.56,
-        "rsi14": 48.4,
+        "rsi14": 48.2,
         "atr14": 2.0428,
         "trend": "DOWN",
         "breakout_long_level": 78.49,
@@ -1017,7 +1017,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 8.88,
+        "dist_to_trap_pct": 8.83,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -1059,7 +1059,7 @@
         75.61,
         73.05,
         71.98,
-        71.15
+        71.11
       ]
     },
     "XRPUSDT": {
@@ -1073,16 +1073,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 0.9458,
-      "price_str": "0.9458",
-      "rsi": 51.4,
+      "price": 0.9463,
+      "price_str": "0.9463",
+      "rsi": 51.5,
       "atr": 0.02649,
       "atr_str": "0.02649",
       "range_low": 0.8591,
       "range_low_str": "0.8591",
       "range_high": 1.0259,
       "range_high_str": "1.0259",
-      "range_pos_pct": 52.0,
+      "range_pos_pct": 52.3,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 52% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $0.8591 | TP1: $0.7025 | TP2: $0.54589 | SL: $0.9113 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $1.0259 \u2022 Macro BEARISH \u2022 Sent 50% Bull",
@@ -1131,11 +1131,11 @@
         "up_breakout_trigger": 1.0259,
         "down_breakout_trigger": 0.9332,
         "box_range_atr": 3.89,
-        "dist_to_up_breakout_pct": 8.47,
-        "dist_to_down_breakout_pct": 1.33,
+        "dist_to_up_breakout_pct": 8.41,
+        "dist_to_down_breakout_pct": 1.38,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $0.8591 (9.17% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $0.8591 (9.21% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -1229,15 +1229,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 0.9458,
+        "early_entry_price": 0.9463,
         "trigger_entry_price": 1.02722,
-        "stop_loss": 0.91533,
-        "tp1_price": 1.16149,
-        "tp2_price": 1.29576,
+        "stop_loss": 0.91583,
+        "tp1_price": 1.16089,
+        "tp2_price": 1.29456,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$0.9332\u2013$1.026] before full expansion",
-          "Non-Exhausted RSI (51.4) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Non-Exhausted RSI (51.5) leaves full room for upside expansion (75% WR Bridge Zone)",
           "Unwound/Short-heavy positioning (Funding -0.0084%) fuels short squeeze"
         ],
         "top_headlines": [
@@ -1258,20 +1258,20 @@
         "meta_threshold_r": 0.0,
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
-        "delta_norm_pct": -5.0,
-        "delta_z": -0.68,
-        "cvd_6_pct": -0.1,
+        "delta_norm_pct": -4.5,
+        "delta_z": -0.59,
+        "cvd_6_pct": 0.0,
         "whale_print_ratio": 0.95,
-        "vol_ratio": 0.9,
+        "vol_ratio": 0.91,
         "vol_regime": 1.07,
         "ker20": 0.19,
-        "vwap_anchor": 0.9283467438089869,
-        "z_vwap": 0.66,
+        "vwap_anchor": 0.9283597053645087,
+        "z_vwap": 0.68,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
+        "btc_trend_score": -0.88,
         "btc_residual_z": 0.46,
         "htf_trend_atr": -1.5,
-        "rsi14": 51.4,
+        "rsi14": 51.5,
         "atr14": 0.0261,
         "trend": "DOWN",
         "breakout_long_level": 1.0259,
@@ -1283,7 +1283,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 9.17,
+        "dist_to_trap_pct": 9.21,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -1325,7 +1325,7 @@
         0.992,
         0.9434,
         0.9401,
-        0.9458
+        0.9463
       ]
     },
     "DOGEUSDT": {
@@ -1339,16 +1339,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 0.05598,
-      "price_str": "0.05598",
-      "rsi": 48.8,
+      "price": 0.05599,
+      "price_str": "0.05599",
+      "rsi": 48.9,
       "atr": 0.0016,
       "atr_str": "0.0016",
       "range_low": 0.05075,
       "range_low_str": "0.05075",
       "range_high": 0.06045,
       "range_high_str": "0.06045",
-      "range_pos_pct": 53.9,
+      "range_pos_pct": 54.0,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 52% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $0.05075 | TP1: $0.04144 | TP2: $0.03213 | SL: $0.05385 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $0.06022 \u2022 Macro BEARISH \u2022 Sent 56% Bull",
@@ -1397,11 +1397,11 @@
         "up_breakout_trigger": 0.06022,
         "down_breakout_trigger": 0.05532,
         "box_range_atr": 3.4,
-        "dist_to_up_breakout_pct": 7.57,
-        "dist_to_down_breakout_pct": 1.18,
+        "dist_to_up_breakout_pct": 7.55,
+        "dist_to_down_breakout_pct": 1.2,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $0.05075 (9.34% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $0.05075 (9.36% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -1421,21 +1421,21 @@
         "symbol": "DOGEUSDT",
         "1d": {
           "trend": "BEARISH",
-          "rsi": 28.3,
-          "vs_ema20_pct": -10.31,
-          "last_bar_pct": -1.26
+          "rsi": 28.7,
+          "vs_ema20_pct": -9.85,
+          "last_bar_pct": -0.71
         },
         "1w": {
           "trend": "BEARISH",
-          "rsi": 32.5,
-          "vs_ema20_pct": -27.44,
-          "last_bar_pct": 0.54
+          "rsi": 32.8,
+          "vs_ema20_pct": -27.07,
+          "last_bar_pct": 1.08
         },
         "1M": {
           "trend": "BEARISH",
-          "rsi": 39.1,
-          "vs_ema20_pct": -51.36,
-          "last_bar_pct": -26.38
+          "rsi": 39.2,
+          "vs_ema20_pct": -51.12,
+          "last_bar_pct": -25.99
         },
         "1d_plan": {
           "side": "LONG",
@@ -1495,15 +1495,15 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 0.05598,
+        "early_entry_price": 0.05599,
         "trigger_entry_price": 0.0603,
-        "stop_loss": 0.05414,
-        "tp1_price": 0.06769,
-        "tp2_price": 0.07508,
+        "stop_loss": 0.05415,
+        "tp1_price": 0.06768,
+        "tp2_price": 0.07506,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$0.05532\u2013$0.06022] before full expansion",
-          "Non-Exhausted RSI (48.8) leaves full room for upside expansion (75% WR Bridge Zone)"
+          "Non-Exhausted RSI (48.9) leaves full room for upside expansion (75% WR Bridge Zone)"
         ],
         "top_headlines": [
           "[TV/stocktwits] Mike McGlone Says Crypto Crash Is A Preview Of The 'Everything Bubble' Bursting, Sees Bitcoin At $10,000 Again",
@@ -1523,20 +1523,20 @@
         "meta_threshold_r": 0.0,
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
-        "delta_norm_pct": -0.4,
-        "delta_z": 0.2,
-        "cvd_6_pct": -0.1,
+        "delta_norm_pct": -0.1,
+        "delta_z": 0.24,
+        "cvd_6_pct": -0.0,
         "whale_print_ratio": 1.06,
-        "vol_ratio": 1.05,
+        "vol_ratio": 1.06,
         "vol_regime": 1.05,
         "ker20": 0.18,
-        "vwap_anchor": 0.054980087634497306,
+        "vwap_anchor": 0.0549806099278274,
         "z_vwap": 0.63,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.43,
+        "btc_trend_score": -0.88,
+        "btc_residual_z": 0.42,
         "htf_trend_atr": -1.63,
-        "rsi14": 48.8,
+        "rsi14": 48.9,
         "atr14": 0.00155,
         "trend": "DOWN",
         "breakout_long_level": 0.06022,
@@ -1548,7 +1548,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 9.34,
+        "dist_to_trap_pct": 9.36,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -1590,7 +1590,7 @@
         0.05874,
         0.05682,
         0.05636,
-        0.05598
+        0.05599
       ]
     },
     "SUIUSDT": {
@@ -1604,16 +1604,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 0.6666,
-      "price_str": "0.6666",
-      "rsi": 47.9,
+      "price": 0.6661,
+      "price_str": "0.6661",
+      "rsi": 47.8,
       "atr": 0.02312,
       "atr_str": "0.02312",
       "range_low": 0.5877,
       "range_low_str": "0.5877",
       "range_high": 0.7441,
       "range_high_str": "0.7441",
-      "range_pos_pct": 50.4,
+      "range_pos_pct": 50.1,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 50% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $0.5877 | TP1: $0.45386 | TP2: $0.32002 | SL: $0.63231 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $0.7336 \u2022 Macro BEARISH \u2022 Sent 74% Bull",
@@ -1662,11 +1662,11 @@
         "up_breakout_trigger": 0.7336,
         "down_breakout_trigger": 0.6635,
         "box_range_atr": 3.47,
-        "dist_to_up_breakout_pct": 10.05,
-        "dist_to_down_breakout_pct": 0.47,
+        "dist_to_up_breakout_pct": 10.13,
+        "dist_to_down_breakout_pct": 0.39,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $0.5877 (11.84% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $0.5877 (11.77% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -1686,21 +1686,21 @@
         "symbol": "SUIUSDT",
         "1d": {
           "trend": "BEARISH",
-          "rsi": 31.6,
-          "vs_ema20_pct": -11.49,
-          "last_bar_pct": -1.83
+          "rsi": 32.1,
+          "vs_ema20_pct": -10.93,
+          "last_bar_pct": -1.14
         },
         "1w": {
           "trend": "BEARISH",
-          "rsi": 39.9,
-          "vs_ema20_pct": -22.84,
-          "last_bar_pct": 0.76
+          "rsi": 40.1,
+          "vs_ema20_pct": -22.31,
+          "last_bar_pct": 1.51
         },
         "1M": {
           "trend": "BEARISH",
           "rsi": 39.8,
-          "vs_ema20_pct": -50.92,
-          "last_bar_pct": -26.43
+          "vs_ema20_pct": -50.57,
+          "last_bar_pct": -25.88
         },
         "1d_plan": {
           "side": "LONG",
@@ -1713,12 +1713,12 @@
         "summary": "1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH"
       },
       "market_intel": {
-        "funding_rate_pct": -0.0068,
-        "long_short_ratio": 2.99,
-        "crowd_long_pct": 74.9,
+        "funding_rate_pct": -0.0069,
+        "long_short_ratio": 3.01,
+        "crowd_long_pct": 75.1,
         "fear_greed_value": 11,
         "fear_greed_label": "Extreme Fear",
-        "total_posts_analyzed": 44,
+        "total_posts_analyzed": 45,
         "bull_posts": 14,
         "bear_posts": 5,
         "directional_posts": 19,
@@ -1737,9 +1737,9 @@
           "[TV/bloomingbit] Sui-Based Bitcoin Finance Infrastructure Hashi Officially Launches Mainnet"
         ],
         "social_headlines": [
-          "[Social/News] Nvidia Sparks Relief Rallies Across Crypto Markets! - Santiment",
-          "[Social/News] Sui Price Forecast & Predictions for 2026, 2027, 2028\u20132030, 2040 and Beyond - LiteFinance",
-          "[Social/News] Bitcoin, Ethereum, XRP, Dogecoin Gain Amid Crypto\u2019s Relief Rally on Jensen Huang\u2019s Return: Analyst Says B - Benzinga"
+          "[Social/News] Bitcoin, Ethereum, XRP, Dogecoin Gain Amid Crypto\u2019s Relief Rally on Jensen Huang\u2019s Return: Analyst Says B - Benzinga",
+          "[Social/News] Large cryptocurrencies climb on Sui, Solana increases - MarketWatch",
+          "[Social/News] Nvidia Sparks Relief Rallies Across Crypto Markets! - Santiment"
         ]
       },
       "sentiment_overlap": {
@@ -1749,7 +1749,7 @@
         "overlap_score": 3,
         "bias_side": "LONG",
         "news_bias_label": "BULLISH",
-        "total_posts": 44,
+        "total_posts": 45,
         "directional_posts": 19,
         "bull_posts": 14,
         "bear_posts": 5,
@@ -1760,21 +1760,21 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 0.6666,
+        "early_entry_price": 0.6661,
         "trigger_entry_price": 0.73476,
-        "stop_loss": 0.64002,
-        "tp1_price": 0.84845,
-        "tp2_price": 0.96214,
+        "stop_loss": 0.63952,
+        "tp1_price": 0.84905,
+        "tp2_price": 0.96334,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$0.6635\u2013$0.7336] before full expansion",
-          "Non-Exhausted RSI (47.9) leaves full room for upside expansion (75% WR Bridge Zone)",
-          "Unwound/Short-heavy positioning (Funding -0.0068%) fuels short squeeze"
+          "Non-Exhausted RSI (47.8) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Unwound/Short-heavy positioning (Funding -0.0069%) fuels short squeeze"
         ],
         "top_headlines": [
           "[TV/binance_news] Samsung Wallet to Support USDC Transfers on Sui for U.S. Galaxy Users",
           "[TV/cryptobriefing] Hashi goes live on Sui mainnet, turning Bitcoin into lending collateral",
-          "[Social/News] Nvidia Sparks Relief Rallies Across Crypto Markets! - Santiment"
+          "[Social/News] Bitcoin, Ethereum, XRP, Dogecoin Gain Amid Crypto\u2019s Relief Rally on Jensen Huang\u2019s Return: Analyst Says B - Benzinga"
         ]
       },
       "carbon_telemetry": {
@@ -1796,13 +1796,13 @@
         "vol_ratio": 0.87,
         "vol_regime": 1.05,
         "ker20": 0.11,
-        "vwap_anchor": 0.6570787636444653,
-        "z_vwap": 0.41,
+        "vwap_anchor": 0.6570766109394409,
+        "z_vwap": 0.39,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.45,
+        "btc_trend_score": -0.88,
+        "btc_residual_z": 0.43,
         "htf_trend_atr": -1.35,
-        "rsi14": 47.9,
+        "rsi14": 47.8,
         "atr14": 0.02231,
         "trend": "DOWN",
         "breakout_long_level": 0.7336,
@@ -1814,7 +1814,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 11.84,
+        "dist_to_trap_pct": 11.77,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -1856,7 +1856,7 @@
         0.7147,
         0.6798,
         0.6739,
-        0.6666
+        0.6661
       ]
     },
     "AVAXUSDT": {
@@ -1870,16 +1870,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 6.753,
-      "price_str": "6.753",
-      "rsi": 49.2,
+      "price": 6.747,
+      "price_str": "6.747",
+      "rsi": 49.0,
       "atr": 0.1952,
       "atr_str": "0.19521",
       "range_low": 6.008,
       "range_low_str": "6.008",
       "range_high": 7.312,
       "range_high_str": "7.312",
-      "range_pos_pct": 57.1,
+      "range_pos_pct": 56.7,
       "recommendation": "SHORT \ud83d\udcc9 \u2014 52% CONFIDENCE (WATCH BREAKOUT)",
       "rec_color": "amber-short",
       "rec_summary": "Safe Entry: $6.008 | TP1: $4.8322 | TP2: $3.6563 | SL: $6.3999 \u2022 Krypton V3 breakout watch (trend DOWN, backtest E[+0.20R]/trade) \u2022 No fixed TP: trail stop + exit on 4h close beyond $7.226 \u2022 Macro BEARISH \u2022 Sent 71% Bull",
@@ -1928,11 +1928,11 @@
         "up_breakout_trigger": 7.226,
         "down_breakout_trigger": 6.676,
         "box_range_atr": 3.02,
-        "dist_to_up_breakout_pct": 7.0,
-        "dist_to_down_breakout_pct": 1.14,
+        "dist_to_up_breakout_pct": 7.1,
+        "dist_to_down_breakout_pct": 1.05,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $6.008 (11.03% away)",
+        "closeup_status": "\ud83d\udc40 Krypton V3 BREAKOUT_WATCH: SHORT if the 4h candle close is below $6.008 (10.95% away)",
         "pending_order_plan": {
           "side": "SHORT",
           "order_type": "ENTER_ON_CLOSE_BEYOND_LEVEL",
@@ -1952,21 +1952,21 @@
         "symbol": "AVAXUSDT",
         "1d": {
           "trend": "BEARISH",
-          "rsi": 33.3,
-          "vs_ema20_pct": -9.7,
-          "last_bar_pct": -0.99
+          "rsi": 33.6,
+          "vs_ema20_pct": -9.38,
+          "last_bar_pct": -0.6
         },
         "1w": {
           "trend": "BEARISH",
-          "rsi": 39.0,
-          "vs_ema20_pct": -18.94,
-          "last_bar_pct": 0.51
+          "rsi": 39.1,
+          "vs_ema20_pct": -18.68,
+          "last_bar_pct": 0.87
         },
         "1M": {
           "trend": "BEARISH",
           "rsi": 37.0,
-          "vs_ema20_pct": -50.91,
-          "last_bar_pct": -21.62
+          "vs_ema20_pct": -50.75,
+          "last_bar_pct": -21.34
         },
         "1d_plan": {
           "side": "LONG",
@@ -1979,9 +1979,9 @@
         "summary": "1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH"
       },
       "market_intel": {
-        "funding_rate_pct": -0.0158,
-        "long_short_ratio": 2.24,
-        "crowd_long_pct": 69.1,
+        "funding_rate_pct": -0.0156,
+        "long_short_ratio": 2.23,
+        "crowd_long_pct": 69.0,
         "fear_greed_value": 11,
         "fear_greed_label": "Extreme Fear",
         "total_posts_analyzed": 50,
@@ -2026,16 +2026,16 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 6.753,
+        "early_entry_price": 6.747,
         "trigger_entry_price": 7.23576,
-        "stop_loss": 6.52851,
-        "tp1_price": 8.08446,
-        "tp2_price": 8.93316,
+        "stop_loss": 6.52251,
+        "tp1_price": 8.09166,
+        "tp2_price": 8.94756,
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$6.676\u2013$7.226] before full expansion",
-          "Non-Exhausted RSI (49.2) leaves full room for upside expansion (75% WR Bridge Zone)",
-          "Unwound/Short-heavy positioning (Funding -0.0158%) fuels short squeeze"
+          "Non-Exhausted RSI (49.0) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Unwound/Short-heavy positioning (Funding -0.0156%) fuels short squeeze"
         ],
         "top_headlines": [
           "[TV/coindar] BENQI to Introduce an sAVAX Unstaking Queue in November",
@@ -2058,17 +2058,17 @@
         "delta_norm_pct": -1.7,
         "delta_z": -0.01,
         "cvd_6_pct": 1.1,
-        "whale_print_ratio": 0.91,
+        "whale_print_ratio": 0.9,
         "vol_ratio": 0.75,
         "vol_regime": 0.94,
         "ker20": 0.15,
-        "vwap_anchor": 6.621504069128092,
-        "z_vwap": 0.67,
+        "vwap_anchor": 6.621475013702271,
+        "z_vwap": 0.64,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.42,
+        "btc_trend_score": -0.87,
+        "btc_residual_z": 0.39,
         "htf_trend_atr": -1.27,
-        "rsi14": 49.2,
+        "rsi14": 49.0,
         "atr14": 0.196,
         "trend": "DOWN",
         "breakout_long_level": 7.226,
@@ -2080,7 +2080,7 @@
         "init_stop_atr": 2.0,
         "trail_atr": 8.0,
         "last_closed_bar": "2026-11-23 20:00:00+00:00",
-        "dist_to_trap_pct": 11.03,
+        "dist_to_trap_pct": 10.95,
         "archetype": "BREAKOUT_WATCH"
       },
       "carbon_oos": {
@@ -2122,7 +2122,7 @@
         7.032,
         6.841,
         6.786,
-        6.753
+        6.747
       ]
     },
     "XAUUSDT": {
@@ -2136,16 +2136,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 3624.68,
-      "price_str": "3624.68",
-      "rsi": 52.7,
+      "price": 3623.66,
+      "price_str": "3623.66",
+      "rsi": 52.5,
       "atr": 37.25,
       "atr_str": "37.2495",
       "range_low": 3491.07,
       "range_low_str": "3491.07",
       "range_high": 3879.23,
       "range_high_str": "3879.23",
-      "range_pos_pct": 34.4,
+      "range_pos_pct": 34.2,
       "recommendation": "LONG \ud83d\udcc8 \u2014 36% CONFIDENCE (NO TREND \u2014 STAND ASIDE)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $4190.10 | TP1: $4730.84 | TP2: $5271.57 | SL: $4009.85 \u2022 Metals Trend no trend (trend DOWN, backtest E[+0.30R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $3537.52 \u2022 Macro BEARISH \u2022 Sent 79% Bull",
@@ -2194,11 +2194,11 @@
         "up_breakout_trigger": 3680.1,
         "down_breakout_trigger": 3602.86,
         "box_range_atr": 2.22,
-        "dist_to_up_breakout_pct": 1.53,
-        "dist_to_down_breakout_pct": 0.6,
+        "dist_to_up_breakout_pct": 1.56,
+        "dist_to_down_breakout_pct": 0.57,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Metals Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $4190.10 (15.60% away)",
+        "closeup_status": "\ud83d\udc40 Metals Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $4190.10 (15.63% away)",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "NO_TREND_STAND_ASIDE",
@@ -2218,20 +2218,20 @@
         "symbol": "XAUUSDT",
         "1d": {
           "trend": "BEARISH",
-          "rsi": 32.4,
-          "vs_ema20_pct": -4.1,
-          "last_bar_pct": 0.02
+          "rsi": 32.5,
+          "vs_ema20_pct": -4.09,
+          "last_bar_pct": 0.03
         },
         "1w": {
           "trend": "BEARISH",
           "rsi": 32.8,
-          "vs_ema20_pct": -11.31,
-          "last_bar_pct": 1.31
+          "vs_ema20_pct": -11.3,
+          "last_bar_pct": 1.32
         },
         "1M": {
           "trend": "BEARISH",
           "rsi": 47.9,
-          "vs_ema20_pct": -7.65,
+          "vs_ema20_pct": -7.64,
           "last_bar_pct": -7.01
         },
         "1d_plan": {
@@ -2245,7 +2245,7 @@
         "summary": "1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH"
       },
       "market_intel": {
-        "funding_rate_pct": 0.0,
+        "funding_rate_pct": 0.0003,
         "long_short_ratio": 1.0,
         "crowd_long_pct": 50.0,
         "fear_greed_value": 11,
@@ -2292,16 +2292,16 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 3624.68,
+        "early_entry_price": 3623.66,
         "trigger_entry_price": 3681.96247,
-        "stop_loss": 3581.84313,
-        "tp1_price": 3802.10568,
-        "tp2_price": 3922.24889,
+        "stop_loss": 3580.82313,
+        "tp1_price": 3803.32968,
+        "tp2_price": 3924.69689,
         "recommended_leverage": 9,
         "overlap_factors": [
           "Holding near 4h structure [$3603\u2013$3680] before full expansion",
-          "Non-Exhausted RSI (52.7) leaves full room for upside expansion (75% WR Bridge Zone)",
-          "Unwound/Short-heavy positioning (Funding +0.0000%) fuels short squeeze"
+          "Non-Exhausted RSI (52.5) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Unwound/Short-heavy positioning (Funding +0.0003%) fuels short squeeze"
         ],
         "top_headlines": [
           "[TV/reuters] Gold ticks up on bargain buying; US inflation data awaited",
@@ -2326,16 +2326,16 @@
         "delta_z": 0.72,
         "cvd_6_pct": 1.0,
         "whale_print_ratio": 1.07,
-        "vol_ratio": 1.03,
+        "vol_ratio": 1.04,
         "vol_regime": 1.13,
         "ker20": 0.35,
-        "vwap_anchor": 3569.923179402641,
-        "z_vwap": 1.47,
+        "vwap_anchor": 3569.9234331443904,
+        "z_vwap": 1.44,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.42,
+        "btc_trend_score": -0.87,
+        "btc_residual_z": 0.4,
         "htf_trend_atr": -1.64,
-        "rsi14": 52.7,
+        "rsi14": 52.5,
         "atr14": 90.12,
         "trend": "DOWN",
         "breakout_long_level": 4190.1,
@@ -2348,7 +2348,7 @@
         "trail_atr": 3.0,
         "last_closed_bar": "2026-11-23",
         "sma200": 4398.84,
-        "dist_to_trap_pct": 15.6,
+        "dist_to_trap_pct": 15.63,
         "archetype": "NO_TREND"
       },
       "carbon_oos": {
@@ -2390,7 +2390,7 @@
         3660.28,
         3632.97,
         3622.28,
-        3624.68
+        3623.66
       ]
     },
     "XAGUSDT": {
@@ -2404,19 +2404,19 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 42.89,
-      "price_str": "42.89",
-      "rsi": 49.7,
+      "price": 42.87,
+      "price_str": "42.87",
+      "rsi": 49.5,
       "atr": 0.8482,
       "atr_str": "0.84822",
       "range_low": 40.68,
       "range_low_str": "40.68",
       "range_high": 48.08,
       "range_high_str": "48.08",
-      "range_pos_pct": 29.9,
+      "range_pos_pct": 29.6,
       "recommendation": "LONG \ud83d\udcc8 \u2014 33% CONFIDENCE (NO TREND \u2014 STAND ASIDE)",
       "rec_color": "amber-long",
-      "rec_summary": "Safe Entry: $61.6 | TP1: $75.2867 | TP2: $88.9733 | SL: $57.0378 \u2022 Metals Trend no trend (trend DOWN, backtest E[+0.44R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $41.43 \u2022 Macro BEARISH \u2022 Sent 53% Bear",
+      "rec_summary": "Safe Entry: $61.6 | TP1: $75.2867 | TP2: $88.9733 | SL: $57.0378 \u2022 Metals Trend no trend (trend DOWN, backtest E[+0.44R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $41.43 \u2022 Macro BEARISH \u2022 Sent 55% Bear",
       "trade_plan": {
         "side": "LONG",
         "entry_mode": "NO TREND \u2014 STAND ASIDE",
@@ -2432,7 +2432,7 @@
         "tp2_str": "88.9733",
         "leverage": 2,
         "margin_usd": 5.0,
-        "simple_why": "Metals Trend no trend (trend DOWN, backtest E[+0.44R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $41.43 \u2022 Macro BEARISH \u2022 Sent 53% Bear",
+        "simple_why": "Metals Trend no trend (trend DOWN, backtest E[+0.44R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $41.43 \u2022 Macro BEARISH \u2022 Sent 55% Bear",
         "meta_pred_r": 0.442,
         "archetype": "NO_TREND",
         "engine": "Metals Trend",
@@ -2462,11 +2462,11 @@
         "up_breakout_trigger": 44.31,
         "down_breakout_trigger": 42.07,
         "box_range_atr": 3.05,
-        "dist_to_up_breakout_pct": 3.31,
-        "dist_to_down_breakout_pct": 1.91,
+        "dist_to_up_breakout_pct": 3.36,
+        "dist_to_down_breakout_pct": 1.87,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Metals Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $61.6 (43.62% away)",
+        "closeup_status": "\ud83d\udc40 Metals Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $61.6 (43.69% away)",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "NO_TREND_STAND_ASIDE",
@@ -2486,21 +2486,21 @@
         "symbol": "XAGUSDT",
         "1d": {
           "trend": "BEARISH",
-          "rsi": 30.8,
-          "vs_ema20_pct": -8.37,
-          "last_bar_pct": -0.99
+          "rsi": 30.9,
+          "vs_ema20_pct": -8.25,
+          "last_bar_pct": -0.86
         },
         "1w": {
           "trend": "BEARISH",
-          "rsi": 29.0,
-          "vs_ema20_pct": -25.02,
-          "last_bar_pct": 0.92
+          "rsi": 29.1,
+          "vs_ema20_pct": -24.92,
+          "last_bar_pct": 1.06
         },
         "1M": {
           "trend": "BEARISH",
           "rsi": 45.9,
-          "vs_ema20_pct": -17.4,
-          "last_bar_pct": -13.5
+          "vs_ema20_pct": -17.33,
+          "last_bar_pct": -13.43
         },
         "1d_plan": {
           "side": "LONG",
@@ -2513,21 +2513,21 @@
         "summary": "1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH"
       },
       "market_intel": {
-        "funding_rate_pct": 0.0022,
+        "funding_rate_pct": 0.0027,
         "long_short_ratio": 1.0,
         "crowd_long_pct": 50.0,
         "fear_greed_value": 11,
         "fear_greed_label": "Extreme Fear",
         "total_posts_analyzed": 50,
         "bull_posts": 17,
-        "bear_posts": 19,
-        "directional_posts": 36,
-        "dominant_pct": 52.8,
-        "sentiment_z_score": -0.25,
-        "sentiment_p_value": 0.8026,
-        "confidence_pct": 19.7,
+        "bear_posts": 21,
+        "directional_posts": 38,
+        "dominant_pct": 55.3,
+        "sentiment_z_score": -0.57,
+        "sentiment_p_value": 0.5702,
+        "confidence_pct": 43.0,
         "is_statistically_significant": false,
-        "news_sentiment_score": -0.06,
+        "news_sentiment_score": -0.11,
         "news_bias_label": "NEUTRAL",
         "major_catalyst_detected": false,
         "top_headline": "[TV/dow-jones] Gold, Silver Futures Rebound as Markets Get Nvidia Boost \u2014 Market Talk",
@@ -2537,9 +2537,9 @@
           "[TV/dow-jones] Comex Silver Delivery Intentions Breakdown - Nov 23"
         ],
         "social_headlines": [
-          "[Social/News] Silver price today: FXStreet data indicate a rise in silver - www.tmgm.com",
-          "[Social/News] Silver price today: rises on November 23 - FXStreet",
-          "[Social/News] Gold vs Silver in 2026: Silver's 64% Drawdown Nearly Doubles Gold's 34% Decline - EBC Financial Group"
+          "[Social/News] Silver Price Forecast: Can XAG/USD sustain its recovery above $43 as the outlook stays cautious? - www.tmgm.com",
+          "[Social/News] October\u2019s Silver Slump Creates an Opportunity to Buy the Dip - ETF Database",
+          "[Social/News] Silver Price Forecast: Weak Chart Keeps Rallies Vulnerable to Selling - FXEmpire"
         ]
       },
       "sentiment_overlap": {
@@ -2550,17 +2550,17 @@
         "bias_side": "SHORT",
         "news_bias_label": "NEUTRAL",
         "total_posts": 50,
-        "directional_posts": 36,
+        "directional_posts": 38,
         "bull_posts": 17,
-        "bear_posts": 19,
-        "dominant_pct": 52.8,
-        "z_score": -0.25,
-        "p_value": 0.8026,
-        "confidence_pct": 19.7,
+        "bear_posts": 21,
+        "dominant_pct": 55.3,
+        "z_score": -0.57,
+        "p_value": 0.5702,
+        "confidence_pct": 43.0,
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 42.89,
+        "early_entry_price": 42.87,
         "trigger_entry_price": 42.02759,
         "stop_loss": 44.52206,
         "tp1_price": 39.03423,
@@ -2568,13 +2568,13 @@
         "recommended_leverage": 5,
         "overlap_factors": [
           "Holding near 4h structure [$42.07\u2013$44.31] before full expansion",
-          "Non-Exhausted RSI (49.7 >= 34) leaves room for downside breakdown",
+          "Non-Exhausted RSI (49.5 >= 34) leaves room for downside breakdown",
           "Aligned with Macro & Monthly Compass (1D: BEARISH \u2022 1W: BEARISH \u2022 1M: BEARISH)"
         ],
         "top_headlines": [
           "[TV/dow-jones] Gold, Silver Futures Rebound as Markets Get Nvidia Boost \u2014 Market Talk",
           "[TV/dow-jones] Mining Companies Climb on Rallies in Gold, Silver",
-          "[Social/News] Silver price today: FXStreet data indicate a rise in silver - www.tmgm.com"
+          "[Social/News] Silver Price Forecast: Can XAG/USD sustain its recovery above $43 as the outlook stays cautious? - www.tmgm.com"
         ]
       },
       "carbon_telemetry": {
@@ -2591,19 +2591,19 @@
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
         "delta_norm_pct": -1.2,
-        "delta_z": -0.16,
+        "delta_z": -0.17,
         "cvd_6_pct": 0.7,
-        "whale_print_ratio": 1.03,
+        "whale_print_ratio": 1.02,
         "vol_ratio": 1.36,
         "vol_regime": 1.11,
         "ker20": 0.28,
-        "vwap_anchor": 42.31136420376784,
-        "z_vwap": 0.68,
+        "vwap_anchor": 42.31110965414536,
+        "z_vwap": 0.66,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.46,
+        "btc_trend_score": -0.87,
+        "btc_residual_z": 0.44,
         "htf_trend_atr": -1.81,
-        "rsi14": 49.7,
+        "rsi14": 49.5,
         "atr14": 2.2811,
         "trend": "DOWN",
         "breakout_long_level": 61.6,
@@ -2616,7 +2616,7 @@
         "trail_atr": 3.0,
         "last_closed_bar": "2026-11-23",
         "sma200": 67.1831,
-        "dist_to_trap_pct": 43.62,
+        "dist_to_trap_pct": 43.69,
         "archetype": "NO_TREND"
       },
       "carbon_oos": {
@@ -2658,7 +2658,7 @@
         43.66,
         43.2,
         43.24,
-        42.89
+        42.87
       ]
     },
     "GOOGLUSDT": {
@@ -2672,16 +2672,16 @@
       "margin_per_trade_usd": 5.0,
       "est_sl_loss_usd": 0.75,
       "timeframe": "4h",
-      "price": 284.37,
-      "price_str": "284.37",
-      "rsi": 62.6,
+      "price": 284.29,
+      "price_str": "284.29",
+      "rsi": 62.5,
       "atr": 4.48,
       "atr_str": "4.482",
       "range_low": 262.16,
       "range_low_str": "262.16",
       "range_high": 296.34,
       "range_high_str": "296.34",
-      "range_pos_pct": 65.0,
+      "range_pos_pct": 64.7,
       "recommendation": "LONG \ud83d\udcc8 \u2014 34% CONFIDENCE (NO TREND \u2014 STAND ASIDE)",
       "rec_color": "amber-long",
       "rec_summary": "Safe Entry: $354.82 | TP1: $446.61 | TP2: $538.39 | SL: $324.22 \u2022 Equities Trend no trend (trend DOWN, backtest E[+0.53R]/trade) \u2022 No fixed TP: trail stop + exit on daily close (00:00 UTC) beyond $271.38 \u2022 Macro BEARISH \u2022 Sent 70% Bull",
@@ -2715,7 +2715,7 @@
         "impulse_atr_mult": 0.64,
         "req_impulse_atr": 1.4,
         "req_impulse_pct": 0.65,
-        "impulse_met": true,
+        "impulse_met": false,
         "flatline_range_atr": 2.21,
         "req_flatline_atr": 0.95,
         "body_decay": 0.47,
@@ -2730,11 +2730,11 @@
         "up_breakout_trigger": 285.5,
         "down_breakout_trigger": 275.89,
         "box_range_atr": 2.21,
-        "dist_to_up_breakout_pct": 0.4,
-        "dist_to_down_breakout_pct": 2.98,
+        "dist_to_up_breakout_pct": 0.43,
+        "dist_to_down_breakout_pct": 2.95,
         "prefer_side": "SHORT",
         "closeup_tf": "15m",
-        "closeup_status": "\ud83d\udc40 Equities Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $354.82 (24.77% away)",
+        "closeup_status": "\ud83d\udc40 Equities Trend NO_TREND: LONG if the daily close (00:00 UTC) is above $354.82 (24.81% away)",
         "pending_order_plan": {
           "side": "LONG",
           "order_type": "NO_TREND_STAND_ASIDE",
@@ -2828,7 +2828,7 @@
         "stage": "WATCH_STRUCTURE",
         "stage_label": "SENTIMENT SKEW BUILDING \u2014 WATCH EMA20 / BOX TRIGGER",
         "in_pre_move_box": false,
-        "early_entry_price": 284.37,
+        "early_entry_price": 284.29,
         "trigger_entry_price": 285.7241,
         "stop_loss": 274.7695,
         "tp1_price": 298.86962,
@@ -2836,7 +2836,7 @@
         "recommended_leverage": 6,
         "overlap_factors": [
           "Holding near 4h structure [$275.9\u2013$285.5] before full expansion",
-          "Non-Exhausted RSI (62.6) leaves full room for upside expansion (75% WR Bridge Zone)",
+          "Non-Exhausted RSI (62.5) leaves full room for upside expansion (75% WR Bridge Zone)",
           "Unwound/Short-heavy positioning (Funding +0.0000%) fuels short squeeze"
         ],
         "top_headlines": [
@@ -2858,20 +2858,20 @@
         "meta_threshold_r": 0.0,
         "kelly_risk_scale": 1.0,
         "has_true_orderflow": true,
-        "delta_norm_pct": -6.7,
-        "delta_z": 0.01,
+        "delta_norm_pct": -7.0,
+        "delta_z": -0.01,
         "cvd_6_pct": -4.2,
         "whale_print_ratio": 0.9,
         "vol_ratio": 0.6,
         "vol_regime": 1.06,
         "ker20": 0.47,
-        "vwap_anchor": 276.493761268688,
-        "z_vwap": 1.76,
+        "vwap_anchor": 276.4946011870395,
+        "z_vwap": 1.74,
         "funding_z": 0.0,
-        "btc_trend_score": -0.89,
-        "btc_residual_z": 0.94,
+        "btc_trend_score": -0.87,
+        "btc_residual_z": 0.92,
         "htf_trend_atr": -0.89,
-        "rsi14": 62.6,
+        "rsi14": 62.5,
         "atr14": 12.24,
         "trend": "DOWN",
         "breakout_long_level": 354.82,
@@ -2884,7 +2884,7 @@
         "trail_atr": 4.0,
         "last_closed_bar": "2026-11-23",
         "sma150": 347.26,
-        "dist_to_trap_pct": 24.77,
+        "dist_to_trap_pct": 24.81,
         "archetype": "NO_TREND"
       },
       "carbon_oos": {
@@ -2926,7 +2926,7 @@
         282.62,
         283.4,
         283.67,
-        284.37
+        284.29
       ]
     }
   },
