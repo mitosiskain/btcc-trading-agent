@@ -1,14 +1,14 @@
 {
   "account_balance_usd": 10063.69,
   "daily_realized_pnl_usd": 63.69,
-  "positions_version_ts": 1795632717.829,
+  "positions_version_ts": 1795643591.665,
   "open_positions": {
     "ETHUSDT": {
       "position_id": "manual-ethusdt-1795632693",
       "symbol": "ETHUSDT",
       "side": "SHORT",
       "entry_price": 1662.0,
-      "current_price": 1688.35,
+      "current_price": 1687.27,
       "stop_loss": 1723.34,
       "tp1_price": 1431.12,
       "tp2_price": 1182.14,
@@ -60,6 +60,35 @@
       "peak_favorable_price": 0.6185,
       "meta_pred_r": 0.0,
       "exit_alert_sent_reason": "STOP_LOSS_HIT"
+    },
+    "AVAXUSDT": {
+      "position_id": "manual-avaxusdt-1795643591",
+      "symbol": "AVAXUSDT",
+      "side": "SHORT",
+      "entry_price": 6.621,
+      "current_price": 6.622,
+      "stop_loss": 6.7608,
+      "tp1_price": 5.5457,
+      "tp2_price": 4.4694,
+      "leverage": 5,
+      "initial_margin_usd": 5.0,
+      "remaining_margin_usd": 5.0,
+      "notional_usd": 25.0,
+      "liq_price": 7.81278,
+      "opened_at": "2026-11-25T21:53:11.664910+00:00",
+      "bars_held": 0,
+      "tp1_hit": false,
+      "warning_sent": false,
+      "realized_partial_pnl_usd": 0.0,
+      "sentiment_decision": "MANUAL_BTCC_TRADE",
+      "sentiment_reasoning": "Reported via Telegram: /open avax short at 6.621",
+      "archetype": "KRYPTON_TREND_BREAKOUT",
+      "order_type": "MARKET_ON_CANDLE_CLOSE",
+      "partial_frac": 0.0,
+      "trail_atr_mult": 8.0,
+      "peak_favorable_price": 6.621,
+      "meta_pred_r": 0.0,
+      "exit_alert_sent_reason": ""
     }
   },
   "closed_trades": [
