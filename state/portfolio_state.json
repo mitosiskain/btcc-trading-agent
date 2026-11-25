@@ -1,14 +1,14 @@
 {
-  "account_balance_usd": 10063.69,
-  "daily_realized_pnl_usd": 63.69,
-  "positions_version_ts": 1795643591.665,
+  "account_balance_usd": 10061.84,
+  "daily_realized_pnl_usd": 61.84,
+  "positions_version_ts": 1795643667.259,
   "open_positions": {
     "ETHUSDT": {
       "position_id": "manual-ethusdt-1795632693",
       "symbol": "ETHUSDT",
       "side": "SHORT",
       "entry_price": 1662.0,
-      "current_price": 1687.27,
+      "current_price": 1686.41,
       "stop_loss": 1723.34,
       "tp1_price": 1431.12,
       "tp2_price": 1182.14,
@@ -32,41 +32,12 @@
       "meta_pred_r": 0.0,
       "exit_alert_sent_reason": ""
     },
-    "SUIUSDT": {
-      "position_id": "manual-suiusdt-1795632717",
-      "symbol": "SUIUSDT",
-      "side": "SHORT",
-      "entry_price": 0.6185,
-      "current_price": 0.66046,
-      "stop_loss": 0.66046,
-      "tp1_price": 0.49262000000000006,
-      "tp2_price": 0.36674000000000007,
-      "leverage": 5,
-      "initial_margin_usd": 5.0,
-      "remaining_margin_usd": 5.0,
-      "notional_usd": 25.0,
-      "liq_price": 0.72983,
-      "opened_at": "2026-11-25T18:51:57.828492+00:00",
-      "bars_held": 0,
-      "tp1_hit": false,
-      "warning_sent": false,
-      "realized_partial_pnl_usd": 0.0,
-      "sentiment_decision": "MANUAL_BTCC_TRADE",
-      "sentiment_reasoning": "Reported via Telegram: /open sui short at 0.6185",
-      "archetype": "KRYPTON_TREND_BREAKOUT",
-      "order_type": "MARKET_ON_CANDLE_CLOSE",
-      "partial_frac": 0.0,
-      "trail_atr_mult": 8.0,
-      "peak_favorable_price": 0.6185,
-      "meta_pred_r": 0.0,
-      "exit_alert_sent_reason": "STOP_LOSS_HIT"
-    },
     "AVAXUSDT": {
       "position_id": "manual-avaxusdt-1795643591",
       "symbol": "AVAXUSDT",
       "side": "SHORT",
       "entry_price": 6.621,
-      "current_price": 6.622,
+      "current_price": 6.617,
       "stop_loss": 6.7608,
       "tp1_price": 5.5457,
       "tp2_price": 4.4694,
@@ -86,7 +57,7 @@
       "order_type": "MARKET_ON_CANDLE_CLOSE",
       "partial_frac": 0.0,
       "trail_atr_mult": 8.0,
-      "peak_favorable_price": 6.621,
+      "peak_favorable_price": 6.617,
       "meta_pred_r": 0.0,
       "exit_alert_sent_reason": ""
     }
@@ -481,6 +452,21 @@
       "opened_at": "2026-11-18T20:20:09.739485+00:00",
       "closed_at": "2026-11-23T15:10:35.910961+00:00",
       "bars_held": 28
+    },
+    {
+      "position_id": "manual-suiusdt-1795632717",
+      "symbol": "SUIUSDT",
+      "side": "SHORT",
+      "leverage": 5,
+      "entry_price": 0.6185,
+      "exit_price": 0.664,
+      "initial_margin_usd": 5.0,
+      "net_pnl_usd": -1.85,
+      "roe_pct": -37.01,
+      "exit_reason": "MANUAL_CLOSE",
+      "opened_at": "2026-11-25T18:51:57.828492+00:00",
+      "closed_at": "2026-11-25T21:54:27.258730+00:00",
+      "bars_held": 0
     }
   ]
 }
