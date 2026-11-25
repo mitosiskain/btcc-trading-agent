@@ -1,10 +1,10 @@
 {
   "runner_id": "local",
-  "heartbeat_epoch": 1795632684.4,
+  "heartbeat_epoch": 1795632693.9,
   "timeframe": "4h",
   "poll_interval_sec": 15,
   "auto_scan_enabled": true,
-  "is_scanning": true,
+  "is_scanning": false,
   "last_scan_ts": "2026-11-25 18:51:24 UTC",
   "last_scan_duration_ms": 5566,
   "scan_count": 12813,
@@ -3114,7 +3114,39 @@
   "portfolio": {
     "account_balance_usd": 10063.69,
     "daily_realized_pnl_usd": 63.69,
-    "open_positions": [],
+    "open_positions": [
+      {
+        "position_id": "manual-ethusdt-1795632693",
+        "symbol": "ETHUSDT",
+        "side": "SHORT",
+        "entry_price": 1662.0,
+        "current_price": 1680.1,
+        "stop_loss": 1723.34,
+        "tp1_price": 1431.12,
+        "tp2_price": 1182.14,
+        "leverage": 5,
+        "initial_margin_usd": 5.0,
+        "remaining_margin_usd": 5.0,
+        "notional_usd": 25.0,
+        "liq_price": 1961.1599999999999,
+        "opened_at": "2026-11-25T18:51:33.775981+00:00",
+        "bars_held": 0,
+        "tp1_hit": false,
+        "warning_sent": false,
+        "realized_partial_pnl_usd": 0.0,
+        "sentiment_decision": "MANUAL_BTCC_TRADE",
+        "sentiment_reasoning": "Reported via Telegram: /open eth short at 1662",
+        "archetype": "KRYPTON_TREND_BREAKOUT",
+        "order_type": "MARKET_ON_CANDLE_CLOSE",
+        "partial_frac": 0.0,
+        "trail_atr_mult": 8.0,
+        "peak_favorable_price": 1662.0,
+        "meta_pred_r": 0.0,
+        "exit_alert_sent_reason": "",
+        "unrealized_pnl_usd": -0.27,
+        "unrealized_roe_pct": -5.45
+      }
+    ],
     "closed_trades": [
       {
         "position_id": "manual-ethusdt-1794149895",
