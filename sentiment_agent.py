@@ -35,6 +35,7 @@ TV_SYMBOL_MAP: Dict[str, str] = {
     "XAGUSDT": "TVC:SILVER",
     "NVDAUSDT": "NASDAQ:NVDA",
     "GOOGLUSDT": "NASDAQ:GOOGL",
+    "AAPLUSDT": "NASDAQ:AAPL",
     "SPACEXUSDT": "NASDAQ:SPCX",
     "PEPEUSDT": "BINANCE:PEPEUSDT",
     "WIFUSDT": "BINANCE:WIFUSDT",
@@ -57,6 +58,7 @@ SOCIAL_QUERY_MAP: Dict[str, str] = {
     "XAGUSDT": "(Silver price OR XAGUSD) (COMEX OR industrial demand OR safe haven OR Gold)",
     "NVDAUSDT": "(Nvidia OR NVDA) (AI chips OR Jensen Huang OR earnings OR Wall Street)",
     "GOOGLUSDT": "(Alphabet OR Google OR GOOGL) (AI OR Gemini OR cloud OR earnings OR Nasdaq)",
+    "AAPLUSDT": "(Apple OR AAPL) (iPhone OR AI OR Tim Cook OR earnings OR Nasdaq)",
     "SPACEXUSDT": "(SpaceX OR SPCX OR Starlink) (stock OR Starship OR launch OR Musk OR earnings OR Nasdaq)",
     "PEPEUSDT": "(Pepe coin OR $PEPE) (memecoin OR whale OR rally OR breakout)",
     "WIFUSDT": "(dogwifhat OR $WIF) (Solana memecoin OR whale OR breakout OR rally)",
@@ -188,7 +190,7 @@ class SentimentAnalystAgent:
 
         # 1. OKX Perp Funding Rate & Retail Long/Short Account Ratio (no geo-block)
         base_ccy = sym.replace("USDT", "")
-        if sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT", "GOOGLUSDT"):
+        if sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT", "GOOGLUSDT", "AAPLUSDT"):
             try:
                 r_fund = self.session.get(
                     "https://www.okx.com/api/v5/public/funding-rate",
@@ -692,7 +694,7 @@ Return ONLY valid JSON matching this exact structure:
         if deriv_ctx is None and cache_key in self._verdict_cache:
             return self._verdict_cache[cache_key]
 
-        is_crypto = sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT", "GOOGLUSDT")
+        is_crypto = sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT", "GOOGLUSDT", "AAPLUSDT")
 
         # ---- Deterministic Hard Safety Gates (always enforced before LLM / heuristic) ----
         if is_crypto and signal.trade_side == "SHORT" and ctx.fear_greed_value <= 25:

@@ -54,10 +54,12 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: 'gemini-2.5-flash'
-          # Live alpha engine: KRYPTON_V4 (trend + sentiment + CVD + Metals + Equities) | CARBON_V2 (previous engine)
-          ENGINE_VERSION: 'KRYPTON_V4'
+          # Live alpha engine: KRYPTON_V5 (Dual-Engine Donchian + V-Bottom Flip + CTA TSMOM + +2R Pyramid + Metals + Equities)
+          ENGINE_VERSION: 'KRYPTON_V5'
+          ACCOUNT_BALANCE_USD: '100.0'
           MARGIN_PER_TRADE_USD: '5.0'
           DEFAULT_LEVERAGE: '5'
+          COMPOUND_RISK_PCT: '2.0'
           INPUT_DURATION: ${{ github.event.inputs.duration_minutes }}
           INPUT_TIMEFRAME: ${{ github.event.inputs.timeframe }}
           INPUT_SUMMARY: ${{ github.event.inputs.send_summary }}

@@ -1,32 +1,30 @@
 """
-Krypton V4 — Sentiment- & Orderflow-Gated Volatility-Normalised Trend Engine for BTCC Perpetuals
-================================================================================================
+Krypton V5 — Dual-Engine Trend + CTA Multi-Speed TSMOM + Turtle Pyramiding Engine for BTCC Perpetuals
+=====================================================================================================
 
-Why Krypton V4 over V3?
------------------------
-Krypton V3 (20/10 Donchian + slow 50/200 EMA filter, no sentiment or orderflow gating) suffered two
-structural weaknesses on crypto perpetuals:
-1. A 50/200 EMA on 4h bars spans 8.3–33.3 days, so after a capitulation selloff it stayed locked in
-   SHORT-only mode for weeks even after prices bounced +12–16% above EMA(20)/EMA(50).
-2. With no capitulation/orderflow filter, V3 kept firing breakout shorts straight into Extreme Fear
-   bottoms (Crypto Fear & Greed <= 25) and negative-delta exhaustion traps.
+Why Krypton V5 over V4/V3?
+--------------------------
+Krypton V4 replaced V3's sluggish 50/200 EMA with a responsive 20/80 EMA + slope + 24h CVD orderflow
+confirmation + asymmetric causal Extreme Fear short gate (F&G <= 25 blocks fresh crypto shorts while
+never capping bull-run longs).
 
-Krypton V4 keeps the exact causal Donchian breakout + wide Chandelier trail / exit-channel core
-(preserving the fat right tails that carry trend expectancy) and adds three strictly causal,
-cross-timeframe-verified upgrades (validated on 2019-2025 development and 2025-12 -> 2026-11 OOS
-across both 4h and 1h):
-1. Responsive Trend Regime: 20/80 EMA on 4h (80/320 on 1h) + price on the right side of EMA-fast
-   + positive/negative EMA-fast slope, cutting trend-turn lag by 60%.
-2. Asymmetric Causal Sentiment Gate: blocks fresh crypto SHORT breakouts when Crypto Fear & Greed
-   is in Extreme Fear (<= 25) while never capping LONG breakouts in bull-run Greed.
-3. Orderflow Confirmation: requires 24h cumulative taker volume delta (CVD6 on 4h, CVD24 on 1h)
-   to agree with the breakout direction whenever 12-column orderflow data is available.
-4. Equal-1R Risk-Parity Sizing: recommends safe isolated margin + leverage on high-min-notional
-   assets (BTC, XAU, GOOGL) so liquidation never sits on top of the stop-loss.
+Krypton V5 upgrades V4 with four strictly causal, cross-timeframe-verified profit multipliers
+(validated on 2019-2025 development and 2025-12 -> 2026-11 OOS across both 4h and 1h, including 2x costs):
+1. V-Bottom Regime-Flip Entry: catches explosive post-capitulation rebounds where price reclaims the
+   20-bar channel before EMA20 crosses EMA80, then EMA20 flips bullish while price holds near highs.
+2. CTA Multi-Speed TSMOM Sub-Engine (Carver / AHL): volatility-normalized 8/32 + 16/64 + 32/128 EMA
+   risk-adjusted trend composite (+0.30 LONG / -0.55 SHORT cross, CVD & F&G gated) that enters strong
+   multi-day trends cleanly and boosts confluence score when aligned with Donchian breakouts.
+3. Causal Turtle Pyramiding (+2.0R -> +0.75R): adds a second 0.75R leg once an open winner reaches
+   +2.0R and simultaneously ratchets the stop to breakeven (+0.10R), compounding fat right-tail runners
+   without adding initial-entry whipsaw risk.
+4. Dynamic Equity Compounding (2.0% of live equity per 1R) & Delayed-Read Execution Guidance:
+   scales position size automatically as account equity grows while keeping liquidation safely distant,
+   and publishes exact Maker Limit / Safe Entry Zone / Max Chase Ceiling / Time Estimations on every alert.
 
-Everything is strictly causal: a signal on bar `i` uses data <= close[i]; the order fills at
-open[i+1] (with spread/slippage), and trailing-stop levels computed on bar `k`'s close are only
-active from bar `k+1`.
+Everything is strictly causal: a signal on bar `i` uses data <= close[i]; orders fill at open[i+1]
+(with spread/slippage), and trailing-stop / pyramid-breakeven levels computed on bar `k`'s close are
+only active from bar `k+1`.
 """
 
 from __future__ import annotations
@@ -47,8 +45,8 @@ TAKER_FEE = 0.00045
 # --------------------------------------------------------------------------------------
 @dataclass
 class KryptonParams:
-    # Defaults = Krypton V4 4h preset (20/10 Donchian breakout/exit + responsive 20/80 EMA + slope
-    # + 24h CVD orderflow confirmation + asymmetric Extreme-Fear short gate F&G > 25).
+    # Defaults = Krypton V5 4h preset (Dual-Engine: 20/10 Donchian + V-Bottom Flip + CTA Multi-Speed TSMOM
+    # + responsive 20/80 EMA + slope + 24h CVD confirmation + F&G > 25 short gate + +2.0R -> +0.75R Turtle Pyramid).
     timeframe: str = "4h"
     entry_lookback: int = 20          # Donchian breakout channel (bars)
     exit_lookback: int = 10           # Donchian exit channel (bars)
@@ -68,11 +66,18 @@ class KryptonParams:
     cvd_window: int = 6               # 24h CVD window (6 bars on 4h, 24 bars on 1h)
     btc_filter: bool = False          # alts: require BTC slow trend to agree (hurt in development -> off)
     min_stop_pct: float = 0.004       # stop must be >= 0.4% of price (>> ~0.15% round-trip friction)
+    # Krypton V5 Dual-Engine + Turtle Pyramiding parameters
+    enable_state_flip: bool = True    # catch V-bottom EMA20>EMA80 flips while holding within 0.5 ATR of Donchian high
+    enable_tsmom: bool = True         # CTA multi-speed volatility-normalized trend cross
+    tsmom_long_thr: float = 0.30      # LONG cross threshold on multi-speed TSMOM composite
+    tsmom_short_thr: float = -0.55    # stricter SHORT cross threshold (crypto rallies faster than sustained grinds down)
+    pyramid_trigger_r: float = 2.0    # add second leg once open winner reaches +2.0R
+    pyramid_add_scale: float = 0.75   # +0.75R second leg + move stop to breakeven (+0.10R)
 
     @classmethod
     def for_timeframe(cls, tf: str) -> "KryptonParams":
         if tf == "1h":
-            # Calendar-equivalent horizons (x4 bars) of the 4h Krypton V4 engine.
+            # Calendar-equivalent horizons (x4 bars) of the 4h Krypton V5 engine.
             return cls(
                 timeframe="1h",
                 entry_lookback=160,
@@ -87,6 +92,16 @@ class KryptonParams:
                 cvd_window=24,
             )
         return cls(timeframe=tf)
+
+    @classmethod
+    def v4_for_timeframe(cls, tf: str) -> "KryptonParams":
+        """Krypton V4 baseline (responsive 20/80 EMA + CVD + F&G > 25, without V5 TSMOM/Flip/Pyramiding)."""
+        base = cls.for_timeframe(tf)
+        base.enable_state_flip = False
+        base.enable_tsmom = False
+        base.pyramid_trigger_r = 0.0
+        base.pyramid_add_scale = 0.0
+        return base
 
     @classmethod
     def v3_for_timeframe(cls, tf: str) -> "KryptonParams":
@@ -106,6 +121,10 @@ class KryptonParams:
                 require_emaf_slope=False,
                 short_fng_min=None,
                 use_cvd_confirm=False,
+                enable_state_flip=False,
+                enable_tsmom=False,
+                pyramid_trigger_r=0.0,
+                pyramid_add_scale=0.0,
             )
         return cls(
             timeframe=tf,
@@ -115,6 +134,10 @@ class KryptonParams:
             require_emaf_slope=False,
             short_fng_min=None,
             use_cvd_confirm=False,
+            enable_state_flip=False,
+            enable_tsmom=False,
+            pyramid_trigger_r=0.0,
+            pyramid_add_scale=0.0,
         )
 
 
@@ -161,6 +184,19 @@ def compute_features(df: pd.DataFrame, p: KryptonParams, btc_df: Optional[pd.Dat
         "ema_f": ema_f, "ema_s": ema_s,
         "don_hi": don_hi, "don_lo": don_lo, "ex_hi": ex_hi, "ex_lo": ex_lo,
     }
+
+    # Strictly causal multi-speed CTA TSMOM (Carver / AHL volatility-normalized trend composite)
+    mult = 4 if p.timeframe == "1h" else 1
+    e8 = cs.ewm(span=8 * mult, adjust=False).mean().to_numpy()
+    e16 = cs.ewm(span=16 * mult, adjust=False).mean().to_numpy()
+    e32 = cs.ewm(span=32 * mult, adjust=False).mean().to_numpy()
+    e64 = cs.ewm(span=64 * mult, adjust=False).mean().to_numpy()
+    e128 = cs.ewm(span=128 * mult, adjust=False).mean().to_numpy()
+    feats["tsmom"] = (
+        0.35 * np.clip((e8 - e32) / np.maximum(2.0 * atr, 1e-12), -2.0, 2.0)
+        + 0.35 * np.clip((e16 - e64) / np.maximum(3.0 * atr, 1e-12), -2.0, 2.0)
+        + 0.30 * np.clip((e32 - e128) / np.maximum(4.5 * atr, 1e-12), -2.0, 2.0)
+    )
 
     # Strictly causal 24h cumulative taker volume delta (CVD) for orderflow breakout confirmation
     has_of_attr = df.attrs.get("has_true_orderflow", None)
@@ -214,7 +250,10 @@ def compute_features(df: pd.DataFrame, p: KryptonParams, btc_df: Optional[pd.Dat
 # --------------------------------------------------------------------------------------
 def _is_crypto_symbol(symbol: str) -> bool:
     su = symbol.upper()
-    return not any(k in su for k in ("XAU", "XAG", "PAXG", "GOLD", "SILVER", "GOOGL", "NVDA", "SPACEX", "SPCX", "TSLA"))
+    return not any(
+        k in su
+        for k in ("XAU", "XAG", "PAXG", "GOLD", "SILVER", "GOOGL", "NVDA", "AAPL", "SPACEX", "SPCX", "TSLA")
+    )
 
 
 def generate_signals(f: Dict[str, np.ndarray], symbol: str, p: KryptonParams,
@@ -225,6 +264,7 @@ def generate_signals(f: Dict[str, np.ndarray], symbol: str, p: KryptonParams,
     cvd = f.get("cvd")
     has_of = bool(f.get("has_true_orderflow", False))
     fng_arr = f.get("fng_causal")
+    tsmom = f.get("tsmom")
     n = len(c)
     slope_lag = max(1, int(p.slope_lookback))
     warm = max(p.ema_slow, p.entry_lookback + 1, p.atr_period * 3, slope_lag + 1)
@@ -233,52 +273,120 @@ def generate_signals(f: Dict[str, np.ndarray], symbol: str, p: KryptonParams,
     out: Dict[int, KryptonSignal] = {}
     is_btc = symbol.upper().startswith("BTC")
     is_crypto = _is_crypto_symbol(symbol)
+
+    def _trend_up(idx: int) -> bool:
+        if not p.use_trend_filter:
+            return True
+        if idx < slope_lag:
+            return False
+        return bool(
+            ef[idx] > es[idx]
+            and c[idx] > es[idx]
+            and (not p.require_price_vs_emaf or c[idx] > ef[idx])
+            and (not p.require_emaf_slope or ef[idx] > ef[idx - slope_lag])
+        )
+
+    def _trend_dn(idx: int) -> bool:
+        if not p.use_trend_filter:
+            return True
+        if idx < slope_lag:
+            return False
+        return bool(
+            ef[idx] < es[idx]
+            and c[idx] < es[idx]
+            and (not p.require_price_vs_emaf or c[idx] < ef[idx])
+            and (not p.require_emaf_slope or ef[idx] < ef[idx - slope_lag])
+        )
+
     for i in range(max(start_idx, warm), stop_i):
         dh, dl = f["don_hi"][i], f["don_lo"][i]
         if not (np.isfinite(dh) and np.isfinite(dl)):
             continue
         pdh, pdl = f["don_hi"][i - 1], f["don_lo"][i - 1]
         a = atr[i]
+        up_now = _trend_up(i)
+        dn_now = _trend_dn(i)
+        cvd_ok_long = (not p.use_cvd_confirm) or (not has_of) or (cvd is None) or (cvd[i] > 0.0)
+        cvd_ok_short = (not p.use_cvd_confirm) or (not has_of) or (cvd is None) or (cvd[i] < 0.0)
+        btc_ok_long = (not p.btc_filter) or is_btc or f["btc_trend"][i] > 0
+        btc_ok_short = (not p.btc_filter) or is_btc or f["btc_trend"][i] < 0
+
+        # Asymmetric causal sentiment gate: never fire fresh crypto shorts into Extreme Fear capitulation
+        fng_val = (
+            float(fng_arr[i])
+            if (fng_arr is not None and i < len(fng_arr) and np.isfinite(fng_arr[i]))
+            else (float(live_fng) if live_fng is not None else np.nan)
+        )
+        fng_ok_short = (
+            (not is_crypto)
+            or (p.short_fng_min is None)
+            or (not np.isfinite(fng_val))
+            or (fng_val > float(p.short_fng_min))
+        )
+
+        # Sub-engine 1: Classic Krypton Donchian Breakout
+        don_long = bool(c[i] > dh and c[i - 1] <= pdh and up_now and cvd_ok_long and btc_ok_long)
+        don_short = bool(
+            p.allow_shorts and c[i] < dl and c[i - 1] >= pdl and dn_now and cvd_ok_short and fng_ok_short and btc_ok_short
+        )
+
+        # Sub-engine 2: V-Bottom Regime Flip (EMA20 flips above EMA80 while holding near Donchian highs)
+        flip_long = bool(
+            p.enable_state_flip
+            and up_now
+            and (not _trend_up(i - 1))
+            and c[i] >= dh - 0.5 * a
+            and cvd_ok_long
+            and btc_ok_long
+        )
+
+        # Sub-engine 3: CTA Multi-Speed TSMOM Cross
+        ts_ok = bool(p.enable_tsmom and tsmom is not None and np.isfinite(tsmom[i]) and np.isfinite(tsmom[i - 1]))
+        ts_long = bool(
+            ts_ok
+            and tsmom[i] > p.tsmom_long_thr
+            and tsmom[i - 1] <= p.tsmom_long_thr
+            and cvd_ok_long
+            and btc_ok_long
+        )
+        ts_short = bool(
+            ts_ok
+            and p.allow_shorts
+            and tsmom[i] < p.tsmom_short_thr
+            and tsmom[i - 1] >= p.tsmom_short_thr
+            and cvd_ok_short
+            and fng_ok_short
+            and btc_ok_short
+        )
+
         side = ""
-        if c[i] > dh and c[i - 1] <= pdh:
-            trend_ok = (not p.use_trend_filter) or (
-                ef[i] > es[i]
-                and c[i] > es[i]
-                and (not p.require_price_vs_emaf or c[i] > ef[i])
-                and (not p.require_emaf_slope or ef[i] > ef[i - slope_lag])
-            )
-            cvd_ok = (not p.use_cvd_confirm) or (not has_of) or (cvd is None) or (cvd[i] > 0.0)
-            if trend_ok and cvd_ok:
-                if (not p.btc_filter) or is_btc or f["btc_trend"][i] > 0:
-                    side = "LONG"
-        elif p.allow_shorts and c[i] < dl and c[i - 1] >= pdl:
-            trend_ok = (not p.use_trend_filter) or (
-                ef[i] < es[i]
-                and c[i] < es[i]
-                and (not p.require_price_vs_emaf or c[i] < ef[i])
-                and (not p.require_emaf_slope or ef[i] < ef[i - slope_lag])
-            )
-            cvd_ok = (not p.use_cvd_confirm) or (not has_of) or (cvd is None) or (cvd[i] < 0.0)
-            # Asymmetric causal sentiment gate: never fire fresh crypto shorts into Extreme Fear capitulation
-            fng_val = (
-                float(fng_arr[i])
-                if (fng_arr is not None and i < len(fng_arr) and np.isfinite(fng_arr[i]))
-                else (float(live_fng) if live_fng is not None else np.nan)
-            )
-            fng_ok = (
-                (not is_crypto)
-                or (p.short_fng_min is None)
-                or (not np.isfinite(fng_val))
-                or (fng_val > float(p.short_fng_min))
-            )
-            if trend_ok and cvd_ok and fng_ok:
-                if (not p.btc_filter) or is_btc or f["btc_trend"][i] < 0:
-                    side = "SHORT"
+        archetype = "TREND_BREAKOUT"
+        if don_long or flip_long or ts_long:
+            side = "LONG"
+            if (don_long or flip_long) and ts_long:
+                archetype = "DUAL_ENGINE_CONFLUENCE"
+            elif don_long:
+                archetype = "TREND_BREAKOUT"
+            elif flip_long:
+                archetype = "V_BOTTOM_REGIME_FLIP"
+            else:
+                archetype = "CTA_TSMOM_TREND"
+        elif don_short or ts_short:
+            side = "SHORT"
+            if don_short and ts_short:
+                archetype = "DUAL_ENGINE_CONFLUENCE"
+            elif don_short:
+                archetype = "TREND_BREAKOUT"
+            else:
+                archetype = "CTA_TSMOM_TREND"
+
         if not side:
             continue
         stop = max(p.init_stop_atr * a, p.min_stop_pct * c[i])
-        score = ((c[i] - dh) if side == "LONG" else (dl - c[i])) / a
-        out[i] = KryptonSignal(symbol, i, str(f["ts_str"][i]), side, float(stop), float(score))
+        brk_score = max(0.0, ((c[i] - dh) if side == "LONG" else (dl - c[i])) / a)
+        ts_score = abs(float(tsmom[i])) if (tsmom is not None and np.isfinite(tsmom[i])) else 0.0
+        score = max(brk_score, ts_score) + (1.5 if archetype == "DUAL_ENGINE_CONFLUENCE" else 0.0)
+        out[i] = KryptonSignal(symbol, i, str(f["ts_str"][i]), side, float(stop), float(score), archetype=archetype)
     return out
 
 
@@ -451,6 +559,212 @@ def simulate_trade_fast(
     }
 
 
+def simulate_trade_v5(
+    f: Dict[str, np.ndarray],
+    symbol: str,
+    signal_idx: int,
+    side: str,
+    stop_dist: float,
+    max_hold_bars: int,
+    *,
+    trail_atr_mult: float = 8.0,
+    exit_channel: bool = True,
+    atr_override: Optional[np.ndarray] = None,
+    margin_usd: float = 100.0,
+    base_risk_usd: float = 25.0,
+    risk_scale: float = 1.0,
+    max_btcc_leverage: int = 100,
+    cost_mult: float = 1.0,
+    pyramid_trigger_r: float = 2.0,
+    pyramid_add_scale: float = 0.75,
+) -> Optional[Dict[str, Any]]:
+    """
+    Strictly causal Krypton V5 simulator with Turtle Pyramiding (+2.0R -> +0.75R):
+      * Leg 1 fills at open[signal_idx + 1] with identical friction/funding/liquidation rules as `simulate_trade_fast`.
+      * When bar `k` closes at >= +pyramid_trigger_r * R (evaluated strictly on close[k]), Leg 2 (+pyramid_add_scale
+        of Leg 1 margin at the same leverage) is queued to fill at open[k + 1] + spread + taker fee, and the shared
+        stop-loss ratchets to at least breakeven (entry1 +/- 0.10R) active from bar k + 1.
+      * If open[k + 1] gaps back past the stop, Leg 2 is NOT added. Both active legs accrue funding and are checked
+        for isolated liquidation before stop fills.
+    """
+    if pyramid_trigger_r <= 0.0 or pyramid_add_scale <= 0.0:
+        return simulate_trade_fast(
+            f, symbol, signal_idx, side, stop_dist, max_hold_bars,
+            trail_atr_mult=trail_atr_mult, exit_channel=exit_channel, atr_override=atr_override,
+            margin_usd=margin_usd, base_risk_usd=base_risk_usd, risk_scale=risk_scale,
+            max_btcc_leverage=max_btcc_leverage, cost_mult=cost_mult,
+        )
+
+    fee = TAKER_FEE * cost_mult
+    o, h, l, c = f["open"], f["high"], f["low"], f["close"]
+    atr = atr_override if atr_override is not None else f["atr"]
+    fr, fbar = f["funding_rate"], f["funding_bar"]
+    n = len(c)
+    entry_idx = signal_idx + 1
+    if entry_idx >= n or stop_dist <= 0:
+        return None
+    raw_open = float(o[entry_idx])
+    if raw_open <= 0:
+        return None
+    is_long = side == "LONG"
+    slip = (0.00020 if symbol in MAJOR_SYMBOLS else 0.00035) * cost_mult
+    entry1 = raw_open * (1.0 + slip) if is_long else raw_open * (1.0 - slip)
+    stop_pct = stop_dist / entry1
+    if stop_pct <= 0.0008:
+        return None
+
+    max_lev = min(100, max_btcc_leverage)
+    lev = max(3, min(max_lev, int(round((base_risk_usd * risk_scale) / max(margin_usd * stop_pct, 1e-9)))))
+    rem1 = margin_usd
+    sl = entry1 - stop_dist if is_long else entry1 + stop_dist
+    liq1 = entry1 * (1.0 - 0.90 / lev) if is_long else entry1 * (1.0 + 0.90 / lev)
+
+    # Optional Leg 2 state
+    pyr_pending = False
+    pyr_active = False
+    entry2 = 0.0
+    rem2 = 0.0
+    liq2 = 0.0
+    pyr_bar = -1
+    r2_bars_to_hit = -1
+
+    pnl = -(rem1 * lev * fee)
+    peak = h[entry_idx] if is_long else l[entry_idx]
+    exit_idx, exit_px, reason = entry_idx, entry1, "TIME_STOP"
+    last = min(n - 1, entry_idx + max_hold_bars - 1)
+    mfe_r = 0.0
+    sgn = 1.0 if is_long else -1.0
+
+    def _leg_close(rem_m: float, ent: float, px: float) -> float:
+        if rem_m <= 0:
+            return 0.0
+        ret = (px - ent) / ent if is_long else (ent - px) / ent
+        return max(-rem_m, rem_m * lev * ret) - rem_m * lev * fee
+
+    for k in range(entry_idx, last + 1):
+        op, hi, lo, cl = float(o[k]), float(h[k]), float(l[k]), float(c[k])
+        a = max(float(atr[k]), 1e-9)
+
+        # Execute queued Pyramid Leg 2 at open[k] (strictly causal after close[k-1] >= +2R)
+        if pyr_pending and not pyr_active:
+            pyr_pending = False
+            be_sl = entry1 + sgn * 0.10 * stop_dist
+            sl = max(sl, be_sl) if is_long else min(sl, be_sl)
+            cand_e2 = op * (1.0 + slip) if is_long else op * (1.0 - slip)
+            if (is_long and op > sl and cand_e2 > sl) or ((not is_long) and op < sl and cand_e2 < sl):
+                entry2 = cand_e2
+                rem2 = margin_usd * pyramid_add_scale
+                liq2 = entry2 * (1.0 - 0.90 / lev) if is_long else entry2 * (1.0 + 0.90 / lev)
+                pnl -= rem2 * lev * fee
+                pyr_active = True
+                pyr_bar = k
+
+        # Funding on open legs
+        if k > entry_idx and fbar[k]:
+            pnl += (-1.0 if is_long else 1.0) * rem1 * lev * float(fr[k])
+        if pyr_active and k > pyr_bar and fbar[k]:
+            pnl += (-1.0 if is_long else 1.0) * rem2 * lev * float(fr[k])
+
+        # Isolated liquidation checks (checked conservatively before stop-loss)
+        if pyr_active and ((is_long and lo <= liq2) or ((not is_long) and hi >= liq2)):
+            pnl -= rem2
+            rem2 = 0.0
+            pyr_active = False
+        if (is_long and lo <= liq1) or ((not is_long) and hi >= liq1):
+            pnl -= rem1
+            rem1 = 0.0
+            if pyr_active and rem2 > 0:
+                pnl += _leg_close(rem2, entry2, liq1)
+                rem2 = 0.0
+                pyr_active = False
+            exit_idx, exit_px, reason = k, liq1, "LIQUIDATED"
+            break
+
+        # Shared Stop-Loss / Trail / Breakeven Stop check
+        if (lo <= sl) if is_long else (hi >= sl):
+            tr_frac = (hi - lo) / max(cl, 1e-9)
+            sslip = slip + min(0.0008, 0.04 * tr_frac) * cost_mult
+            base_stop = min(op, sl) if is_long else max(op, sl)
+            fill = base_stop * (1.0 - sslip) if is_long else base_stop * (1.0 + sslip)
+            pnl += _leg_close(rem1, entry1, fill)
+            if pyr_active and rem2 > 0:
+                pnl += _leg_close(rem2, entry2, fill)
+                rem2 = 0.0
+                pyr_active = False
+            rem1 = 0.0
+            exit_idx, exit_px = k, fill
+            reason = "TRAIL_STOP" if ((fill > entry1) if is_long else (fill < entry1)) else "STOP_LOSS"
+            break
+
+        fav_r = ((hi - entry1) if is_long else (entry1 - lo)) / stop_dist
+        mfe_r = max(mfe_r, fav_r)
+        if r2_bars_to_hit < 0 and fav_r >= pyramid_trigger_r:
+            r2_bars_to_hit = k - entry_idx + 1
+
+        # Chandelier trail computed at close[k], active from k+1
+        if is_long:
+            peak = max(peak, hi)
+            sl = max(sl, peak - trail_atr_mult * a)
+        else:
+            peak = min(peak, lo)
+            sl = min(sl, peak + trail_atr_mult * a)
+
+        # Exit-channel close
+        if exit_channel and k > entry_idx:
+            if (is_long and cl < f["ex_lo"][k]) or ((not is_long) and cl > f["ex_hi"][k]):
+                fill = cl * (1.0 - slip) if is_long else cl * (1.0 + slip)
+                pnl += _leg_close(rem1, entry1, fill)
+                if pyr_active and rem2 > 0:
+                    pnl += _leg_close(rem2, entry2, fill)
+                    rem2 = 0.0
+                    pyr_active = False
+                rem1 = 0.0
+                exit_idx, exit_px, reason = k, fill, "CHANNEL_EXIT"
+                break
+
+        # Queue causal Pyramid Add for next bar's open once close[k] reaches +pyramid_trigger_r * R
+        if (not pyr_active) and (not pyr_pending) and k < last:
+            close_r = ((cl - entry1) if is_long else (entry1 - cl)) / stop_dist
+            if close_r >= pyramid_trigger_r:
+                pyr_pending = True
+
+        if k == last and rem1 > 0:
+            fill = cl * (1.0 - slip) if is_long else cl * (1.0 + slip)
+            pnl += _leg_close(rem1, entry1, fill)
+            if pyr_active and rem2 > 0:
+                pnl += _leg_close(rem2, entry2, fill)
+                rem2 = 0.0
+                pyr_active = False
+            rem1 = 0.0
+            exit_idx, exit_px, reason = k, fill, "TIME_STOP"
+            break
+
+    one_r = max(margin_usd * lev * stop_pct, 1.0)
+    return {
+        "symbol": symbol,
+        "side": side,
+        "leverage": lev,
+        "signal_idx": signal_idx,
+        "entry_idx": entry_idx,
+        "exit_idx": exit_idx,
+        "entry_time": str(f["ts_str"][entry_idx]),
+        "exit_time": str(f["ts_str"][exit_idx]),
+        "entry_ns": int(f["ts_ns"][entry_idx]),
+        "exit_ns": int(f["ts_ns"][exit_idx]),
+        "entry_price": round(entry1, 6),
+        "exit_price": round(float(exit_px), 6),
+        "net_pnl_usd": round(float(pnl), 4),
+        "roe_pct": round(float(pnl / margin_usd * 100.0), 3),
+        "net_r": round(float(pnl / one_r), 4),
+        "mfe_r": round(float(mfe_r), 3),
+        "risk_scale": round(float(risk_scale), 3),
+        "pyramided": bool(pyr_bar >= 0),
+        "r2_bars_to_hit": int(r2_bars_to_hit),
+        "exit_reason": reason,
+        "bars_held": exit_idx - entry_idx + 1,
+    }
+
+
 # --------------------------------------------------------------------------------------
 # Per-symbol runner and timestamp-based portfolio cap
 # --------------------------------------------------------------------------------------
@@ -460,13 +774,23 @@ def run_symbol(f: Dict[str, np.ndarray], symbol: str, p: KryptonParams, start_id
     sigs = generate_signals(f, symbol, p, start_idx=start_idx, end_idx=end_idx)
     trades: List[Dict[str, Any]] = []
     busy = -1
+    use_pyr = (p.pyramid_trigger_r > 0.0 and p.pyramid_add_scale > 0.0)
     for i in sorted(sigs):
         if i <= busy:
             continue
         s = sigs[i]
-        tr = simulate_trade_fast(f, symbol, i, s.side, s.stop_dist, p.max_hold_bars,
-                                 trail_atr_mult=p.trail_atr, max_btcc_leverage=max_btcc_leverage,
-                                 cost_mult=cost_mult)
+        if use_pyr:
+            tr = simulate_trade_v5(
+                f, symbol, i, s.side, s.stop_dist, p.max_hold_bars,
+                trail_atr_mult=p.trail_atr, max_btcc_leverage=max_btcc_leverage,
+                cost_mult=cost_mult,
+                pyramid_trigger_r=p.pyramid_trigger_r,
+                pyramid_add_scale=p.pyramid_add_scale,
+            )
+        else:
+            tr = simulate_trade_fast(f, symbol, i, s.side, s.stop_dist, p.max_hold_bars,
+                                     trail_atr_mult=p.trail_atr, max_btcc_leverage=max_btcc_leverage,
+                                     cost_mult=cost_mult)
         if tr is None:
             continue
         tr["archetype"] = s.archetype
@@ -555,15 +879,17 @@ class KryptonCandidateInfo:
 
 class KryptonLiveBridge:
     """
-    Drop-in replacement for `CarbonLiveBridge` (same public surface) that runs Krypton V4 live:
-      * `evaluate_symbol_live` -> active sentiment- & orderflow-confirmed trend breakout (ENTER NOW),
-        extreme-fear short pause, or breakout *watch* plan ("enter if the candle closes beyond X").
-      * `check_position_exit` -> Krypton exit management for tracked positions
-        (initial stop, chandelier trail ratchet, Donchian exit-channel close, time stop).
+    Drop-in replacement for `CarbonLiveBridge` (same public surface) that runs Krypton V5 live:
+      * `evaluate_symbol_live` -> active Dual-Engine signal (Donchian Breakout / V-Bottom Regime Flip /
+        CTA Multi-Speed TSMOM / Confluence), extreme-fear short pause, or breakout *watch* plan,
+        complete with Dynamic Equity Compounding sizing + delayed-read Price Ladder & Time Estimations.
+      * `check_position_exit` -> Krypton exit & scaling management for tracked positions
+        (initial stop, +2.0R Turtle Pyramid Add + breakeven SL, chandelier trail ratchet, Donchian
+        exit-channel close, time stop).
     """
 
-    engine_name = "KRYPTON_V4"
-    display_name = "Krypton V4"
+    engine_name = "KRYPTON_V5"
+    display_name = "Krypton V5"
 
     def __init__(self, risk_cfg: Any, state_dir: Optional[Any] = None):
         import json
@@ -601,7 +927,7 @@ class KryptonLiveBridge:
 
     def get_oos_asset_summary(self, symbol: str, timeframe: str) -> Dict[str, Any]:
         blk = self.oos_stats.get(self._tf_bucket(timeframe), {}) or {}
-        port = blk.get("krypton_v4_oos") or blk.get("krypton_v3_oos") or {}
+        port = blk.get("krypton_v5_oos") or blk.get("krypton_v4_oos") or blk.get("krypton_v3_oos") or {}
         sym = (blk.get("krypton_per_symbol") or {}).get(symbol.upper())
         has_asset_oos = bool(sym and int(sym.get("total_trades", 0)) > 0)
         base = {
@@ -640,53 +966,87 @@ class KryptonLiveBridge:
         side: str,
         entry_price: float,
         stop_dist_pct: float,
+        account_balance_usd: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
-        Risk-parity isolated-margin sizing that respects BTCC min-lot notionals WITHOUT forcing
-        near-liquidation leverage (e.g., BTC $76 min notional uses $16 @ 5x instead of $5 @ 16x,
-        keeping liquidation ~18% away instead of ~5.6% while transparently reporting true 1R risk).
+        Dynamic Equity Compounding + Equal-1R Risk-Parity isolated-margin sizing:
+        - Risks `compound_risk_pct` (default 2.0%) of live account equity per 1R trade (floored at base micro-risk
+          `base_margin * target_sl_margin_risk_pct / 100`), automatically compounding winners as equity grows.
+        - Respects BTCC min-lot notionals WITHOUT forcing near-liquidation leverage, keeping isolated liquidation
+          safely distant from the stop-loss, and pre-computes the +2.0R Turtle Pyramid add-on size (+0.75R).
         """
         from config import DEFAULT_ASSETS
 
         profile = DEFAULT_ASSETS.get(symbol.upper())
         asset_max = profile.max_btcc_leverage if profile else self.risk_cfg.max_leverage
         base_margin = max(1.0, float(self.risk_cfg.margin_per_trade_usd))
-        target_pct = float(getattr(self.risk_cfg, "target_sl_margin_risk_pct", 15.0))
-        target_risk_usd = max(0.05, base_margin * (target_pct / 100.0))
+        equity = (
+            float(account_balance_usd)
+            if (account_balance_usd is not None and float(account_balance_usd) > 0)
+            else float(getattr(self.risk_cfg, "total_account_balance_usd", 100.0))
+        )
+        base_target_pct = float(getattr(self.risk_cfg, "target_sl_margin_risk_pct", 15.0))
+        floor_risk_usd = max(0.05, base_margin * (base_target_pct / 100.0))
+        compound_pct = max(0.0, float(getattr(self.risk_cfg, "compound_risk_pct", 2.0)))
+        compound_risk_usd = equity * (compound_pct / 100.0) if compound_pct > 0 else 0.0
+        compound_mode = bool(compound_pct > 0 and compound_risk_usd >= floor_risk_usd)
+        target_risk_usd = max(floor_risk_usd, compound_risk_usd)
 
         # Keep liquidation well outside the stop-loss (~90%/lev vs stop_dist_pct)
-        liq_safe_max = max(1, int(math.floor(65.0 / max(stop_dist_pct, 0.15))))
+        sd_pct = max(stop_dist_pct, 0.15)
+        liq_safe_max = max(1, int(math.floor(65.0 / sd_pct)))
         max_allowed = max(1, min(self.risk_cfg.max_leverage, asset_max, liq_safe_max))
         safe_ceiling = max(1, min(self.risk_cfg.default_leverage, max_allowed))
         min_lev = min(self.risk_cfg.min_leverage, max_allowed)
 
-        # Ideal leverage on base_margin to hit target_sl_margin_risk_pct
-        raw_lev = int(round(target_pct / max(stop_dist_pct, 0.15)))
-        lev = max(min_lev, min(safe_ceiling, max(1, raw_lev)))
-        rec_margin = base_margin
-        min_notional = float(profile.min_notional_usd) if profile else 0.0
+        # Ideal notional to risk exact target_risk_usd (2% of equity) at stop_dist_pct
+        ideal_notional = target_risk_usd / (sd_pct / 100.0)
+        max_margin_usd = max(base_margin, equity * 0.25)
 
-        # If BTCC's minimum lot notional exceeds base_margin * safe_ceiling, raise margin rather than
-        # pushing leverage dangerously close to liquidation.
+        if ideal_notional <= base_margin * safe_ceiling:
+            rec_margin = base_margin
+            raw_lev = int(round(ideal_notional / base_margin))
+            lev = max(min_lev, min(safe_ceiling, max(1, raw_lev)))
+        else:
+            lev = safe_ceiling
+            rec_margin = min(max_margin_usd, ideal_notional / max(lev, 1))
+            rec_margin = float(int(round(rec_margin))) if rec_margin >= 10.0 else round(rec_margin, 2)
+            rec_margin = max(base_margin, rec_margin)
+
+        min_notional = float(profile.min_notional_usd) if profile else 0.0
+        hit_min_notional = False
         if min_notional > rec_margin * lev:
-            if min_notional <= base_margin * safe_ceiling:
-                lev = max(lev, int(math.ceil(min_notional / base_margin)))
+            hit_min_notional = True
+            if min_notional <= rec_margin * safe_ceiling:
+                lev = max(lev, int(math.ceil(min_notional / rec_margin)))
                 lev = min(lev, safe_ceiling)
             else:
                 lev = safe_ceiling
                 rec_margin = float(int(math.ceil(min_notional / max(lev, 1))))
 
         notional = rec_margin * lev
-        actual_sl_loss = notional * (stop_dist_pct / 100.0)
+        actual_sl_loss = notional * (sd_pct / 100.0)
         risk_mult = actual_sl_loss / target_risk_usd
         liq = entry_price * (1.0 - 0.90 / lev) if side == "LONG" else entry_price * (1.0 + 0.90 / lev)
-        liq_dist_pct = (90.0 / max(lev, 1))
+        liq_dist_pct = 90.0 / max(lev, 1)
+
+        # Pre-compute Turtle Pyramid (+2.0R -> +0.75R) second-leg size
+        pyr_scale = max(0.0, float(getattr(self.risk_cfg, "pyramid_add_scale", 0.75)))
+        pyr_margin = round(max(base_margin, rec_margin * pyr_scale), 2) if pyr_scale > 0 else 0.0
+        if pyr_scale > 0 and min_notional > pyr_margin * lev:
+            pyr_margin = float(int(math.ceil(min_notional / max(lev, 1))))
+        pyr_risk_usd = round(pyr_margin * lev * (sd_pct / 100.0), 2) if pyr_margin > 0 else 0.0
 
         sizing_note = ""
-        if rec_margin > base_margin + 0.01 or risk_mult >= 1.5:
+        if hit_min_notional and (rec_margin > base_margin + 0.01 or risk_mult >= 1.35):
             sizing_note = (
                 f"BTCC min lot (${min_notional:.0f}): use ${rec_margin:.0f} @ {lev}x "
                 f"(SL ~${actual_sl_loss:.2f} / {risk_mult:.1f}R • liq {liq_dist_pct:.0f}% away)"
+            )
+        elif compound_mode and rec_margin > base_margin + 0.01:
+            sizing_note = (
+                f"Dynamic {compound_pct:.1f}% equity risk (${equity:,.0f} bal): "
+                f"${rec_margin:.2f} @ {lev}x (SL ~${actual_sl_loss:.2f} = 1R • liq {liq_dist_pct:.0f}% away)"
             )
 
         return {
@@ -697,6 +1057,11 @@ class KryptonLiveBridge:
             "target_1r_usd": round(target_risk_usd, 2),
             "risk_multiple_of_1r": round(risk_mult, 2),
             "liq_dist_pct": round(liq_dist_pct, 1),
+            "equity_usd": round(equity, 2),
+            "compound_risk_pct": round(compound_pct, 2),
+            "compound_mode": compound_mode,
+            "pyramid_add_margin_usd": round(pyr_margin, 2),
+            "pyramid_add_risk_usd": round(pyr_risk_usd, 2),
             "sizing_note": sizing_note,
         }
 
@@ -704,6 +1069,250 @@ class KryptonLiveBridge:
         """Backwards-compatible wrapper returning (leverage, liq_price) from risk-parity sizing."""
         sz = self.compute_position_sizing(symbol, side, entry_price, stop_dist_pct)
         return int(sz["leverage"]), float(sz["liq_price"])
+
+    def build_price_and_time_guidance(
+        self,
+        *,
+        side: str,
+        signal_price: float,
+        live_price: float,
+        stop_loss: float,
+        atr: float,
+        timeframe: str,
+        prec: int,
+        is_active: bool,
+        is_daily: bool = False,
+        bars_ago: Optional[int] = None,
+        max_age_bars: int = 2,
+        now_utc: Optional[pd.Timestamp] = None,
+    ) -> Dict[str, Any]:
+        """
+        Delayed-read-friendly Price Suggestions Ladder & Time Estimations:
+        Gives the trader exact Maker Limit, Safe Entry Zone, Max Chase Ceiling (+0.50R),
+        Pyramid Add (+2.0R) + Breakeven Stop, exact candle/daily close countdown, entry validity
+        window, ATR-based watch trigger ETA, and empirical 2019-2026 Krypton V5 hold-time windows.
+        """
+        now = now_utc or pd.Timestamp.now(tz="UTC")
+        is_long = str(side).upper() == "LONG"
+        sgn = 1.0 if is_long else -1.0
+        r = max(abs(signal_price - stop_loss), signal_price * 0.002)
+
+        # ---- 1. Price Suggestions Ladder ----
+        max_chase = round(signal_price + sgn * 0.50 * r, prec)
+        pullback_bound = signal_price - sgn * 0.25 * r
+        sl_floor = stop_loss + sgn * 0.35 * r
+        inner_bound = max(pullback_bound, sl_floor) if is_long else min(pullback_bound, sl_floor)
+        safe_low = round(min(inner_bound, max_chase), prec)
+        safe_high = round(max(inner_bound, max_chase), prec)
+
+        if is_active:
+            retest_anchor = signal_price - sgn * 0.05 * r
+            sl_maker_floor = stop_loss + sgn * 0.45 * r
+            if is_long:
+                ideal_maker = min(live_price * 0.9995, max(retest_anchor, sl_maker_floor))
+            else:
+                ideal_maker = max(live_price * 1.0005, min(retest_anchor, sl_maker_floor))
+        else:
+            ideal_maker = signal_price * (0.9995 if is_long else 1.0005)
+        ideal_maker = round(ideal_maker, prec)
+
+        pyr_r = float(getattr(self.risk_cfg, "pyramid_trigger_r", 2.0))
+        pyr_price = round(signal_price + sgn * pyr_r * r, prec)
+        pyr_be_stop = round(signal_price + sgn * 0.10 * r, prec)
+
+        # Current status relative to ladder
+        run_r = ((live_price - signal_price) if is_long else (signal_price - live_price)) / max(r, 1e-12)
+        if not is_active:
+            entry_status = "WAITING_FOR_CLOSE_TRIGGER"
+        elif run_r <= 0.10:
+            entry_status = "NEAR_IDEAL_MAKER"
+        elif run_r <= 0.35:
+            entry_status = "IN_SAFE_ZONE"
+        else:
+            entry_status = "NEAR_CHASE_LIMIT"
+
+        # ---- 2. Next Candle / Daily Close Countdown ----
+        if is_daily:
+            dow = int(now.dayofweek)
+            today_floor = now.floor("D")
+            if dow < 5:  # Mon..Fri -> today's weekday bar closes at next 00:00 UTC
+                next_close = today_floor + pd.Timedelta(days=1)
+            elif dow == 5:  # Sat -> Monday bar closes Tue 00:00 UTC
+                next_close = today_floor + pd.Timedelta(days=3)
+            else:  # Sun -> Monday bar closes Tue 00:00 UTC
+                next_close = today_floor + pd.Timedelta(days=2)
+            rem_secs = max(60, int((next_close - now).total_seconds()))
+        else:
+            secs = _TF_SECONDS.get(timeframe, 14400)
+            epoch = int(now.timestamp())
+            rem_secs = secs - (epoch % secs)
+            next_close = pd.Timestamp(epoch + rem_secs, unit="s", tz="UTC")
+
+        def _fmt_dur(total_s: int) -> str:
+            mins = max(1, int(round(total_s / 60.0)))
+            days, rem_m = divmod(mins, 1440)
+            hrs, rem_m = divmod(rem_m, 60)
+            if days > 0:
+                return f"{days}d {hrs}h"
+            if hrs > 0:
+                return f"{hrs}h {rem_m}m"
+            return f"{rem_m}m"
+
+        next_close_eta_str = _fmt_dur(rem_secs)
+        next_close_utc_str = next_close.strftime("%Y-%m-%d %H:%M UTC") if is_daily else next_close.strftime("%H:%M UTC")
+
+        # ---- 3. Entry Validity Window (for delayed Telegram reads) ----
+        age = int(bars_ago or 0)
+        rem_bars = max(1, max_age_bars - age + 1)
+        if is_daily:
+            valid_hrs = min(48, rem_bars * 24)
+        else:
+            bar_hrs = max(1.0, _TF_SECONDS.get(timeframe, 14400) / 3600.0)
+            valid_hrs = int(max(2, round(rem_bars * bar_hrs)))
+        valid_until = now + pd.Timedelta(hours=valid_hrs)
+        if valid_hrs >= 36:
+            entry_valid_str = f"~{valid_hrs}h (until {valid_until.strftime('%b %d %H:%M UTC')})"
+        else:
+            entry_valid_str = f"~{valid_hrs}h (until {valid_until.strftime('%H:%M UTC')})"
+
+        # ---- 4. ATR-based Trigger ETA (for Watch cards) ----
+        dist = abs(signal_price - live_price)
+        atr_safe = max(float(atr), live_price * 0.002)
+        bars_dist = dist / atr_safe
+        if is_active:
+            trigger_eta_str = f"ACTIVE NOW — valid {entry_valid_str} if price stays inside safe zone"
+        elif is_daily:
+            if bars_dist <= 0.45:
+                trigger_eta_str = f"Near trigger — check 00:00 UTC close (in {next_close_eta_str})"
+            else:
+                d_lo = max(1, int(round(bars_dist * 0.75)))
+                d_hi = max(d_lo + 1, int(round(max(bars_dist * 1.85, d_lo + 2))))
+                if d_hi <= 15:
+                    trigger_eta_str = f"~{d_lo}–{d_hi} trading days (at current volatility)"
+                else:
+                    trigger_eta_str = f"~{max(2, d_lo // 5)}–{max(3, (d_hi + 4) // 5)} weeks away"
+        else:
+            bar_hrs = max(1.0, _TF_SECONDS.get(timeframe, 14400) / 3600.0)
+            if bars_dist <= 0.50:
+                trigger_eta_str = f"Near trigger — watch next close in {next_close_eta_str} ({next_close_utc_str})"
+            else:
+                h_lo = max(int(bar_hrs), int(round(bars_dist * bar_hrs * 0.8)))
+                h_hi = max(h_lo + int(bar_hrs), int(round(bars_dist * bar_hrs * 2.2)))
+                if h_hi < 48:
+                    trigger_eta_str = f"~{h_lo}h–{h_hi}h (next close in {next_close_eta_str})"
+                else:
+                    trigger_eta_str = f"~{h_lo / 24.0:.1f}–{h_hi / 24.0:.1f} days (next close in {next_close_eta_str})"
+
+        # ---- 5. Empirical Hold & Milestone Windows (2019-2026 Krypton V5 / Metals / Equities medians) ----
+        if is_daily:
+            expected_pyr_eta = "~2–4 weeks to +2R"
+            expected_winner_hold = "~4–12 weeks (multi-week trend)"
+            expected_stop_win = "~1–3 weeks if invalidated"
+        elif self._tf_bucket(timeframe) == "1h":
+            expected_pyr_eta = "~24h–40h (median ~30h to +2R)"
+            expected_winner_hold = "~6–11 days (median ~9d)"
+            expected_stop_win = "~1–2 days (median ~35h)"
+        else:
+            expected_pyr_eta = "~36h–56h (median ~44h to +2R)"
+            expected_winner_hold = "~5–9 days (median ~6.5d)"
+            expected_stop_win = "~1.5–2.5 days (median ~48h)"
+
+        return {
+            "signal_price": round(signal_price, prec),
+            "ideal_maker_entry": ideal_maker,
+            "safe_entry_low": safe_low,
+            "safe_entry_high": safe_high,
+            "max_chase_price": max_chase,
+            "pyramid_trigger_r": pyr_r,
+            "pyramid_add_price": pyr_price,
+            "pyramid_be_stop": pyr_be_stop,
+            "entry_status_now": entry_status,
+            "next_close_utc": next_close_utc_str,
+            "next_close_eta_str": next_close_eta_str,
+            "entry_valid_until_utc": valid_until.strftime("%Y-%m-%d %H:%M UTC"),
+            "entry_valid_window_str": entry_valid_str,
+            "trigger_eta_str": trigger_eta_str,
+            "expected_pyramid_eta_str": expected_pyr_eta,
+            "expected_hold_winner_str": expected_winner_hold,
+            "expected_stop_window_str": expected_stop_win,
+        }
+
+    def _check_pyramid_add(
+        self,
+        pos: Any,
+        live: float,
+        prec: int,
+    ) -> Optional[Any]:
+        """
+        Shared +2.0R Turtle Pyramid check (inherited by Krypton V5, Metals Trend, and Equities Trend).
+        When an open winner reaches +pyramid_trigger_r * initial_1R and hasn't been pyramided yet:
+          1. Ratchets `pos.stop_loss` to at least breakeven (`entry +/- 0.10R`).
+          2. Returns an `ExitAlertSignal(reason="PYRAMID_ADD_2R", urgency="PYRAMID_ADD", ...)` with
+             exact Maker Add limit, Max Chase ceiling, +0.75R add margin, and breakeven SL.
+        """
+        from detector import ExitAlertSignal
+        from config import DEFAULT_ASSETS
+
+        pyr_r = float(getattr(self.risk_cfg, "pyramid_trigger_r", 2.0))
+        pyr_scale = float(getattr(self.risk_cfg, "pyramid_add_scale", 0.75))
+        if pyr_r <= 0.0 or pyr_scale <= 0.0 or bool(getattr(pos, "pyramid_added", False)):
+            return None
+
+        is_long = str(pos.side).upper() == "LONG"
+        sgn = 1.0 if is_long else -1.0
+        entry = float(pos.entry_price)
+        sl = float(pos.stop_loss)
+        lev = int(pos.leverage)
+        margin = float(pos.remaining_margin_usd)
+
+        init_risk = float(getattr(pos, "initial_risk_dist", 0.0) or 0.0)
+        if init_risk <= 0.0:
+            if is_long and sl < entry:
+                init_risk = entry - sl
+            elif (not is_long) and sl > entry:
+                init_risk = sl - entry
+            else:
+                init_risk = entry * 0.04  # conservative fallback for legacy positions with trailed SL
+
+        mv = (live - entry) if is_long else (entry - live)
+        r_mult = mv / max(init_risk, 1e-12)
+        if r_mult < pyr_r:
+            return None
+
+        be_sl = round(entry + sgn * 0.10 * init_risk, prec)
+        new_sl = max(sl, be_sl) if is_long else min(sl, be_sl)
+        if abs(new_sl - sl) > 0:
+            pos.stop_loss = round(new_sl, prec)
+
+        profile = DEFAULT_ASSETS.get(str(pos.symbol).upper())
+        min_notional = float(profile.min_notional_usd) if profile else 0.0
+        base_margin = max(1.0, float(self.risk_cfg.margin_per_trade_usd))
+        add_margin = round(max(base_margin, margin * pyr_scale), 2)
+        if min_notional > add_margin * max(lev, 1):
+            add_margin = float(int(math.ceil(min_notional / max(lev, 1))))
+
+        maker_add = round(live * (0.9995 if is_long else 1.0005), prec)
+        max_add_chase = round(entry + sgn * (pyr_r + 0.50) * init_risk, prec)
+        roe = mv / max(entry, 1e-12) * 100.0 * lev
+
+        return ExitAlertSignal(
+            symbol=pos.symbol,
+            position_side=pos.side,
+            reason="PYRAMID_ADD_2R",
+            urgency="PYRAMID_ADD",
+            entry_price=entry,
+            current_price=round(live, prec),
+            unrealized_pnl_pct_on_margin=round(roe, 2),
+            unrealized_pnl_usd=round(margin * roe / 100.0, 2),
+            r_multiple=round(r_mult, 2),
+            explanation=(
+                f"Winner reached +{r_mult:.2f}R! Turtle Pyramid rule: "
+                f"(1) Move existing Stop-Loss to breakeven {new_sl:.{prec}f} (+0.1R). "
+                f"(2) Add second {pos.side} leg of ${add_margin:.2f} @ {lev}x "
+                f"(Ideal Maker limit {maker_add:.{prec}f}, do NOT chase past {max_add_chase:.{prec}f}) "
+                f"with shared SL at {new_sl:.{prec}f}."
+            ),
+        )
 
     @staticmethod
     def _orderflow_telemetry(df: pd.DataFrame, btc_df: Optional[pd.DataFrame]) -> Dict[str, float]:
@@ -743,6 +1352,7 @@ class KryptonLiveBridge:
         timeframe: str = "4h",
         fear_greed_value: Optional[float] = None,
         market_intel: Optional[Dict[str, Any]] = None,
+        account_balance_usd: Optional[float] = None,
     ) -> KryptonLiveScanResult:
         from detector import ReversalSetupSignal
 
@@ -798,7 +1408,11 @@ class KryptonLiveBridge:
             atr_fb = float((df["high"] - df["low"]).tail(20).mean()) if len(df) else live_price * 0.02
             tel.update({"archetype": "INSUFFICIENT_HISTORY", "trend": "NONE", "atr14": round(atr_fb, prec), "dist_to_trap_pct": 99.0})
             sl = live_price - 2.0 * atr_fb
-            plan = self._plan("LONG", live_price, sl, live_price, prec, symbol, order_type="NO_TRADE_INSUFFICIENT_HISTORY", expected_r=0.0)
+            plan = self._plan(
+                "LONG", live_price, sl, live_price, prec, symbol,
+                order_type="NO_TRADE_INSUFFICIENT_HISTORY", expected_r=0.0,
+                account_balance_usd=account_balance_usd,
+            )
             return KryptonLiveScanResult(symbol, timeframe, None, None, None, plan, tel, oos)
 
         f = compute_features(dfc, p, btc_df=bdfc)
@@ -808,6 +1422,7 @@ class KryptonLiveBridge:
         c, h, l = f["close"], f["high"], f["low"]
         ef, es = f["ema_f"], f["ema_s"]
         cvd_now = float(f["cvd"][last]) if "cvd" in f else 0.0
+        tsmom_now = float(f["tsmom"][last]) if "tsmom" in f and np.isfinite(f["tsmom"][last]) else 0.0
         trend_up = bool(
             ef[last] > es[last]
             and c[last] > es[last]
@@ -831,6 +1446,7 @@ class KryptonLiveBridge:
                 "ema_fast": round(float(ef[last]), prec),
                 "ema_slow": round(float(es[last]), prec),
                 "cvd_window_pct": round(cvd_now * 100.0, 1),
+                "tsmom_now": round(tsmom_now, 3),
                 "breakout_long_level": round(brk_hi, prec),
                 "breakout_short_level": round(brk_lo, prec),
                 "exit_channel_long": round(ex_lo_next, prec),
@@ -843,8 +1459,8 @@ class KryptonLiveBridge:
             }
         )
 
-        # ---- 1. Active signal: fresh breakout within the last few closed bars that is still alive
-        # Never synthesize live 24/7 perpetual breakout entries from gappy Yahoo fallback feeds or unvalidated symbols.
+        # ---- 1. Active signal: fresh V5 breakout / V-bottom flip / CTA TSMOM within the last few closed bars
+        # Never synthesize live 24/7 perpetual entries from gappy Yahoo fallback feeds or unvalidated symbols.
         max_age = 2 if self._tf_bucket(timeframe) == "4h" else 3
         sigs = (
             generate_signals(f, symbol, p, start_idx=max(0, n - 1 - max_age), live_fng=fng_live)
@@ -853,6 +1469,8 @@ class KryptonLiveBridge:
         )
         active_sig, bars_ago, cand_info = None, None, None
         active_sizing: Optional[Dict[str, Any]] = None
+        active_guidance: Optional[Dict[str, Any]] = None
+        active_archetype: str = "TREND_BREAKOUT"
         for i in sorted(sigs, reverse=True):
             s = sigs[i]
             age = last - i
@@ -879,15 +1497,31 @@ class KryptonLiveBridge:
             if run > 0.5 * r or room < 0.3 * r:
                 continue
             stop_pct = abs(live_price - trail) / live_price * 100.0
-            active_sizing = self.compute_position_sizing(symbol, s.side, live_price, stop_pct)
+            active_sizing = self.compute_position_sizing(
+                symbol, s.side, live_price, stop_pct, account_balance_usd=account_balance_usd
+            )
+            active_guidance = self.build_price_and_time_guidance(
+                side=s.side,
+                signal_price=float(c[i]),
+                live_price=live_price,
+                stop_loss=float(trail),
+                atr=atr_now,
+                timeframe=timeframe,
+                prec=prec,
+                is_active=True,
+                is_daily=False,
+                bars_ago=age,
+                max_age_bars=max_age,
+            )
             lev, liq = int(active_sizing["leverage"]), float(active_sizing["liq_price"])
             m1 = live_price + 3.0 * r if is_long else live_price - 3.0 * r
             m2 = live_price + 6.0 * r if is_long else live_price - 6.0 * r
+            active_archetype = s.archetype
             active_sig = ReversalSetupSignal(
                 symbol=symbol,
                 timeframe=timeframe,
                 timestamp=s.timestamp,
-                impulse_direction=f"KRYPTON_V4_TREND_BREAKOUT_{'UP' if is_long else 'DOWN'}",
+                impulse_direction=f"KRYPTON_V5_{s.archetype}_{'UP' if is_long else 'DOWN'}",
                 trade_side=s.side,
                 entry_price=round(live_price, prec),
                 stop_loss=round(trail, prec),
@@ -907,12 +1541,16 @@ class KryptonLiveBridge:
                 estimated_liq_price=round(liq, prec),
             )
             bars_ago = age
-            cand_info = KryptonCandidateInfo(trail_atr_mult=p.trail_atr, meta_pred_r=tel["meta_pred_r"],
-                                             meta_win_prob=tel["meta_win_prob_pct"] / 100.0)
+            cand_info = KryptonCandidateInfo(
+                archetype=s.archetype,
+                trail_atr_mult=p.trail_atr,
+                meta_pred_r=tel["meta_pred_r"],
+                meta_win_prob=tel["meta_win_prob_pct"] / 100.0,
+            )
             break
 
         # ---- 2. Watch plan: where the next breakout entry would trigger (on candle close)
-        if trend_up:
+        if trend_up or (tsmom_now >= 0.15 and not trend_dn):
             w_side, trig = "LONG", brk_hi
             order_type = "ENTER_ON_CLOSE_BEYOND_LEVEL"
             watch_arch = "BREAKOUT_WATCH"
@@ -933,34 +1571,88 @@ class KryptonLiveBridge:
 
         w_sl = trig - p.init_stop_atr * atr_now if w_side == "LONG" else trig + p.init_stop_atr * atr_now
         w_sl = min(w_sl, trig * (1 - p.min_stop_pct)) if w_side == "LONG" else max(w_sl, trig * (1 + p.min_stop_pct))
-        plan = self._plan(w_side, trig, w_sl, live_price, prec, symbol, order_type=order_type, expected_r=tel["meta_pred_r"],
-                          exit_channel=ex_lo_next if w_side == "LONG" else ex_hi_next)
+        watch_guidance = self.build_price_and_time_guidance(
+            side=w_side,
+            signal_price=trig,
+            live_price=live_price,
+            stop_loss=w_sl,
+            atr=atr_now,
+            timeframe=timeframe,
+            prec=prec,
+            is_active=False,
+            is_daily=False,
+            max_age_bars=max_age,
+        )
+        plan = self._plan(
+            w_side, trig, w_sl, live_price, prec, symbol,
+            order_type=order_type, expected_r=tel["meta_pred_r"],
+            exit_channel=ex_lo_next if w_side == "LONG" else ex_hi_next,
+            account_balance_usd=account_balance_usd,
+            guidance=watch_guidance,
+        )
         tel["dist_to_trap_pct"] = round(abs(live_price - trig) / live_price * 100.0, 2)
+        tel["watch_guidance"] = watch_guidance
         if active_sig is not None:
-            tel["archetype"] = "TREND_BREAKOUT"
+            tel["archetype"] = active_archetype
+            tel["signal_archetype"] = active_archetype
             tel["active_stop"] = active_sig.stop_loss
             if active_sizing is not None:
                 tel["active_sizing"] = active_sizing
+            if active_guidance is not None:
+                tel["active_guidance"] = active_guidance
             tel["exit_rule"] = (f"Close if a {timeframe} candle closes {'below' if active_sig.trade_side == 'LONG' else 'above'} "
                                 f"{(ex_lo_next if active_sig.trade_side == 'LONG' else ex_hi_next):.{prec}f}")
         else:
             tel["archetype"] = watch_arch
         return KryptonLiveScanResult(symbol, timeframe, active_sig, bars_ago, cand_info, plan, tel, oos)
 
-    def _plan(self, side: str, entry: float, sl: float, live_price: float, prec: int, symbol: str, *, order_type: str,
-              expected_r: float, exit_channel: Optional[float] = None) -> Dict[str, Any]:
+    def _plan(
+        self,
+        side: str,
+        entry: float,
+        sl: float,
+        live_price: float,
+        prec: int,
+        symbol: str,
+        *,
+        order_type: str,
+        expected_r: float,
+        exit_channel: Optional[float] = None,
+        account_balance_usd: Optional[float] = None,
+        guidance: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         r = abs(entry - sl) or entry * 0.01
         stop_pct = r / max(entry, 1e-12) * 100.0
-        sz = self.compute_position_sizing(symbol, side, entry, stop_pct)
+        sz = self.compute_position_sizing(
+            symbol, side, entry, stop_pct, account_balance_usd=account_balance_usd
+        )
         lev, liq = int(sz["leverage"]), float(sz["liq_price"])
         sgn = 1.0 if side == "LONG" else -1.0
-        maker_px = entry * (1.0 - 0.0005) if side == "LONG" else entry * (1.0 + 0.0005)
+        maker_px = (
+            guidance["ideal_maker_entry"]
+            if (guidance and "ideal_maker_entry" in guidance)
+            else round(entry * (1.0 - 0.0005) if side == "LONG" else entry * (1.0 + 0.0005), prec)
+        )
+        g = guidance or {}
         return {
             "side": side,
             "order_type": order_type,
             "trigger_entry_price": round(entry, prec),
             "limit_entry_price": round(entry, prec),
-            "maker_limit_price": round(maker_px, prec),
+            "maker_limit_price": maker_px,
+            "safe_entry_low": g.get("safe_entry_low"),
+            "safe_entry_high": g.get("safe_entry_high"),
+            "max_chase_price": g.get("max_chase_price", round(entry + sgn * 0.50 * r, prec)),
+            "pyramid_add_price": g.get("pyramid_add_price", round(entry + sgn * 2.0 * r, prec)),
+            "pyramid_be_stop": g.get("pyramid_be_stop", round(entry + sgn * 0.10 * r, prec)),
+            "pyramid_add_margin_usd": sz.get("pyramid_add_margin_usd", 0.0),
+            "next_close_utc": g.get("next_close_utc", ""),
+            "next_close_eta_str": g.get("next_close_eta_str", ""),
+            "entry_valid_window_str": g.get("entry_valid_window_str", ""),
+            "trigger_eta_str": g.get("trigger_eta_str", ""),
+            "expected_pyramid_eta_str": g.get("expected_pyramid_eta_str", ""),
+            "expected_hold_winner_str": g.get("expected_hold_winner_str", ""),
+            "expected_stop_window_str": g.get("expected_stop_window_str", ""),
             "stop_loss": round(sl, prec),
             "tp1_price": round(entry + sgn * 3.0 * r, prec),   # milestones only: Krypton has no fixed take-profit
             "tp2_price": round(entry + sgn * 6.0 * r, prec),
@@ -969,6 +1661,8 @@ class KryptonLiveBridge:
             "recommended_margin_usd": sz["margin_usd"],
             "actual_sl_loss_usd": sz["actual_sl_loss_usd"],
             "risk_multiple_of_1r": sz["risk_multiple_of_1r"],
+            "compound_mode": sz.get("compound_mode", False),
+            "compound_risk_pct": sz.get("compound_risk_pct", 2.0),
             "sizing_note": sz["sizing_note"],
             "estimated_liq_price": round(liq, prec),
             "expected_r": round(expected_r, 3),
@@ -978,8 +1672,9 @@ class KryptonLiveBridge:
     # ---------------------------------------------------------------- exits
     def check_position_exit(self, df: pd.DataFrame, pos: Any, timeframe: str) -> Tuple[Optional[Any], Optional[Dict[str, Any]]]:
         """
-        Krypton exit management for a tracked position. Returns (exit_signal, trail_update):
-          exit_signal  -> detector.ExitAlertSignal when the position should be closed (stop hit, exit-channel close, time stop)
+        Krypton V5 exit & scaling management for a tracked position. Returns (exit_signal, trail_update):
+          exit_signal  -> detector.ExitAlertSignal when the position should be closed (stop hit, exit-channel close,
+                          time stop) OR pyramided (`urgency == "PYRAMID_ADD"` at +2.0R)
           trail_update -> {"old_sl", "new_sl"} when the chandelier trail ratchets the stop by >= 0.5 ATR (pos.stop_loss is updated)
         """
         from detector import ExitAlertSignal
@@ -991,7 +1686,8 @@ class KryptonLiveBridge:
         prec = self._price_precision(live)
         entry, lev, margin = float(pos.entry_price), int(pos.leverage), float(pos.remaining_margin_usd)
         sl = float(pos.stop_loss)
-        risk = max(abs(entry - sl), entry * 0.002)
+        init_risk = float(getattr(pos, "initial_risk_dist", 0.0) or 0.0)
+        risk = max(init_risk if init_risk > 0 else abs(entry - sl), entry * 0.002)
 
         def mk(reason: str, urgency: str, px: float, why: str) -> ExitAlertSignal:
             mv = (px - entry) if is_long else (entry - px)
@@ -1008,7 +1704,8 @@ class KryptonLiveBridge:
                       f"Krypton {'trailing ' if in_profit else ''}stop {sl:.{prec}f} crossed — close the position."), None
 
         if dfc is None or len(dfc) < max(p.exit_lookback, 30) + 2:
-            return None, None
+            pyr_sig = self._check_pyramid_add(pos, live, prec)
+            return pyr_sig, None
         f = compute_features(dfc, p)
         n = len(dfc)
         last = n - 1
@@ -1034,7 +1731,12 @@ class KryptonLiveBridge:
         if len(idx_since) >= p.max_hold_bars:
             return mk("TIME_STOP", "IMMEDIATE_CLOSE", live, f"Held {len(idx_since)} bars (max {p.max_hold_bars}) — close per Krypton rules."), None
 
-        # 4. Chandelier trail ratchet (computed on closed bars only)
+        # 4. Turtle Pyramid Add (+2.0R winner -> +0.75R second leg + move SL to breakeven)
+        pyr_sig = self._check_pyramid_add(pos, live, prec)
+        if pyr_sig is not None:
+            return pyr_sig, None
+
+        # 5. Chandelier trail ratchet (computed on closed bars only)
         if len(idx_since):
             hs, ls_ = f["high"][idx_since], f["low"][idx_since]
             atr_k = float(f["atr"][last])

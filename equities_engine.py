@@ -46,6 +46,8 @@ from metals_engine import stitch_history, weekday_daily
 
 EQUITIES_SYMBOLS: Dict[str, str] = {
     "GOOGLUSDT": "GOOGL",
+    "NVDAUSDT": "NVDA",
+    "AAPLUSDT": "AAPL",
 }
 
 
@@ -334,7 +336,7 @@ class EquitiesTrendBridge(KryptonLiveBridge):
         s = (self.equities_stats.get("live_summary") or {}).get(symbol.upper()) or {}
         ok = int(s.get("total_trades", 0)) > 0
         return {
-            "scope": "EQUITIES_NASDAQ_2004_2026" if ok else "UNVALIDATED",
+            "scope": "EQUITIES_NASDAQ_2000_2026" if ok else "UNVALIDATED",
             "validated": ok,
             "win_rate_pct": float(s.get("win_rate_pct", 0.0)),
             "profit_factor": float(s.get("profit_factor", 0.0)),
@@ -386,6 +388,7 @@ class EquitiesTrendBridge(KryptonLiveBridge):
         timeframe: str = "4h",
         fear_greed_value: Optional[float] = None,
         market_intel: Optional[Dict[str, Any]] = None,
+        account_balance_usd: Optional[float] = None,
     ) -> KryptonLiveScanResult:
         from detector import ReversalSetupSignal
 
@@ -429,6 +432,7 @@ class EquitiesTrendBridge(KryptonLiveBridge):
                 symbol,
                 order_type="NO_TRADE_INSUFFICIENT_HISTORY",
                 expected_r=0.0,
+                account_balance_usd=account_balance_usd,
             )
             return KryptonLiveScanResult(symbol, timeframe, None, None, None, plan, tel, oos)
 
@@ -463,6 +467,7 @@ class EquitiesTrendBridge(KryptonLiveBridge):
         )
 
         active, bars_ago, cand = None, None, None
+        active_guidance: Optional[Dict[str, Any]] = None
         if reliable and oos.get("validated"):
             for i, side in sorted(entry_signals(d, p, start=max(0, n - 3)), reverse=True):
                 is_long = side == "LONG"
@@ -488,10 +493,25 @@ class EquitiesTrendBridge(KryptonLiveBridge):
                 if not alive or run > 0.5 * r or room < 0.3 * r:
                     continue
                 active_sizing = self.compute_position_sizing(
-                    symbol, side, live_price, abs(live_price - trail) / live_price * 100.0
+                    symbol, side, live_price, abs(live_price - trail) / live_price * 100.0,
+                    account_balance_usd=account_balance_usd,
+                )
+                active_guidance = self.build_price_and_time_guidance(
+                    side=side,
+                    signal_price=float(c[i]),
+                    live_price=live_price,
+                    stop_loss=float(trail),
+                    atr=atr_now,
+                    timeframe="1d",
+                    prec=prec,
+                    is_active=True,
+                    is_daily=True,
+                    bars_ago=last - i,
+                    max_age_bars=2,
                 )
                 lev, liq = int(active_sizing["leverage"]), float(active_sizing["liq_price"])
                 tel["active_sizing"] = active_sizing
+                tel["active_guidance"] = active_guidance
                 sg = 1.0 if is_long else -1.0
                 active = ReversalSetupSignal(
                     symbol=symbol,
@@ -540,6 +560,18 @@ class EquitiesTrendBridge(KryptonLiveBridge):
             sl_w = trig + p.init_stop_atr * atr_now
             w_exit = float(np.max(c[n - p.exit_days :]))
             order_type = "ENTER_ON_CLOSE_BEYOND_LEVEL"
+        watch_guidance = self.build_price_and_time_guidance(
+            side=w_side,
+            signal_price=trig,
+            live_price=live_price,
+            stop_loss=sl_w,
+            atr=atr_now,
+            timeframe="1d",
+            prec=prec,
+            is_active=False,
+            is_daily=True,
+            max_age_bars=2,
+        )
         plan = self._plan(
             w_side,
             trig,
@@ -550,8 +582,11 @@ class EquitiesTrendBridge(KryptonLiveBridge):
             order_type=order_type,
             expected_r=tel["meta_pred_r"],
             exit_channel=w_exit,
+            account_balance_usd=account_balance_usd,
+            guidance=watch_guidance,
         )
         tel["dist_to_trap_pct"] = round(abs(live_price - trig) / live_price * 100.0, 2)
+        tel["watch_guidance"] = watch_guidance
         if active is not None:
             tel["archetype"] = "TREND_BREAKOUT"
             tel["active_stop"] = active.stop_loss
@@ -576,7 +611,8 @@ class EquitiesTrendBridge(KryptonLiveBridge):
         prec = self._price_precision(live)
         entry, lev, margin = float(pos.entry_price), int(pos.leverage), float(pos.remaining_margin_usd)
         sl = float(pos.stop_loss)
-        risk = max(abs(entry - sl), entry * 0.002)
+        init_risk = float(getattr(pos, "initial_risk_dist", 0.0) or 0.0)
+        risk = max(init_risk if init_risk > 0 else abs(entry - sl), entry * 0.002)
 
         def mk(reason: str, urgency: str, px: float, why: str) -> ExitAlertSignal:
             mv = (px - entry) if is_long else (entry - px)
@@ -608,7 +644,8 @@ class EquitiesTrendBridge(KryptonLiveBridge):
 
         d = self._daily(pos.symbol, df)
         if d.empty or len(d) < p.exit_days + p.atr_days + 2:
-            return None, None
+            pyr_sig = self._check_pyramid_add(pos, live, prec)
+            return pyr_sig, None
         d = add_indicators(d, p)
         try:
             opened = pd.to_datetime(pos.opened_at, utc=True)
@@ -630,6 +667,11 @@ class EquitiesTrendBridge(KryptonLiveBridge):
                     ),
                     None,
                 )
+            # Turtle Pyramid Add (+2.0R winner -> +0.75R second leg + move SL to breakeven)
+            pyr_sig = self._check_pyramid_add(pos, live, prec)
+            if pyr_sig is not None:
+                return pyr_sig, None
+
             atr_k = float(d["atr"].iloc[-1])
             ts = pd.to_datetime(df["timestamp"], utc=True)
             since = df[ts >= opened]
@@ -643,4 +685,8 @@ class EquitiesTrendBridge(KryptonLiveBridge):
             if abs(new_sl - sl) >= 0.5 * atr_k:
                 pos.stop_loss = round(new_sl, prec)
                 return None, {"old_sl": round(sl, prec), "new_sl": round(new_sl, prec)}
+        else:
+            pyr_sig = self._check_pyramid_add(pos, live, prec)
+            if pyr_sig is not None:
+                return pyr_sig, None
         return None, None

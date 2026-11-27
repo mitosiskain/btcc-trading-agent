@@ -36,15 +36,15 @@ class BTCCTradingOrchestrator:
         self.state_dir = Path(__file__).resolve().parent / "state"
         self.carbon_bridge = CarbonLiveBridge(config.risk, state_dir=self.state_dir)
         self.krypton_bridge = KryptonLiveBridge(config.risk, state_dir=self.state_dir)
-        # Active live engine (ENGINE_VERSION env / LeverageRiskConfig.engine_version): KRYPTON_V4 (default) or CARBON_V2
-        self.engine_version = str(getattr(config.risk, "engine_version", "KRYPTON_V4")).upper()
+        # Active live engine (ENGINE_VERSION env / LeverageRiskConfig.engine_version): KRYPTON_V5 (default) or CARBON_V2
+        self.engine_version = str(getattr(config.risk, "engine_version", "KRYPTON_V5")).upper()
         self.is_krypton = self.engine_version.startswith("KRYPTON")
         self.engine_bridge = self.krypton_bridge if self.is_krypton else self.carbon_bridge
-        self.engine_label = "Krypton V4" if self.is_krypton else "Carbon V2"
-        # Gold & silver run the dedicated, calendar-consistent Metals Trend engine (METALS_ENGINE=OFF -> Krypton V4)
+        self.engine_label = "Krypton V5" if self.is_krypton else "Carbon V2"
+        # Gold & silver run the dedicated, calendar-consistent Metals Trend engine (METALS_ENGINE=OFF -> Krypton V5)
         self.metals_bridge = MetalsTrendBridge(config.risk, state_dir=self.state_dir, feed=self.feed)
         self.use_metals_engine = os.getenv("METALS_ENGINE", "METALS_TREND").upper() != "OFF"
-        # Tokenized US equities (GOOGLUSDT) run the dedicated, gap-honest Equities Trend engine (EQUITIES_ENGINE=OFF -> Krypton V4)
+        # Tokenized US equities (GOOGL/NVDA/AAPL) run the dedicated, gap-honest Equities Trend engine (EQUITIES_ENGINE=OFF -> Krypton V5)
         self.equities_bridge = EquitiesTrendBridge(config.risk, state_dir=self.state_dir, feed=self.feed)
         self.use_equities_engine = os.getenv("EQUITIES_ENGINE", "EQUITIES_TREND").upper() != "OFF"
         self.sentiment_agent = SentimentAnalystAgent(config)
@@ -169,6 +169,7 @@ class BTCCTradingOrchestrator:
                     timeframe=tf,
                     fear_greed_value=market_intel.get("fear_greed_value"),
                     market_intel=market_intel,
+                    account_balance_usd=self.execution.account_balance_usd,
                 )
             else:
                 scan_res = bridge.evaluate_symbol_live(df, btc_df, symbol=symbol, timeframe=tf)
@@ -343,6 +344,7 @@ class BTCCTradingOrchestrator:
                 sentiment_decision="MANUAL_BTCC_TRADE",
                 sentiment_reasoning="Manually opened on BTCC; monitored for Profit-Flatline Stall",
                 archetype="KRYPTON_TREND_BREAKOUT" if self.is_krypton else "CARBON_ABSORPTION_REVERSAL",
+                initial_risk_dist=abs(float(entry_p) - float(sl)),
             )
             self.execution.open_positions[sym] = pos
             self.execution.touch_positions_version()

@@ -139,7 +139,9 @@ class TelegramNotifier:
         exit_sig: ExitAlertSignal,
         closed_record: Optional[ClosedTradeRecord] = None,
     ) -> None:
-        if exit_sig.reason == "PROFIT_FLATLINE_STALL":
+        if exit_sig.reason == "PYRAMID_ADD_2R":
+            header = f"🔥 *PYRAMID ADD (+2R RUNNER) — ADD TO WINNER: {exit_sig.symbol}*"
+        elif exit_sig.reason == "PROFIT_FLATLINE_STALL":
             header = f"🟠 *POSITION UPDATE — TAKE PROFIT NOW (STALL): {exit_sig.symbol}*"
         elif "CHANDELIER" in exit_sig.reason:
             header = f"🟠 *POSITION UPDATE — CHANDELIER RUNNER LOCK: {exit_sig.symbol}*"

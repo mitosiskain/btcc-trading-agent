@@ -52,6 +52,8 @@ class OpenPosition:
     peak_favorable_price: float = 0.0
     meta_pred_r: float = 0.0
     exit_alert_sent_reason: str = ""
+    initial_risk_dist: float = 0.0
+    pyramid_added: bool = False
 
     def unrealized_pnl_usd(self) -> float:
         if self.side == "LONG":
@@ -273,6 +275,7 @@ class ExecutionEngine:
             trail_atr_mult=trail_atr_mult,
             peak_favorable_price=signal.entry_price,
             meta_pred_r=meta_pred_r,
+            initial_risk_dist=abs(float(signal.entry_price) - float(signal.stop_loss)),
         )
         self.open_positions[signal.symbol] = pos
         self.positions_version_ts = time.time()
@@ -293,12 +296,20 @@ class ExecutionEngine:
         # Case 0: Manual / screenshot user-tracked BTCC positions
         # Never auto-delete a user-tracked position behind their back; send an alert with a 1-tap [✅ Mark Closed] button!
         if str(pos.position_id).startswith(("manual-", "screenshot-")):
-            if exit_sig.urgency == "WARNING_REVERSAL_RISK":
+            if exit_sig.urgency == "PYRAMID_ADD":
+                pos.pyramid_added = True
+            elif exit_sig.urgency == "WARNING_REVERSAL_RISK":
                 pos.warning_sent = True
             elif exit_sig.urgency == "TAKE_PARTIAL_AND_TRAIL" and not pos.tp1_hit:
                 pos.tp1_hit = True
             else:
                 pos.exit_alert_sent_reason = str(exit_sig.reason)
+            self._save_state()
+            return None
+
+        # Case 0a: Turtle Pyramid Add (+2R Runner) — keep open, record pyramid_added
+        if exit_sig.urgency == "PYRAMID_ADD":
+            pos.pyramid_added = True
             self._save_state()
             return None
 

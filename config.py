@@ -52,9 +52,12 @@ class LeverageRiskConfig:
     default_leverage: int = int(os.getenv("DEFAULT_LEVERAGE", "5"))                  # 5x lowest multiplier ceiling
     max_leverage: int = 500
     min_leverage: int = int(os.getenv("MIN_LEVERAGE", "2"))                          # 2x minimum leverage
-    target_sl_margin_risk_pct: float = float(os.getenv("TARGET_SL_MARGIN_RISK_PCT", "15.0"))  # ~15% of $5 = $0.75 risk at SL
+    target_sl_margin_risk_pct: float = float(os.getenv("TARGET_SL_MARGIN_RISK_PCT", "15.0"))  # Floor: ~15% of base margin
+    compound_risk_pct: float = float(os.getenv("COMPOUND_RISK_PCT", "2.0"))          # Dynamic compounding: risk 2.0% of live equity per 1R
+    pyramid_trigger_r: float = float(os.getenv("PYRAMID_TRIGGER_R", "2.0"))          # Turtle pyramid add once open winner hits +2.0R
+    pyramid_add_scale: float = float(os.getenv("PYRAMID_ADD_SCALE", "0.75"))         # Add +0.75R second leg + move SL to breakeven
     auto_adjust_leverage_to_stop: bool = True  # Dynamically scale leverage so SL triggers well before isolated liquidation
-    # Portfolio limits (risk guard, not an exchange limit). Re-tested for Krypton V3 on 2019-2026 data:
+    # Portfolio limits (risk guard, not an exchange limit). Re-tested for Krypton V5 on 2019-2026 data:
     # longs carry most of the edge, so allow 3 concurrent longs but only 1 short, 4 positions in total.
     max_concurrent_positions: int = int(os.getenv("MAX_CONCURRENT_POSITIONS", "4"))
     max_long_positions: int = int(os.getenv("MAX_LONG_POSITIONS", "3"))
@@ -64,7 +67,7 @@ class LeverageRiskConfig:
     btcc_taker_fee_pct: float = 0.045          # 0.045% per side typical BTCC VIP/standard perp taker fee
     btcc_maker_fee_pct: float = 0.020          # 0.020% per side post-only / maker limit fee
     prefer_maker_limit_entries: bool = True    # Route entries as Maker/Pullback limits to cut fee+spread drag
-    engine_version: str = os.getenv("ENGINE_VERSION", "KRYPTON_V4").upper()  # Active alpha engine: KRYPTON_V4 (default) | KRYPTON_V3 | CARBON_V2
+    engine_version: str = os.getenv("ENGINE_VERSION", "KRYPTON_V5").upper()  # Active alpha engine: KRYPTON_V5 (default) | KRYPTON_V4 | CARBON_V2
 
 
 @dataclass
@@ -82,10 +85,10 @@ class AssetProfile:
     validated_for_alerts: bool = False  # True ONLY for multi-year backtested & hold-out verified 24/7 assets
 
 
-# Hold-out verified 24/7 universe:
-#   - 7 crypto pairs via Krypton V4 (EMA 20/80 + slope + CVD orderflow + causal Fear & Greed short gate)
+# Hold-out verified 24/7 universe (12 assets across 3 uncorrelated asset classes):
+#   - 7 crypto pairs via Krypton V5 (Donchian + V-Bottom Flip + CTA Multi-Speed TSMOM + CVD + F&G>25 + Turtle Pyramid +2R)
 #   - Gold & Silver via Metals Trend V1 (daily-close calendar-consistent, 2000-2026 PF 1.87)
-#   - Alphabet/Google via Equities Trend V1 (daily-close gap-honest, 2004-2026 PF 2.19, 24/7 perp PF 2.48)
+#   - GOOGL, NVDA, AAPL via Equities Trend V1 (daily-close gap-honest, 2000-2026 OOS PF 1.70-2.47, 24/7 OKX/Binance perps)
 VALIDATED_WATCHLIST: List[str] = [
     "BTCUSDT",
     "ETHUSDT",
@@ -95,8 +98,10 @@ VALIDATED_WATCHLIST: List[str] = [
     "SUIUSDT",
     "AVAXUSDT",
     "XAUUSDT",
-    "XAGUSDT",   # validated under Metals Trend V1 (benchmark_metals.py: COMEX 2000-2026 PF 1.87, 24/7 perp positive)
-    "GOOGLUSDT", # validated under Equities Trend V1 (benchmark_equities.py: Nasdaq 2004-2026 PF 2.19, 24/7 perp PF 2.48)
+    "XAGUSDT",   # validated under Metals Trend V1 (benchmark_metals.py: COMEX 2000-2026 PF 1.87)
+    "GOOGLUSDT", # validated under Equities Trend V1 (2004-2026 PF 2.19; OOS 2016-2026 PF 1.70)
+    "NVDAUSDT",  # validated under Equities Trend V1 (2000-2015 PF 3.24; OOS 2016-2026 PF 2.04)
+    "AAPLUSDT",  # validated under Equities Trend V1 (2000-2015 PF 2.42; OOS 2016-2026 PF 2.47)
 ]
 
 
@@ -159,13 +164,27 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         symbol="NVDAUSDT",
         btcc_symbol="NVDAUSDT",
         category="rwa",
-        binance_symbol="NVDAUSDT",     # Listed 2026-03-26 (0 pre-holdout dev history; 1h OOS PF 0.79)
+        binance_symbol="NVDAUSDT",     # 24/7 Binance perp + OKX NVDA-USDT-SWAP; signals via Equities Trend V1 (OOS PF 2.04)
         yfinance_ticker="NVDA",
         max_btcc_leverage=50,
         default_impulse_pct=0.85,
         min_lot_label="0.1 NVDA",
-        min_notional_usd=18.0,
-        validated_for_alerts=False,
+        min_notional_usd=16.0,
+        okx_inst_id="NVDA-USDT-SWAP",
+        validated_for_alerts=True,
+    ),
+    "AAPLUSDT": AssetProfile(
+        symbol="AAPLUSDT",
+        btcc_symbol="AAPLUSDT",
+        category="rwa",
+        binance_symbol="AAPLUSDT",     # 24/7 Binance perp + OKX AAPL-USDT-SWAP; signals via Equities Trend V1 (OOS PF 2.47)
+        yfinance_ticker="AAPL",
+        max_btcc_leverage=50,
+        default_impulse_pct=0.60,
+        min_lot_label="0.1 AAPL",
+        min_notional_usd=36.0,
+        okx_inst_id="AAPL-USDT-SWAP",
+        validated_for_alerts=True,
     ),
     "SPACEXUSDT": AssetProfile(
         symbol="SPACEXUSDT",

@@ -159,7 +159,7 @@ def check_simulator_equivalence(raw: Dict[str, pd.DataFrame], tf: str) -> Dict[s
 def check_causality(raw: Dict[str, pd.DataFrame], tf: str) -> Dict[str, Any]:
     p = KryptonParams.for_timeframe(tf)
     pts, max_diff = 0, 0.0
-    cols = ("atr", "ema_f", "ema_s", "don_hi", "don_lo", "ex_hi", "ex_lo", "btc_trend", "cvd", "fng_causal")
+    cols = ("atr", "ema_f", "ema_s", "don_hi", "don_lo", "ex_hi", "ex_lo", "btc_trend", "cvd", "tsmom", "fng_causal")
     for s in ("ETHUSDT", "SOLUSDT", "XAUUSDT"):
         full = compute_features(raw[s], p, btc_df=raw["BTCUSDT"])
         sig_full = generate_signals(full, s, p)
@@ -267,7 +267,7 @@ def main() -> None:
 
     ref = json.loads(REF_PATH.read_text()) if REF_PATH.exists() else {}
     fg_df = load_causal_fng()
-    results: Dict[str, Any] = {"generated_at": pd.Timestamp.now(tz="UTC").isoformat(), "engine": "KRYPTON_V4", "params": {}}
+    results: Dict[str, Any] = {"generated_at": pd.Timestamp.now(tz="UTC").isoformat(), "engine": "KRYPTON_V5", "params": {}}
 
     for tf, spec in TF_SPECS.items():
         t0 = time.time()
@@ -282,9 +282,11 @@ def main() -> None:
         cau_chk = check_causality(raw, tf)
 
         k_trades = run_krypton_oos(raw, tf, folds)
+        k_v4_trades = run_krypton_oos(raw, tf, folds, p=KryptonParams.v4_for_timeframe(tf))
         k_v3_trades = run_krypton_oos(raw, tf, folds, p=KryptonParams.v3_for_timeframe(tf))
         k_stress = run_krypton_oos(raw, tf, folds, cost_mult=2.0)
         m_k = compute_portfolio_metrics(k_trades, oos_days)
+        m_kv4 = compute_portfolio_metrics(k_v4_trades, oos_days)
         m_kv3 = compute_portfolio_metrics(k_v3_trades, oos_days)
         m_ks = compute_portfolio_metrics(k_stress, oos_days)
 
@@ -301,13 +303,15 @@ def main() -> None:
             "oos_days": round(oos_days, 1),
             "simulator_equivalence": sim_chk,
             "causality_check": cau_chk,
-            "krypton_v4_oos": m_k,
+            "krypton_v5_oos": m_k,
+            "krypton_v4_oos": strip(m_kv4),
             "krypton_v3_oos": strip(m_kv3),
+            "krypton_v5_oos_2x_costs": strip(m_ks),
             "krypton_v4_oos_2x_costs": strip(m_ks),
-            "krypton_v3_oos_2x_costs": strip(m_ks),
             "krypton_bootstrap": bootstrap_ci(k_trades),
             "krypton_per_symbol": breakdown(k_trades, "symbol", oos_days),
             "krypton_per_side": breakdown(k_trades, "side", oos_days),
+            "krypton_per_archetype": breakdown(k_trades, "archetype", oos_days),
             "krypton_exit_reasons": {r: sum(1 for t in k_trades if t["exit_reason"] == r) for r in sorted(set(t["exit_reason"] for t in k_trades))},
             "krypton_trades": k_trades,
             "reference": {
@@ -336,7 +340,7 @@ def main() -> None:
     OUT_PATH.write_text(json.dumps(results, indent=2, default=str))
     print(f"\nSaved -> {OUT_PATH}\n")
 
-    hdr = f"{'Model':38s} {'Trades':>6s} {'WR%':>6s} {'PF':>6s} {'Exp R':>7s} {'Net PnL':>9s} {'MaxDD':>8s} {'Sharpe':>7s}"
+    hdr = f"{'Model':40s} {'Trades':>6s} {'WR%':>6s} {'PF':>6s} {'Exp R':>7s} {'Net PnL':>9s} {'MaxDD':>8s} {'Sharpe':>7s}"
     for tf in TF_SPECS:
         r = results[tf]
         print(f"=== {tf.upper()} hold-out {r['oos_window']} ({r['oos_days']} days) ===")
@@ -347,12 +351,13 @@ def main() -> None:
             ("Carbon V2 (purged meta-WF, OOS)", r["reference"]["carbon_v2_walkforward_oos"]),
             ("Krypton V3 (legacy 50/200, OOS)", r["krypton_v3_oos"]),
             ("Krypton V4 (20/80+CVD+F&G, OOS)", r["krypton_v4_oos"]),
-            ("Krypton V4 (OOS, 2x costs)", r["krypton_v4_oos_2x_costs"]),
+            ("Krypton V5 (Dual+TSMOM+Pyr, OOS)", r["krypton_v5_oos"]),
+            ("Krypton V5 (OOS, 2x costs)", r["krypton_v5_oos_2x_costs"]),
         ]
         for name, m in rows:
             if not m:
                 continue
-            print(f"{name:38s} {m['total_trades']:6d} {m['win_rate_pct']:6.1f} {m['profit_factor']:6.2f} {m['expectancy_r']:+7.3f} "
+            print(f"{name:40s} {m['total_trades']:6d} {m['win_rate_pct']:6.1f} {m['profit_factor']:6.2f} {m['expectancy_r']:+7.3f} "
                   f"{m['total_net_pnl_usd']:+9.2f} {m['max_drawdown_usd']:8.2f} {m['sharpe_annualized']:+7.2f}")
         print(f"  bootstrap: {r['krypton_bootstrap']}\n")
     for tf, e in results["extended"].items():

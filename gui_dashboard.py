@@ -61,6 +61,7 @@ class DashboardController:
         self.sentiment_alert_cooldowns: Dict[str, float] = {}
         self.pending_alert_slots: Dict[str, Dict[str, Any]] = {}
         self.alert_confidence_threshold: int = 80
+        self.sizing_equity_usd: Optional[float] = None
         self._lock = threading.Lock()
         self._git_lock = threading.Lock()
         self._last_git_pull_ts: float = 0.0
@@ -234,8 +235,22 @@ class DashboardController:
                     self.orchestrator.telegram.last_update_id = int(data["last_update_id"])
                 if data.get("alert_confidence_threshold"):
                     self.alert_confidence_threshold = max(30, min(99, int(data["alert_confidence_threshold"])))
+                if data.get("compound_risk_pct") is not None:
+                    self.config.risk.compound_risk_pct = max(0.5, min(5.0, float(data["compound_risk_pct"])))
+                if data.get("sizing_equity_usd") is not None and float(data["sizing_equity_usd"]) > 0:
+                    self.sizing_equity_usd = round(float(data["sizing_equity_usd"]), 2)
             except Exception:
                 pass
+
+    def get_sizing_equity_usd(self) -> float:
+        """
+        Live equity used for Dynamic Equity Compounding (2.0% of equity per 1R):
+        Uses the user's explicit BTCC balance set via `/balance <usd>` (auto-compounded with closed PnL),
+        falling back safely to `ACCOUNT_BALANCE_USD` ($100 default) rather than legacy $10,000 paper balances.
+        """
+        if self.sizing_equity_usd is not None and self.sizing_equity_usd > 0:
+            return float(self.sizing_equity_usd)
+        return float(getattr(self.config.risk, "total_account_balance_usd", 100.0))
 
     def _save_alert_cache(self) -> None:
         try:
@@ -248,6 +263,8 @@ class DashboardController:
                         "alerted_bar_keys": sorted(list(self.orchestrator.alerted_bar_keys))[-200:],
                         "last_update_id": self.orchestrator.telegram.last_update_id,
                         "alert_confidence_threshold": self.alert_confidence_threshold,
+                        "compound_risk_pct": round(float(getattr(self.config.risk, "compound_risk_pct", 2.0)), 2),
+                        "sizing_equity_usd": self.sizing_equity_usd,
                     },
                     indent=2,
                 )
@@ -332,12 +349,12 @@ class DashboardController:
             "strategy_optimizers": {
                 "working": True,
                 "status": (
-                    f"KRYPTON V4 + METALS + EQUITIES ({self.timeframe.upper()})"
+                    f"KRYPTON V5 DUAL-ENGINE + PYRAMID + METALS + EQUITIES ({self.timeframe.upper()})"
                     if self.orchestrator.is_krypton
                     else f"CARBON V2 PURGED META-ENSEMBLE ({self.timeframe.upper()})"
                 ),
                 "detail": (
-                    "Krypton V4 (EMA 20/80 + slope + CVD + F&G>25 short gate) + Metals Trend (XAU/XAG PF 1.87) + Equities Trend (GOOGL PF 2.19)"
+                    "Krypton V5 (Donchian + V-Bottom Flip + CTA TSMOM + CVD + F&G>25 + +2R Pyramid + 2% Equity Compounding) + Metals (XAU/XAG) + Equities (GOOGL/NVDA/AAPL)"
                     if self.orchestrator.is_krypton
                     else "4H OOS Verified: +$247.26 Net PnL (PF 1.26 • Absorption Reversal PF 1.97) + Maker-Limit Routing"
                 ),
@@ -540,6 +557,7 @@ class DashboardController:
                         timeframe=tf,
                         fear_greed_value=fng_live_val,
                         market_intel=market_intel,
+                        account_balance_usd=self.get_sizing_equity_usd(),
                     )
                 else:
                     carbon_res = sym_bridge.evaluate_symbol_live(
@@ -658,12 +676,15 @@ class DashboardController:
 
                 plan = carbon_res.pending_order_plan
                 active_sz = c_tel.get("active_sizing") if isinstance(c_tel.get("active_sizing"), dict) else None
+                active_g = c_tel.get("active_guidance") if isinstance(c_tel.get("active_guidance"), dict) else None
+                watch_g = c_tel.get("watch_guidance") if isinstance(c_tel.get("watch_guidance"), dict) else None
                 if active_signal is not None and not is_vetoed:
                     u_side = active_signal.trade_side
                     u_mode = "ENTER NOW"
                     u_order_style = "MARKET OR MAKER LIMIT (ON CLOSE)" if is_kr else "POST-ONLY MAKER LIMIT"
                     u_entry = float(active_signal.entry_price)
-                    u_maker_entry = round(u_entry * (0.9995 if u_side == "LONG" else 1.0005), prec)
+                    u_g = active_g or {}
+                    u_maker_entry = float(u_g.get("ideal_maker_entry") or round(u_entry * (0.9995 if u_side == "LONG" else 1.0005), prec))
                     u_sl = float(active_signal.stop_loss)
                     u_tp1 = float(active_signal.tp1_price)
                     u_tp2 = float(active_signal.tp2_price)
@@ -673,6 +694,9 @@ class DashboardController:
                     u_margin_usd = float(active_sz.get("margin_usd", base_margin_usd)) if active_sz else float(plan.get("recommended_margin_usd", base_margin_usd))
                     u_sl_loss_usd = float(active_sz.get("actual_sl_loss_usd", est_sl_loss)) if active_sz else float(plan.get("actual_sl_loss_usd", est_sl_loss))
                     u_risk_mult = float(active_sz.get("risk_multiple_of_1r", 1.0)) if active_sz else float(plan.get("risk_multiple_of_1r", 1.0))
+                    u_pyr_margin_usd = float(active_sz.get("pyramid_add_margin_usd", plan.get("pyramid_add_margin_usd", 0.0))) if active_sz else float(plan.get("pyramid_add_margin_usd", 0.0))
+                    u_compound_mode = bool(active_sz.get("compound_mode", False)) if active_sz else bool(plan.get("compound_mode", False))
+                    u_compound_pct = float(active_sz.get("compound_risk_pct", getattr(self.config.risk, "compound_risk_pct", 2.0))) if active_sz else float(plan.get("compound_risk_pct", getattr(self.config.risk, "compound_risk_pct", 2.0)))
                     u_sizing_note = str(active_sz.get("sizing_note", "")) if active_sz else str(plan.get("sizing_note", ""))
                 else:
                     u_side = str(plan["side"])
@@ -689,7 +713,8 @@ class DashboardController:
                         u_mode = "SET MAKER LIMIT TRAP"
                     u_order_style = "ENTER ON CANDLE CLOSE BEYOND LEVEL" if is_kr else "RESTING MAKER LIMIT TRAP"
                     u_entry = float(plan["limit_entry_price"])
-                    u_maker_entry = float(plan.get("maker_limit_price", u_entry))
+                    u_g = watch_g or {}
+                    u_maker_entry = float(u_g.get("ideal_maker_entry") or plan.get("maker_limit_price", u_entry))
                     u_sl = float(plan["stop_loss"])
                     u_tp1 = float(plan["tp1_price"])
                     u_tp2 = float(plan["tp2_price"])
@@ -697,7 +722,26 @@ class DashboardController:
                     u_margin_usd = float(plan.get("recommended_margin_usd", base_margin_usd))
                     u_sl_loss_usd = float(plan.get("actual_sl_loss_usd", est_sl_loss))
                     u_risk_mult = float(plan.get("risk_multiple_of_1r", 1.0))
+                    u_pyr_margin_usd = float(plan.get("pyramid_add_margin_usd", 0.0))
+                    u_compound_mode = bool(plan.get("compound_mode", False))
+                    u_compound_pct = float(plan.get("compound_risk_pct", getattr(self.config.risk, "compound_risk_pct", 2.0)))
                     u_sizing_note = str(plan.get("sizing_note", ""))
+
+                sgn_u = 1.0 if u_side == "LONG" else -1.0
+                r_u = max(abs(u_entry - u_sl), u_entry * 0.002)
+                u_safe_low = float(u_g.get("safe_entry_low") or plan.get("safe_entry_low") or min(u_entry, u_entry + sgn_u * 0.50 * r_u))
+                u_safe_high = float(u_g.get("safe_entry_high") or plan.get("safe_entry_high") or max(u_entry, u_entry + sgn_u * 0.50 * r_u))
+                u_max_chase = float(u_g.get("max_chase_price") or plan.get("max_chase_price") or (u_entry + sgn_u * 0.50 * r_u))
+                u_pyr_price = float(u_g.get("pyramid_add_price") or plan.get("pyramid_add_price") or (u_entry + sgn_u * 2.0 * r_u))
+                u_pyr_be_sl = float(u_g.get("pyramid_be_stop") or plan.get("pyramid_be_stop") or (u_entry + sgn_u * 0.10 * r_u))
+                u_next_close_utc = str(u_g.get("next_close_utc") or plan.get("next_close_utc") or "")
+                u_next_close_eta = str(u_g.get("next_close_eta_str") or plan.get("next_close_eta_str") or "")
+                u_valid_until_utc = str(u_g.get("entry_valid_until_utc") or "")
+                u_valid_window = str(u_g.get("entry_valid_window_str") or plan.get("entry_valid_window_str") or "")
+                u_trigger_eta = str(u_g.get("trigger_eta_str") or plan.get("trigger_eta_str") or "")
+                u_exp_pyr_eta = str(u_g.get("expected_pyramid_eta_str") or plan.get("expected_pyramid_eta_str") or "")
+                u_exp_hold_win = str(u_g.get("expected_hold_winner_str") or plan.get("expected_hold_winner_str") or "")
+                u_exp_stop_win = str(u_g.get("expected_stop_window_str") or plan.get("expected_stop_window_str") or "")
 
                 margin_usd = u_margin_usd
 
@@ -782,6 +826,7 @@ class DashboardController:
                     )
 
                 is_stand_aside = is_kr and (u_mode not in ("ENTER NOW", "WATCH BREAKOUT"))
+                sig_arch_lbl = str(c_tel.get("signal_archetype") or c_tel.get("archetype") or "TREND_BREAKOUT").replace("_", " ").title()
                 trade_plan = {
                     "side": u_side,
                     "entry_mode": u_mode,
@@ -791,6 +836,25 @@ class DashboardController:
                     "safe_entry_str": fmt_price(u_entry),
                     "maker_limit_entry": round(u_maker_entry, prec),
                     "maker_limit_str": fmt_price(u_maker_entry),
+                    "safe_entry_low": round(u_safe_low, prec),
+                    "safe_entry_low_str": fmt_price(u_safe_low),
+                    "safe_entry_high": round(u_safe_high, prec),
+                    "safe_entry_high_str": fmt_price(u_safe_high),
+                    "max_chase_price": round(u_max_chase, prec),
+                    "max_chase_str": fmt_price(u_max_chase),
+                    "pyramid_add_price": round(u_pyr_price, prec),
+                    "pyramid_add_str": fmt_price(u_pyr_price),
+                    "pyramid_be_stop": round(u_pyr_be_sl, prec),
+                    "pyramid_be_stop_str": fmt_price(u_pyr_be_sl),
+                    "pyramid_add_margin_usd": round(u_pyr_margin_usd, 2),
+                    "next_close_utc": u_next_close_utc,
+                    "next_close_eta_str": u_next_close_eta,
+                    "entry_valid_until_utc": u_valid_until_utc,
+                    "entry_valid_window_str": u_valid_window,
+                    "trigger_eta_str": u_trigger_eta,
+                    "expected_pyramid_eta_str": u_exp_pyr_eta,
+                    "expected_hold_winner_str": u_exp_hold_win,
+                    "expected_stop_window_str": u_exp_stop_win,
                     "sl": round(u_sl, prec),
                     "sl_str": fmt_price(u_sl),
                     "tp1": round(u_tp1, prec),
@@ -801,8 +865,11 @@ class DashboardController:
                     "margin_usd": round(u_margin_usd, 2),
                     "actual_sl_loss_usd": round(u_sl_loss_usd, 2),
                     "risk_multiple_of_1r": round(u_risk_mult, 2),
+                    "compound_mode": u_compound_mode,
+                    "compound_risk_pct": round(u_compound_pct, 2),
                     "sizing_note": u_sizing_note,
                     "fear_greed_value": fng_live_val,
+                    "tsmom_now": c_tel.get("tsmom_now"),
                     "sentiment_decision": verdict_dict.get("decision") if verdict_dict else ("SHORTS_PAUSED_EXTREME_FEAR" if u_mode == "SHORTS PAUSED (EXTREME FEAR)" else None),
                     "sentiment_reasoning": verdict_dict.get("reasoning") if verdict_dict else None,
                     "simple_why": simple_why,
@@ -811,7 +878,7 @@ class DashboardController:
                     "engine": eng_lbl,
                     "breakout_score": float(active_signal.impulse_atr_mult) if (is_kr and active_signal is not None) else 0.0,
                     "entry_label": (
-                        ("Market / Maker Entry:" if u_mode == "ENTER NOW" else
+                        ("Ideal Maker Limit:" if u_mode == "ENTER NOW" else
                          ("Enter if daily close (00:00 UTC) is above:" if c_tel.get("decision_label") else "Enter if candle closes beyond:"))
                         if is_kr else None
                     ),
@@ -819,7 +886,7 @@ class DashboardController:
                     "tp2_label": "Milestone +6R (trail exit):" if is_kr else None,
                     "mode_label": (
                         (
-                            f"⚡ {eng_lbl.upper()} TREND BREAKOUT — ENTER NOW"
+                            f"⚡ {eng_lbl.upper()} {sig_arch_lbl.upper()} — ENTER NOW"
                             if u_mode == "ENTER NOW"
                             else (f"🛡️ {eng_lbl.upper()} — {u_mode}" if is_stand_aside else f"👀 {eng_lbl.upper()} — {u_mode}")
                         )
@@ -905,6 +972,7 @@ class DashboardController:
                             entry_lbl = "Maker Limit Entry" if u_mode == "ENTER NOW" else "Resting Maker Trap"
                             if is_kr:
                                 ex_word = "below" if u_side == "LONG" else "above"
+                                chase_word = "above" if u_side == "LONG" else "below"
                                 eng_code = str(c_tel.get("engine", "")).upper()
                                 sent_line = (
                                     f"• *Sentiment*: `{verdict_dict.get('decision', 'APPROVED')}` _({fng_tag} • {str(verdict_dict.get('reasoning', ''))[:120]})_\n"
@@ -912,25 +980,38 @@ class DashboardController:
                                     else f"• *Sentiment*: `{sent_lbl}` _({fng_tag})_\n"
                                 )
                                 sizing_line = (
-                                    f"• *Sizing Warning*: _{u_sizing_note}_\n"
+                                    f"• *Sizing Note*: _{u_sizing_note}_\n"
                                     if u_sizing_note
                                     else ""
                                 )
+                                pyr_line = (
+                                    f"  └ *Pyramid Add (+2R)*: `{trade_plan['pyramid_add_str']}` _(add +${u_pyr_margin_usd:.0f} @ {u_lev}x & move SL → BE `{trade_plan['pyramid_be_stop_str']}`)_\n"
+                                    if u_pyr_margin_usd > 0
+                                    else ""
+                                )
                                 if eng_code == "EQUITIES_TREND":
-                                    foot_note = "• _Equities Trend V1 (gap-honest daily close): ~43% winners, ~3–4 trades/yr — rides multi-month trends._"
+                                    foot_note = "• _Equities Trend V1 (gap-honest daily close): ~40–53% winners, ~3–4 trades/yr — rides multi-month trends._"
                                 elif c_tel.get("decision_label"):
-                                    foot_note = "• _Gold/silver trend system: ~40% winners, ~4 trades per metal per year — the edge comes from letting trends run._"
+                                    foot_note = "• _Metals Trend V1 (daily close): ~40% winners, ~4 trades per metal per year — the edge comes from letting trends run._"
                                 else:
-                                    foot_note = "• _Krypton V4 (EMA 20/80 + CVD + Sentiment): ~28–37% winners; big winners pay for small stops._"
+                                    foot_note = "• _Krypton V5 (Dual-Engine Donchian + V-Bottom Flip + CTA TSMOM + +2R Pyramid): lets runners compound while cutting small stops._"
                                 tg_msg = (
                                     f"{icon} *{eng_lbl.upper()} SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'} ({u_conf}% Conf)*\n"
                                     f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | "
-                                    f"{'daily-close' if c_tel.get('decision_label') else tf.upper()} trend breakout • {actual_source})_\n"
-                                    f"• *Entry*: `{trade_plan['safe_entry_str']}` _(or Post-Only Maker Limit `{trade_plan['maker_limit_str']}` to save fees)_\n"
-                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${u_margin_usd:.0f} @ {u_lev}x • est. SL loss `${u_sl_loss_usd:.2f}`)_\n"
+                                    f"{'daily-close' if c_tel.get('decision_label') else tf.upper()} {sig_arch_lbl} • {actual_source})_\n"
+                                    f"• *Price Suggestions (Delayed-Read Ladder)*:\n"
+                                    f"  ├ *Ideal Maker Limit*: `{trade_plan['maker_limit_str']}` _(0.020% fee — best retest fill)_\n"
+                                    f"  ├ *Safe Entry Zone*: `{trade_plan['safe_entry_low_str']} – {trade_plan['safe_entry_high_str']}`\n"
+                                    f"  ├ *Do NOT Chase Past*: `{trade_plan['max_chase_str']}` _(skip or wait for pullback if price is {chase_word} this!)_\n"
+                                    f"  ├ *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${u_margin_usd:.0f} @ {u_lev}x • SL `~${u_sl_loss_usd:.2f}` / {u_compound_pct:.1f}% risk)_\n"
+                                    + pyr_line
+                                    + f"• *Time Estimations*:\n"
+                                    f"  ├ *Entry Valid*: `{u_valid_window}` _(next close in `{u_next_close_eta}` at `{u_next_close_utc}`)_\n"
+                                    f"  ├ *Est. +2R Window*: `{u_exp_pyr_eta}`\n"
+                                    f"  └ *Typical Hold*: `Winners {u_exp_hold_win}` | `Stops {u_exp_stop_win}`\n"
                                     + sizing_line
                                     + sent_line
-                                    + f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a "
+                                    + f"• *Exit*: _no fixed TP_ — I'll alert you at +2R to pyramid & move SL to breakeven, and close if a "
                                     f"{c_tel.get('decision_label', tf + ' candle close')} is {ex_word} the exit channel\n"
                                     f"• *Milestones*: +3R `{trade_plan['tp1_str']}` | +6R `{trade_plan['tp2_str']}` _(info only)_\n"
                                     + foot_note
@@ -1168,6 +1249,7 @@ class DashboardController:
             ("INJUSDT", ["injusdt", "injective", "inj"]),
             ("GOOGLUSDT", ["googlusdt", "google", "googl", "alphabet"]),
             ("NVDAUSDT", ["nvdausdt", "nvidia", "nvda"]),
+            ("AAPLUSDT", ["aaplusdt", "apple", "aapl"]),
             ("SPACEXUSDT", ["spacexusdt", "spcxusdt", "spacex", "space x", "spcx"]),
         ]
         found: List[str] = []
@@ -1216,22 +1298,57 @@ class DashboardController:
         entry_lbl = "Maker Limit Entry" if mode == "ENTER NOW" else "Resting Maker Trap"
         if self.orchestrator.is_krypton:
             ex_word = "below" if side == "LONG" else "above"
-            eng_name = tp.get("engine") or "Krypton V4"
+            chase_word = "above" if side == "LONG" else "below"
+            eng_name = tp.get("engine") or "Krypton V5"
             close_lbl = (c.get("carbon_telemetry") or {}).get("decision_label") or f"{self.timeframe} candle close"
             m_usd = float(tp.get("margin_usd") or self.config.risk.margin_per_trade_usd)
             sl_usd = float(tp.get("actual_sl_loss_usd") or 0.0)
+            pyr_m = float(tp.get("pyramid_add_margin_usd") or 0.0)
             sz_note = f"\n• *Sizing*: _{tp['sizing_note']}_" if tp.get("sizing_note") else ""
-            entry_line = (
-                f"• *Market / Maker Entry*: `{tp.get('safe_entry_str')}` _(Maker Limit `{tp.get('maker_limit_str', tp.get('safe_entry_str'))}`)_\n"
-                if mode == "ENTER NOW"
-                else f"• *Trigger*: {side} only if the {close_lbl} is {'above' if side == 'LONG' else 'below'} `{tp.get('safe_entry_str')}`\n"
-            )
+            if mode == "ENTER NOW":
+                price_block = (
+                    f"• *Price Suggestions (Delayed-Read Ladder)*:\n"
+                    f"  ├ *Ideal Maker Limit*: `{tp.get('maker_limit_str', tp.get('safe_entry_str'))}` _(0.020% fee)_\n"
+                    f"  ├ *Safe Entry Zone*: `{tp.get('safe_entry_low_str', tp.get('safe_entry_str'))} – {tp.get('safe_entry_high_str', tp.get('safe_entry_str'))}`\n"
+                    f"  ├ *Do NOT Chase Past*: `{tp.get('max_chase_str', tp.get('safe_entry_str'))}` _(skip if {chase_word})_\n"
+                    f"  ├ *Stop-Loss (SL)*: `{tp.get('sl_str')}` _(${m_usd:.0f} @ {tp.get('leverage', 5)}x • SL `${sl_usd:.2f}`)_\n"
+                    + (
+                        f"  └ *Pyramid Add (+2R)*: `{tp.get('pyramid_add_str')}` _(add +${pyr_m:.0f} & SL → BE `{tp.get('pyramid_be_stop_str')}`)_\n"
+                        if tp.get("pyramid_add_str")
+                        else ""
+                    )
+                )
+                time_block = (
+                    f"• *Time Estimations*:\n"
+                    f"  ├ *Entry Valid*: `{tp.get('entry_valid_window_str', 'n/a')}` _(next close in `{tp.get('next_close_eta_str', 'n/a')}`)_\n"
+                    f"  ├ *Est. +2R Window*: `{tp.get('expected_pyramid_eta_str', 'n/a')}`\n"
+                    f"  └ *Typical Hold*: `Winners {tp.get('expected_hold_winner_str', 'n/a')}` | `Stops {tp.get('expected_stop_window_str', 'n/a')}`\n"
+                )
+            else:
+                price_block = (
+                    f"• *Price Suggestions ({'Watch' if mode == 'WATCH BREAKOUT' else 'Recovery'} Ladder)*:\n"
+                    f"  ├ *Trigger ({close_lbl} {'above' if side == 'LONG' else 'below'})*: `{tp.get('safe_entry_str')}` _(Maker `{tp.get('maker_limit_str', tp.get('safe_entry_str'))}`)_\n"
+                    f"  ├ *Max Chase After Trigger*: `{tp.get('max_chase_str', tp.get('safe_entry_str'))}`\n"
+                    f"  ├ *Planned Stop-Loss*: `{tp.get('sl_str')}` _(${m_usd:.0f} @ {tp.get('leverage', 5)}x • SL `${sl_usd:.2f}`)_\n"
+                    + (
+                        f"  └ *Planned +2R Pyramid*: `{tp.get('pyramid_add_str')}` _(SL → BE `{tp.get('pyramid_be_stop_str')}`)_\n"
+                        if tp.get("pyramid_add_str")
+                        else ""
+                    )
+                )
+                time_block = (
+                    f"• *Time Estimations*:\n"
+                    f"  ├ *Next Close*: `in {tp.get('next_close_eta_str', 'n/a')}` _({tp.get('next_close_utc', '')})_\n"
+                    f"  ├ *Est. Trigger ETA*: `{tp.get('trigger_eta_str', 'n/a')}`\n"
+                    f"  └ *Typical Hold (if triggered)*: `Winners {tp.get('expected_hold_winner_str', 'n/a')}` | `+2R {tp.get('expected_pyramid_eta_str', 'n/a')}`\n"
+                )
             return (
                 f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} ({eng_name})*\n"
                 f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}` | {conf}% Conf)_\n"
-                + entry_line
-                + f"• *Stop-Loss (SL)*: `{tp.get('sl_str')}` _(${m_usd:.0f} @ {tp.get('leverage', 5)}x • est. SL `${sl_usd:.2f}`)_{sz_note}\n"
-                f"• *Exit*: _no fixed TP_ — trail stop + close if the {close_lbl} is {ex_word} the exit channel "
+                + price_block
+                + time_block
+                + (f"{sz_note.lstrip()}\n" if sz_note else "")
+                + f"• *Exit*: _no fixed TP_ — trail stop + close if the {close_lbl} is {ex_word} the exit channel "
                 f"_(milestones +3R `{tp.get('tp1_str')}` | +6R `{tp.get('tp2_str')}`)_\n"
                 f"• *Why*: _{tp.get('simple_why', '')}_"
                 + pos_block
@@ -1284,7 +1401,7 @@ class DashboardController:
         lines.append("\n👉 _Reply \"closed BTC\" or \"move BTC SL to 74000\" anytime to update!_")
         return "\n".join(lines)
 
-    def build_simple_telegram_sheet(self, top_n: int = 13) -> str:
+    def build_simple_telegram_sheet(self, top_n: int = 15) -> str:
         """Build a simple, unified signal sheet identical to the live website."""
         if not self.asset_cards:
             self.run_single_scan()
@@ -1299,10 +1416,11 @@ class DashboardController:
         )
         tf_lbl = self.timeframe.upper()
         is_kr = self.orchestrator.is_krypton
+        risk_pct = float(getattr(self.config.risk, "compound_risk_pct", 2.0))
         lines = (
             [
-                f"🎯 *BTCC KRYPTON V4 + METALS + EQUITIES SIGNALS ({tf_lbl})*",
-                f"_⚡ = confirmed & sentiment-approved breakout • 👀 = breakout watch • 🛡️/⚪ = stand aside (Extreme Fear / no trend) • Alert Threshold: {self.alert_confidence_threshold}%+:_\n",
+                f"🎯 *BTCC KRYPTON V5 + METALS + EQUITIES SIGNALS ({tf_lbl} • {len(cards)} Assets)*",
+                f"_⚡ = active signal • 👀 = breakout watch • 🛡️/⚪ = stand aside • Risk: {risk_pct:.1f}% equity/1R • Alert Threshold: {self.alert_confidence_threshold}%+:_\n",
             ]
             if is_kr
             else [
@@ -1333,7 +1451,7 @@ class DashboardController:
                     icon = "⚪"
                 else:
                     icon = "👀"
-                trig = "Entry" if mode == "ENTER NOW" else ("Trigger (close beyond)" if not is_stand else "Upside watch level")
+                trig = "Maker" if mode == "ENTER NOW" else ("Trigger" if not is_stand else "Upside level")
                 mode_txt = mode
                 if mode == "ENTER NOW" and tp.get("portfolio_cap_skip") and not is_open:
                     r_ = self.config.risk
@@ -1343,9 +1461,14 @@ class DashboardController:
                     )
                 side_disp = "STAND ASIDE" if (is_stand and not is_open) else f"{side} {arrow}"
                 m_usd = float(tp.get("margin_usd") or self.config.risk.margin_per_trade_usd)
+                if mode == "ENTER NOW":
+                    eta_bit = f" | Max Chase: `{tp.get('max_chase_str')}` | Valid: _{tp.get('entry_valid_window_str', '')}_"
+                else:
+                    eta_bit = f" | ETA: _{tp.get('trigger_eta_str', tp.get('next_close_eta_str', ''))}_"
+                px_val = tp.get("maker_limit_str", tp.get("safe_entry_str")) if mode == "ENTER NOW" else tp.get("safe_entry_str")
                 lines.append(
                     f"{icon} *{lbl}* — *{side_disp}* (`{mode_txt}`)\n"
-                    f"   {trig}: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}` | ${m_usd:.0f} @ {tp.get('leverage', 5)}x)_ | SL: `{tp.get('sl_str')}`"
+                    f"   {trig}: `{px_val}` _(Now: `{c.get('price_str')}` | ${m_usd:.0f} @ {tp.get('leverage', 5)}x)_ | SL: `{tp.get('sl_str')}`{eta_bit}"
                 )
                 continue
             lines.append(
@@ -1354,7 +1477,7 @@ class DashboardController:
                 f"   TP1: `{tp.get('tp1_str')}` | TP2: `{tp.get('tp2_str')}` | SL: `{tp.get('sl_str')}`"
             )
         lines.append(
-            "\n💬 _Send a *screenshot* of your BTCC positions, or chat naturally: \"I went long on BTC at 74500 20x\", \"closed BTC\", \"set threshold to 75%\"_"
+            "\n💬 _Reply any coin (e.g. `eth`, `nvda`, `aapl`) for its full Price Ladder & Time ETA, send a BTCC screenshot, or type `set risk to 2%` / `set threshold to 75%`_"
         )
         return "\n".join(lines)
 
@@ -1381,7 +1504,7 @@ Important BTCC / exchange conventions:
 - "Open Price" / "Avg. Open Price" / "Entry Price" = entry_price.
 - "Margin" / "Position Margin" = margin_usd.
 - Leverage is usually shown like "20X", "50x", "100x", "5x".
-- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), GOOGLUSDT (Google / Alphabet), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA), SPACEXUSDT (SpaceX / SPCX).
+- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), GOOGLUSDT (Google / Alphabet), NVDAUSDT (Nvidia / NVDA), AAPLUSDT (Apple / AAPL), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, SPACEXUSDT (SpaceX / SPCX).
 - If the screenshot is an exchange "Positions" tab showing ZERO open positions (e.g. "Positions (0)", "No Data", "No open positions"), set screen_type="EMPTY_POSITIONS" and positions=[].
 - If the screenshot is a full exchange "Positions" list tab showing currently open positions, set screen_type="OPEN_POSITIONS".
 - If the screenshot is a "Closed Position" / "Position History" / "Realized PnL" card or row (or the user caption says "closed"), set screen_type="CLOSED_PNL" and set is_closed=true (and exit_price if visible) for closed rows.
@@ -1579,6 +1702,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 partial_frac=0.0 if is_kr_pos else 0.48,
                 trail_atr_mult=float(kr_p.trail_atr) if (is_kr_pos and kr_p is not None) else 1.75,
                 peak_favorable_price=entry_p,
+                initial_risk_dist=abs(float(entry_p) - float(sl)),
             )
             self.orchestrator.execution.open_positions[sym] = pos
             self.pending_alert_slots.pop(sym, None)
@@ -1663,6 +1787,60 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 "• To change it, just reply e.g. _\"set alert threshold to 75%\"_ or `/threshold 75`."
             )
 
+        # 1b. Dynamic Compounding Risk % Control (/risk 2.5 or "set risk to 2.5%")
+        is_risk_msg = (
+            cmd in ("/risk", "/compound")
+            or bool(re.search(r"\b(?:set|change|update)?\s*(?:compound\s*)?risk\b.*\b\d+(?:\.\d+)?\s*%?", tl))
+        )
+        if is_risk_msg:
+            m_rk = re.search(r"(\d+(?:\.\d+)?)\s*%?", tl)
+            if m_rk:
+                new_rk = round(max(0.5, min(5.0, float(m_rk.group(1)))), 2)
+                self.config.risk.compound_risk_pct = new_rk
+                self._save_alert_cache()
+                self.run_single_scan()
+                self.push_state_to_git_async(f"chore(state): update compound risk to {new_rk:.1f}% [skip ci]")
+                eq = self.get_sizing_equity_usd()
+                return (
+                    f"⚖️ *Dynamic Compounding Risk Updated to `{new_rk:.1f}%` of Equity per 1R!*\n"
+                    f"• *Sizing Equity*: `${eq:,.2f}` → *Target 1R Risk*: `${max(0.75, eq * new_rk / 100.0):.2f}`/trade\n"
+                    f"• *Turtle Pyramid (+2R)*: automatically suggests adding `+0.75R` and raising SL to breakeven.\n"
+                    f"• _Change your BTCC balance anytime with `/balance 500` (allowed risk: `0.5%`–`5.0%`)._"
+                )
+            cur_rk = float(getattr(self.config.risk, "compound_risk_pct", 2.0))
+            eq = self.get_sizing_equity_usd()
+            return (
+                f"⚖️ *Current Dynamic Risk*: `{cur_rk:.1f}%` of equity (`${eq:,.2f}` → `${max(0.75, eq * cur_rk / 100.0):.2f}` per 1R)\n"
+                "• To change risk: _\"set risk to 2.5%\"_ or `/risk 2.5`.\n"
+                "• To set your BTCC balance: _\"my balance is 500\"_ or `/balance 500`."
+            )
+
+        # 1c. Live BTCC Equity Balance for Dynamic Compounding (/balance 500 or "my balance is $500")
+        is_bal_msg = (
+            cmd in ("/balance", "/equity")
+            or bool(re.search(r"\b(?:my\s+|set\s+|update\s+)?(?:btcc\s+|account\s+)?(?:balance|equity)\b", tl))
+        )
+        if is_bal_msg:
+            m_bal = re.search(r"\$?(\d+(?:,\d{3})*(?:\.\d+)?)", tl)
+            if m_bal:
+                new_bal = round(max(10.0, float(m_bal.group(1).replace(",", ""))), 2)
+                self.sizing_equity_usd = new_bal
+                self._save_alert_cache()
+                self.run_single_scan()
+                self.push_state_to_git_async(f"chore(state): update sizing balance to ${new_bal:.0f} [skip ci]")
+                cur_rk = float(getattr(self.config.risk, "compound_risk_pct", 2.0))
+                return (
+                    f"💰 *Sizing Equity Updated to `${new_bal:,.2f}`!*\n"
+                    f"• *Dynamic 1R Risk (`{cur_rk:.1f}%`)*: `${max(0.75, new_bal * cur_rk / 100.0):.2f}` per trade\n"
+                    f"• *Auto-Compounding*: All future entry alerts & +2R pyramid sizes now scale automatically with your equity."
+                )
+            eq = self.get_sizing_equity_usd()
+            cur_rk = float(getattr(self.config.risk, "compound_risk_pct", 2.0))
+            return (
+                f"💰 *Current Sizing Equity*: `${eq:,.2f}` (`{cur_rk:.1f}%` risk = `${max(0.75, eq * cur_rk / 100.0):.2f}`/1R)\n"
+                "• Reply e.g. _\"my balance is 500\"_ or `/balance 500` to sync your BTCC balance."
+            )
+
         # 2. Timeframe Switch via Chat
         tf_match = re.search(r"\b(?:timeframe|tf|chart|switch to)\s+(5m|15m|1h|4h|1d|1w|1m|1mo)\b", tl)
         if cmd == "/tf" and len(parts) >= 2:
@@ -1705,6 +1883,9 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 if not self.orchestrator.execution.open_positions:
                     return "📭 *No open positions currently tracked* — you're already flat!"
                 recs = self.orchestrator.execution.close_all_manual(live_prices=live_px, reason="MANUAL_CLOSE_ALL")
+                if recs:
+                    self.sizing_equity_usd = round(max(10.0, self.get_sizing_equity_usd() + sum(r.net_pnl_usd for r in recs)), 2)
+                    self._save_alert_cache()
                 self._clear_symbol_position_cooldowns("ALL")
                 self.push_state_to_git_async("chore(state): close all manual positions [skip ci]")
                 closed_summary = ", ".join(
@@ -1739,6 +1920,9 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                         rec = self.orchestrator.execution.close_position_manual(
                             t_sym, exit_price=use_px, reason="MANUAL_CLOSE"
                         )
+                        if rec is not None:
+                            self.sizing_equity_usd = round(max(10.0, self.get_sizing_equity_usd() + rec.net_pnl_usd), 2)
+                            self._save_alert_cache()
                         self._clear_symbol_position_cooldowns(t_sym)
                         if rec is not None:
                             closed_msgs.append(
@@ -1920,6 +2104,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 partial_frac=0.0 if is_kr_pos else 0.48,
                 trail_atr_mult=float(kr_p.trail_atr) if (is_kr_pos and kr_p is not None) else 1.75,
                 peak_favorable_price=entry_p,
+                initial_risk_dist=abs(float(entry_p) - float(sl)),
             )
             self.orchestrator.execution.open_positions[sym_in_msg] = pos
             self.pending_alert_slots.pop(sym_in_msg, None)
@@ -2269,8 +2454,8 @@ HTML_PAGE = """<!DOCTYPE html>
         <option value="1m">1m (Scalp — High Fee Hurdle)</option>
         <option value="5m">5m (Intraday — Maker Only)</option>
         <option value="15m">15m (Intraday — Maker Only)</option>
-        <option value="1h">1h (Krypton V4 Trend + Sentiment + CVD)</option>
-        <option value="4h" selected>4h (Krypton V4 Swing + Sentiment + CVD)</option>
+        <option value="1h">1h (Krypton V5 Dual-Engine + TSMOM + Pyramid)</option>
+        <option value="4h" selected>4h (Krypton V5 Dual-Engine + TSMOM + Pyramid)</option>
         <option value="1d">1d (Daily Macro Swing &#11088; Low Friction)</option>
         <option value="1w">1w (Weekly Macro Swing)</option>
         <option value="1M">1M (Monthly Macro Swing)</option>
@@ -2287,8 +2472,8 @@ HTML_PAGE = """<!DOCTYPE html>
 <div class="health-grid" id="healthGrid"></div>
 
 <div class="section-title">
-  <span>2. Live Trend Signals (Krypton V4 + Metals + Equities) &amp; Sentiment-Gated Watch Levels</span>
-  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA 20/80 &amp; slope + CVD orderflow + Extreme-Fear short gate &amp; Gemini catalyst check</span>
+  <span>2. Live Trend Signals (Krypton V5 Dual-Engine + Metals + Equities — 12 Assets) &amp; Price/Time Guidance</span>
+  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian + V-Bottom Flip + CTA TSMOM + CVD + F&amp;G&gt;25 + Turtle Pyramid (+2R) + 2% Equity Compounding</span>
 </div>
 <div class="cards-grid" id="cardsGrid"></div>
 
@@ -2301,7 +2486,7 @@ HTML_PAGE = """<!DOCTYPE html>
     <div id="positionsContainer"></div>
 
     <div class="track-form">
-      <strong style="font-size:0.8rem;width:100%;color:var(--blue);">+ Manually Track a BTCC Trade (Monitors for Profit-Flatline Stall & TP/SL):</strong>
+      <strong style="font-size:0.8rem;width:100%;color:var(--blue);">+ Manually Track a BTCC Trade (Monitors for +2R Pyramid, Trail SL & Exit Channel):</strong>
       <select id="trkSymbol">
         <option value="XRPUSDT">XRPUSDT</option>
         <option value="DOGEUSDT">DOGEUSDT</option>
@@ -2312,11 +2497,12 @@ HTML_PAGE = """<!DOCTYPE html>
         <option value="XAUUSDT">XAUUSDT (Gold)</option>
         <option value="XAGUSDT">XAGUSDT (Silver)</option>
         <option value="GOOGLUSDT">GOOGLUSDT (Google)</option>
-        <option value="PEPEUSDT">PEPEUSDT</option>
+        <option value="NVDAUSDT">NVDAUSDT (Nvidia)</option>
+        <option value="AAPLUSDT">AAPLUSDT (Apple)</option>
         <option value="AVAXUSDT">AVAXUSDT</option>
+        <option value="PEPEUSDT">PEPEUSDT</option>
         <option value="WIFUSDT">WIFUSDT</option>
         <option value="INJUSDT">INJUSDT</option>
-        <option value="NVDAUSDT">NVDAUSDT</option>
         <option value="SPACEXUSDT">SPACEXUSDT (SpaceX)</option>
       </select>
       <select id="trkSide">
@@ -2487,17 +2673,29 @@ function renderDashboard(data) {
     const fngVal = (c.market_intel && typeof c.market_intel.fear_greed_value === 'number') ? c.market_intel.fear_greed_value : tp.fear_greed_value;
     const fngStr = (typeof fngVal === 'number') ? `${fngVal}` : 'n/a';
     const priceStr = c.price_str || c.price;
-    const entryStr = tp.safe_entry_str || tp.safe_entry || priceStr;
+    const isKr = !!tp.entry_label;
+    const entryStr = (isNow && tp.maker_limit_str) ? tp.maker_limit_str : (tp.safe_entry_str || tp.safe_entry || priceStr);
     const slStr = tp.sl_str || tp.sl;
     const tp1Str = tp.tp1_str || tp.tp1;
     const tp2Str = tp.tp2_str || tp.tp2;
+    const maxChaseStr = tp.max_chase_str || '';
+    const safeZoneStr = (tp.safe_entry_low_str && tp.safe_entry_high_str) ? `$${tp.safe_entry_low_str}–$${tp.safe_entry_high_str}` : '';
+    const pyrStr = tp.pyramid_add_str || '';
+    const pyrBeStr = tp.pyramid_be_stop_str || '';
+    const etaLine = isNow
+      ? `Valid: <strong>${tp.entry_valid_window_str || 'n/a'}</strong> &bull; Next close: ${tp.next_close_eta_str || 'n/a'} &bull; +2R: ${tp.expected_pyramid_eta_str || 'n/a'}`
+      : `Next close: <strong>${tp.next_close_eta_str || 'n/a'}</strong> &bull; Trigger ETA: <strong>${tp.trigger_eta_str || 'n/a'}</strong>`;
+    const guidanceHtml = isKr ? `
+        <div style="background:rgba(30,41,59,0.65);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:0.72rem;margin-top:2px;line-height:1.45;">
+          <div><span style="color:var(--blue);font-weight:700;">&#128205; Price Ladder:</span> ${safeZoneStr ? `Safe Zone <strong>${safeZoneStr}</strong> &bull; ` : ''}${maxChaseStr ? `No-Chase <strong style="color:var(--amber);">$${maxChaseStr}</strong>` : ''}${pyrStr ? ` &bull; +2R Add <strong style="color:var(--green);">$${pyrStr}</strong> (BE $${pyrBeStr})` : ''}</div>
+          <div><span style="color:var(--blue);font-weight:700;">&#9201; Time ETA:</span> ${etaLine}${tp.expected_hold_winner_str ? ` &bull; Hold: ${tp.expected_hold_winner_str}` : ''}</div>
+        </div>` : '';
     const ctel = c.carbon_telemetry || {};
     const deltaPct = typeof ctel.delta_norm_pct === 'number' ? `${ctel.delta_norm_pct >= 0 ? '+' : ''}${ctel.delta_norm_pct.toFixed(1)}%` : 'n/a';
     const cvd6Pct = typeof ctel.cvd_6_pct === 'number' ? `${ctel.cvd_6_pct >= 0 ? '+' : ''}${ctel.cvd_6_pct.toFixed(1)}%` : 'n/a';
     const whaleRatio = typeof ctel.whale_print_ratio === 'number' ? `${ctel.whale_print_ratio.toFixed(2)}x` : 'n/a';
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
     const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
-    const isKr = !!tp.entry_label;
     const pillLabel = isStandAside ? 'STAND ASIDE' : `${side} ${isLong ? '&#9650;' : '&#9660;'}`;
 
     return `
@@ -2546,6 +2744,8 @@ function renderDashboard(data) {
           <div><span style="color:var(--muted);display:block;">Fear &amp; Greed</span><strong style="color:${fngVal <= 25 ? 'var(--amber)' : 'var(--text)'}">${fngStr}</strong></div>
           <div><span style="color:var(--muted);display:block;">${isKr ? 'Hold-out E[R]' : 'Meta E[R]'}</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
         </div>
+
+        ${guidanceHtml}
 
         <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
           ${tp.simple_why || ''} &bull; Safe Size: <strong>$${mUsd} @ ${lev}x${slLossStr}</strong>${sizingWarn}
