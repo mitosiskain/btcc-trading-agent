@@ -298,8 +298,8 @@
         <option value="1m">1m (Scalp — High Fee Hurdle)</option>
         <option value="5m">5m (Intraday — Maker Only)</option>
         <option value="15m">15m (Intraday — Maker Only)</option>
-        <option value="1h">1h (Krypton V4 Trend + Sentiment + CVD)</option>
-        <option value="4h" selected>4h (Krypton V4 Swing + Sentiment + CVD)</option>
+        <option value="1h">1h (Krypton V5 Dual-Engine + TSMOM + Pyramid)</option>
+        <option value="4h" selected>4h (Krypton V5 Dual-Engine + TSMOM + Pyramid)</option>
         <option value="1d">1d (Daily Macro Swing &#11088; Low Friction)</option>
         <option value="1w">1w (Weekly Macro Swing)</option>
         <option value="1M">1M (Monthly Macro Swing)</option>
@@ -316,8 +316,8 @@
 <div class="health-grid" id="healthGrid"></div>
 
 <div class="section-title">
-  <span>2. Live Trend Signals (Krypton V4 + Metals + Equities) &amp; Sentiment-Gated Watch Levels</span>
-  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA 20/80 &amp; slope + CVD orderflow + Extreme-Fear short gate &amp; Gemini catalyst check</span>
+  <span>2. Live Trend Signals (Krypton V5 Dual-Engine + Metals + Equities — 12 Assets) &amp; Price/Time Guidance</span>
+  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian + V-Bottom Flip + CTA TSMOM + CVD + F&amp;G&gt;25 + Turtle Pyramid (+2R) + 2% Equity Compounding</span>
 </div>
 <div class="cards-grid" id="cardsGrid"></div>
 
@@ -330,7 +330,7 @@
     <div id="positionsContainer"></div>
 
     <div class="track-form">
-      <strong style="font-size:0.8rem;width:100%;color:var(--blue);">+ Manually Track a BTCC Trade (Monitors for Profit-Flatline Stall & TP/SL):</strong>
+      <strong style="font-size:0.8rem;width:100%;color:var(--blue);">+ Manually Track a BTCC Trade (Monitors for +2R Pyramid, Trail SL & Exit Channel):</strong>
       <select id="trkSymbol">
         <option value="XRPUSDT">XRPUSDT</option>
         <option value="DOGEUSDT">DOGEUSDT</option>
@@ -341,11 +341,12 @@
         <option value="XAUUSDT">XAUUSDT (Gold)</option>
         <option value="XAGUSDT">XAGUSDT (Silver)</option>
         <option value="GOOGLUSDT">GOOGLUSDT (Google)</option>
-        <option value="PEPEUSDT">PEPEUSDT</option>
+        <option value="NVDAUSDT">NVDAUSDT (Nvidia)</option>
+        <option value="AAPLUSDT">AAPLUSDT (Apple)</option>
         <option value="AVAXUSDT">AVAXUSDT</option>
+        <option value="PEPEUSDT">PEPEUSDT</option>
         <option value="WIFUSDT">WIFUSDT</option>
         <option value="INJUSDT">INJUSDT</option>
-        <option value="NVDAUSDT">NVDAUSDT</option>
         <option value="SPACEXUSDT">SPACEXUSDT (SpaceX)</option>
       </select>
       <select id="trkSide">
@@ -516,17 +517,29 @@ function renderDashboard(data) {
     const fngVal = (c.market_intel && typeof c.market_intel.fear_greed_value === 'number') ? c.market_intel.fear_greed_value : tp.fear_greed_value;
     const fngStr = (typeof fngVal === 'number') ? `${fngVal}` : 'n/a';
     const priceStr = c.price_str || c.price;
-    const entryStr = tp.safe_entry_str || tp.safe_entry || priceStr;
+    const isKr = !!tp.entry_label;
+    const entryStr = (isNow && tp.maker_limit_str) ? tp.maker_limit_str : (tp.safe_entry_str || tp.safe_entry || priceStr);
     const slStr = tp.sl_str || tp.sl;
     const tp1Str = tp.tp1_str || tp.tp1;
     const tp2Str = tp.tp2_str || tp.tp2;
+    const maxChaseStr = tp.max_chase_str || '';
+    const safeZoneStr = (tp.safe_entry_low_str && tp.safe_entry_high_str) ? `$${tp.safe_entry_low_str}–$${tp.safe_entry_high_str}` : '';
+    const pyrStr = tp.pyramid_add_str || '';
+    const pyrBeStr = tp.pyramid_be_stop_str || '';
+    const etaLine = isNow
+      ? `Valid: <strong>${tp.entry_valid_window_str || 'n/a'}</strong> &bull; Next close: ${tp.next_close_eta_str || 'n/a'} &bull; +2R: ${tp.expected_pyramid_eta_str || 'n/a'}`
+      : `Next close: <strong>${tp.next_close_eta_str || 'n/a'}</strong> &bull; Trigger ETA: <strong>${tp.trigger_eta_str || 'n/a'}</strong>`;
+    const guidanceHtml = isKr ? `
+        <div style="background:rgba(30,41,59,0.65);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:0.72rem;margin-top:2px;line-height:1.45;">
+          <div><span style="color:var(--blue);font-weight:700;">&#128205; Price Ladder:</span> ${safeZoneStr ? `Safe Zone <strong>${safeZoneStr}</strong> &bull; ` : ''}${maxChaseStr ? `No-Chase <strong style="color:var(--amber);">$${maxChaseStr}</strong>` : ''}${pyrStr ? ` &bull; +2R Add <strong style="color:var(--green);">$${pyrStr}</strong> (BE $${pyrBeStr})` : ''}</div>
+          <div><span style="color:var(--blue);font-weight:700;">&#9201; Time ETA:</span> ${etaLine}${tp.expected_hold_winner_str ? ` &bull; Hold: ${tp.expected_hold_winner_str}` : ''}</div>
+        </div>` : '';
     const ctel = c.carbon_telemetry || {};
     const deltaPct = typeof ctel.delta_norm_pct === 'number' ? `${ctel.delta_norm_pct >= 0 ? '+' : ''}${ctel.delta_norm_pct.toFixed(1)}%` : 'n/a';
     const cvd6Pct = typeof ctel.cvd_6_pct === 'number' ? `${ctel.cvd_6_pct >= 0 ? '+' : ''}${ctel.cvd_6_pct.toFixed(1)}%` : 'n/a';
     const whaleRatio = typeof ctel.whale_print_ratio === 'number' ? `${ctel.whale_print_ratio.toFixed(2)}x` : 'n/a';
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
     const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
-    const isKr = !!tp.entry_label;
     const pillLabel = isStandAside ? 'STAND ASIDE' : `${side} ${isLong ? '&#9650;' : '&#9660;'}`;
 
     return `
@@ -575,6 +588,8 @@ function renderDashboard(data) {
           <div><span style="color:var(--muted);display:block;">Fear &amp; Greed</span><strong style="color:${fngVal <= 25 ? 'var(--amber)' : 'var(--text)'}">${fngStr}</strong></div>
           <div><span style="color:var(--muted);display:block;">${isKr ? 'Hold-out E[R]' : 'Meta E[R]'}</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
         </div>
+
+        ${guidanceHtml}
 
         <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
           ${tp.simple_why || ''} &bull; Safe Size: <strong>$${mUsd} @ ${lev}x${slLossStr}</strong>${sizingWarn}
