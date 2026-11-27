@@ -1,0 +1,2178 @@
+{
+ "generated_at": "2026-11-13T16:01:47.055147+00:00",
+ "params": {
+  "entry_days": 40,
+  "exit_days": 20,
+  "sma_days": 150,
+  "atr_days": 20,
+  "init_stop_atr": 2.5,
+  "trail_atr": 4.0,
+  "allow_shorts": false
+ },
+ "causality_check": {
+  "passed": true,
+  "points_verified": 8,
+  "max_abs_diff": 0.0
+ },
+ "grid": [
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 594,
+    "profit_factor": 1.652,
+    "expectancy_r": 0.2975,
+    "total_net_pnl_usd": 4341.02,
+    "max_drawdown_usd": 420.59,
+    "t_stat": 4.12,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 403,
+    "profit_factor": 1.223,
+    "expectancy_r": 0.0985,
+    "total_net_pnl_usd": 1050.87,
+    "max_drawdown_usd": 659.05,
+    "t_stat": 1.38,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 936,
+    "profit_factor": 1.383,
+    "expectancy_r": 0.1822,
+    "total_net_pnl_usd": 4063.48,
+    "max_drawdown_usd": 509.06,
+    "t_stat": 3.58,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 558,
+    "profit_factor": 1.026,
+    "expectancy_r": 0.0059,
+    "total_net_pnl_usd": 167.62,
+    "max_drawdown_usd": 762.6,
+    "t_stat": 0.11,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 559,
+    "profit_factor": 1.731,
+    "expectancy_r": 0.3421,
+    "total_net_pnl_usd": 4783.01,
+    "max_drawdown_usd": 394.69,
+    "t_stat": 4.13,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 370,
+    "profit_factor": 1.32,
+    "expectancy_r": 0.1512,
+    "total_net_pnl_usd": 1453.62,
+    "max_drawdown_usd": 713.69,
+    "t_stat": 1.8,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 887,
+    "profit_factor": 1.451,
+    "expectancy_r": 0.2168,
+    "total_net_pnl_usd": 4696.74,
+    "max_drawdown_usd": 587.82,
+    "t_stat": 3.77,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 519,
+    "profit_factor": 1.055,
+    "expectancy_r": 0.0211,
+    "total_net_pnl_usd": 363.12,
+    "max_drawdown_usd": 814.32,
+    "t_stat": 0.33,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 546,
+    "profit_factor": 1.819,
+    "expectancy_r": 0.3884,
+    "total_net_pnl_usd": 5308.13,
+    "max_drawdown_usd": 409.0,
+    "t_stat": 4.27,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 364,
+    "profit_factor": 1.307,
+    "expectancy_r": 0.1451,
+    "total_net_pnl_usd": 1379.82,
+    "max_drawdown_usd": 719.43,
+    "t_stat": 1.69,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 873,
+    "profit_factor": 1.504,
+    "expectancy_r": 0.244,
+    "total_net_pnl_usd": 5221.27,
+    "max_drawdown_usd": 481.79,
+    "t_stat": 3.94,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 508,
+    "profit_factor": 1.07,
+    "expectancy_r": 0.0273,
+    "total_net_pnl_usd": 448.36,
+    "max_drawdown_usd": 738.77,
+    "t_stat": 0.41,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 580,
+    "profit_factor": 1.656,
+    "expectancy_r": 0.2476,
+    "total_net_pnl_usd": 3566.38,
+    "max_drawdown_usd": 387.42,
+    "t_stat": 4.17,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 383,
+    "profit_factor": 1.311,
+    "expectancy_r": 0.1171,
+    "total_net_pnl_usd": 1103.97,
+    "max_drawdown_usd": 530.19,
+    "t_stat": 1.96,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 919,
+    "profit_factor": 1.346,
+    "expectancy_r": 0.1475,
+    "total_net_pnl_usd": 3099.42,
+    "max_drawdown_usd": 471.4,
+    "t_stat": 3.53,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 537,
+    "profit_factor": 1.054,
+    "expectancy_r": 0.0239,
+    "total_net_pnl_usd": 277.47,
+    "max_drawdown_usd": 616.6,
+    "t_stat": 0.52,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 541,
+    "profit_factor": 1.733,
+    "expectancy_r": 0.291,
+    "total_net_pnl_usd": 3917.65,
+    "max_drawdown_usd": 378.73,
+    "t_stat": 4.23,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 351,
+    "profit_factor": 1.409,
+    "expectancy_r": 0.1578,
+    "total_net_pnl_usd": 1408.07,
+    "max_drawdown_usd": 557.33,
+    "t_stat": 2.23,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 865,
+    "profit_factor": 1.399,
+    "expectancy_r": 0.1786,
+    "total_net_pnl_usd": 3539.48,
+    "max_drawdown_usd": 525.16,
+    "t_stat": 3.75,
+    "liquidations": 1
+   },
+   "valid_2016_2025": {
+    "total_trades": 497,
+    "profit_factor": 1.079,
+    "expectancy_r": 0.0343,
+    "total_net_pnl_usd": 409.15,
+    "max_drawdown_usd": 637.06,
+    "t_stat": 0.64,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 530,
+    "profit_factor": 1.806,
+    "expectancy_r": 0.3249,
+    "total_net_pnl_usd": 4305.53,
+    "max_drawdown_usd": 381.86,
+    "t_stat": 4.31,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 345,
+    "profit_factor": 1.398,
+    "expectancy_r": 0.1554,
+    "total_net_pnl_usd": 1351.76,
+    "max_drawdown_usd": 567.78,
+    "t_stat": 2.15,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 852,
+    "profit_factor": 1.444,
+    "expectancy_r": 0.1986,
+    "total_net_pnl_usd": 3930.39,
+    "max_drawdown_usd": 428.45,
+    "t_stat": 3.87,
+    "liquidations": 1
+   },
+   "valid_2016_2025": {
+    "total_trades": 486,
+    "profit_factor": 1.094,
+    "expectancy_r": 0.0413,
+    "total_net_pnl_usd": 478.76,
+    "max_drawdown_usd": 567.44,
+    "t_stat": 0.74,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 579,
+    "profit_factor": 1.617,
+    "expectancy_r": 0.2824,
+    "total_net_pnl_usd": 3976.26,
+    "max_drawdown_usd": 324.43,
+    "t_stat": 3.95,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 402,
+    "profit_factor": 1.223,
+    "expectancy_r": 0.0962,
+    "total_net_pnl_usd": 1047.71,
+    "max_drawdown_usd": 657.18,
+    "t_stat": 1.35,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 880,
+    "profit_factor": 1.378,
+    "expectancy_r": 0.1798,
+    "total_net_pnl_usd": 3741.61,
+    "max_drawdown_usd": 512.88,
+    "t_stat": 3.45,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 533,
+    "profit_factor": 1.021,
+    "expectancy_r": 0.0037,
+    "total_net_pnl_usd": 136.02,
+    "max_drawdown_usd": 740.4,
+    "t_stat": 0.06,
+    "liquidations": 2
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 547,
+    "profit_factor": 1.681,
+    "expectancy_r": 0.3204,
+    "total_net_pnl_usd": 4338.07,
+    "max_drawdown_usd": 331.84,
+    "t_stat": 3.91,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 370,
+    "profit_factor": 1.318,
+    "expectancy_r": 0.1472,
+    "total_net_pnl_usd": 1442.44,
+    "max_drawdown_usd": 721.91,
+    "t_stat": 1.75,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 837,
+    "profit_factor": 1.435,
+    "expectancy_r": 0.2087,
+    "total_net_pnl_usd": 4246.52,
+    "max_drawdown_usd": 553.22,
+    "t_stat": 3.55,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 498,
+    "profit_factor": 1.069,
+    "expectancy_r": 0.0294,
+    "total_net_pnl_usd": 439.46,
+    "max_drawdown_usd": 820.37,
+    "t_stat": 0.44,
+    "liquidations": 2
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 534,
+    "profit_factor": 1.772,
+    "expectancy_r": 0.3674,
+    "total_net_pnl_usd": 4865.0,
+    "max_drawdown_usd": 335.05,
+    "t_stat": 4.06,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 364,
+    "profit_factor": 1.308,
+    "expectancy_r": 0.1424,
+    "total_net_pnl_usd": 1383.08,
+    "max_drawdown_usd": 757.14,
+    "t_stat": 1.66,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 823,
+    "profit_factor": 1.493,
+    "expectancy_r": 0.2377,
+    "total_net_pnl_usd": 4779.04,
+    "max_drawdown_usd": 439.73,
+    "t_stat": 3.74,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 488,
+    "profit_factor": 1.08,
+    "expectancy_r": 0.0342,
+    "total_net_pnl_usd": 507.33,
+    "max_drawdown_usd": 710.55,
+    "t_stat": 0.49,
+    "liquidations": 2
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 565,
+    "profit_factor": 1.625,
+    "expectancy_r": 0.235,
+    "total_net_pnl_usd": 3292.04,
+    "max_drawdown_usd": 304.4,
+    "t_stat": 4.0,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 383,
+    "profit_factor": 1.29,
+    "expectancy_r": 0.1116,
+    "total_net_pnl_usd": 1037.99,
+    "max_drawdown_usd": 531.38,
+    "t_stat": 1.87,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 863,
+    "profit_factor": 1.348,
+    "expectancy_r": 0.1473,
+    "total_net_pnl_usd": 2908.28,
+    "max_drawdown_usd": 470.65,
+    "t_stat": 3.45,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 511,
+    "profit_factor": 1.059,
+    "expectancy_r": 0.0265,
+    "total_net_pnl_usd": 294.32,
+    "max_drawdown_usd": 595.64,
+    "t_stat": 0.55,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 528,
+    "profit_factor": 1.697,
+    "expectancy_r": 0.2753,
+    "total_net_pnl_usd": 3605.54,
+    "max_drawdown_usd": 293.51,
+    "t_stat": 4.02,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 352,
+    "profit_factor": 1.386,
+    "expectancy_r": 0.1516,
+    "total_net_pnl_usd": 1342.29,
+    "max_drawdown_usd": 553.76,
+    "t_stat": 2.15,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 814,
+    "profit_factor": 1.391,
+    "expectancy_r": 0.1744,
+    "total_net_pnl_usd": 3243.89,
+    "max_drawdown_usd": 520.86,
+    "t_stat": 3.57,
+    "liquidations": 1
+   },
+   "valid_2016_2025": {
+    "total_trades": 475,
+    "profit_factor": 1.114,
+    "expectancy_r": 0.049,
+    "total_net_pnl_usd": 568.02,
+    "max_drawdown_usd": 610.83,
+    "t_stat": 0.87,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 518,
+    "profit_factor": 1.765,
+    "expectancy_r": 0.3069,
+    "total_net_pnl_usd": 3969.12,
+    "max_drawdown_usd": 315.45,
+    "t_stat": 4.09,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 346,
+    "profit_factor": 1.377,
+    "expectancy_r": 0.1502,
+    "total_net_pnl_usd": 1294.32,
+    "max_drawdown_usd": 564.21,
+    "t_stat": 2.08,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 20,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 802,
+    "profit_factor": 1.44,
+    "expectancy_r": 0.1952,
+    "total_net_pnl_usd": 3641.26,
+    "max_drawdown_usd": 420.29,
+    "t_stat": 3.7,
+    "liquidations": 1
+   },
+   "valid_2016_2025": {
+    "total_trades": 465,
+    "profit_factor": 1.126,
+    "expectancy_r": 0.0549,
+    "total_net_pnl_usd": 617.4,
+    "max_drawdown_usd": 534.07,
+    "t_stat": 0.94,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 452,
+    "profit_factor": 1.893,
+    "expectancy_r": 0.423,
+    "total_net_pnl_usd": 4894.38,
+    "max_drawdown_usd": 269.36,
+    "t_stat": 4.39,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 293,
+    "profit_factor": 1.424,
+    "expectancy_r": 0.1964,
+    "total_net_pnl_usd": 1530.43,
+    "max_drawdown_usd": 473.26,
+    "t_stat": 2.06,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 708,
+    "profit_factor": 1.481,
+    "expectancy_r": 0.2438,
+    "total_net_pnl_usd": 4266.22,
+    "max_drawdown_usd": 574.52,
+    "t_stat": 3.64,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 420,
+    "profit_factor": 1.111,
+    "expectancy_r": 0.0502,
+    "total_net_pnl_usd": 602.96,
+    "max_drawdown_usd": 678.56,
+    "t_stat": 0.69,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 383,
+    "profit_factor": 1.962,
+    "expectancy_r": 0.5272,
+    "total_net_pnl_usd": 5207.37,
+    "max_drawdown_usd": 391.39,
+    "t_stat": 4.23,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 226,
+    "profit_factor": 1.77,
+    "expectancy_r": 0.4001,
+    "total_net_pnl_usd": 2372.45,
+    "max_drawdown_usd": 406.22,
+    "t_stat": 2.93,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 611,
+    "profit_factor": 1.561,
+    "expectancy_r": 0.3196,
+    "total_net_pnl_usd": 4887.28,
+    "max_drawdown_usd": 734.53,
+    "t_stat": 3.75,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 337,
+    "profit_factor": 1.271,
+    "expectancy_r": 0.1436,
+    "total_net_pnl_usd": 1319.31,
+    "max_drawdown_usd": 648.61,
+    "t_stat": 1.45,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 341,
+    "profit_factor": 2.333,
+    "expectancy_r": 0.7555,
+    "total_net_pnl_usd": 6561.48,
+    "max_drawdown_usd": 309.47,
+    "t_stat": 4.16,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 210,
+    "profit_factor": 1.802,
+    "expectancy_r": 0.446,
+    "total_net_pnl_usd": 2410.77,
+    "max_drawdown_usd": 432.06,
+    "t_stat": 2.84,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 563,
+    "profit_factor": 1.751,
+    "expectancy_r": 0.4457,
+    "total_net_pnl_usd": 6217.43,
+    "max_drawdown_usd": 408.02,
+    "t_stat": 3.82,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 314,
+    "profit_factor": 1.31,
+    "expectancy_r": 0.1787,
+    "total_net_pnl_usd": 1473.18,
+    "max_drawdown_usd": 568.98,
+    "t_stat": 1.57,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 430,
+    "profit_factor": 2.002,
+    "expectancy_r": 0.3815,
+    "total_net_pnl_usd": 4246.12,
+    "max_drawdown_usd": 282.42,
+    "t_stat": 4.69,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 276,
+    "profit_factor": 1.499,
+    "expectancy_r": 0.2062,
+    "total_net_pnl_usd": 1370.84,
+    "max_drawdown_usd": 291.39,
+    "t_stat": 2.54,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 682,
+    "profit_factor": 1.48,
+    "expectancy_r": 0.2107,
+    "total_net_pnl_usd": 3492.96,
+    "max_drawdown_usd": 387.16,
+    "t_stat": 3.75,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 399,
+    "profit_factor": 1.126,
+    "expectancy_r": 0.0671,
+    "total_net_pnl_usd": 541.36,
+    "max_drawdown_usd": 475.75,
+    "t_stat": 1.08,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 355,
+    "profit_factor": 2.124,
+    "expectancy_r": 0.4998,
+    "total_net_pnl_usd": 4644.1,
+    "max_drawdown_usd": 252.14,
+    "t_stat": 4.61,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 211,
+    "profit_factor": 1.796,
+    "expectancy_r": 0.3772,
+    "total_net_pnl_usd": 1922.79,
+    "max_drawdown_usd": 268.69,
+    "t_stat": 3.2,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 578,
+    "profit_factor": 1.565,
+    "expectancy_r": 0.2835,
+    "total_net_pnl_usd": 4062.2,
+    "max_drawdown_usd": 669.21,
+    "t_stat": 3.87,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 317,
+    "profit_factor": 1.251,
+    "expectancy_r": 0.1399,
+    "total_net_pnl_usd": 992.96,
+    "max_drawdown_usd": 456.37,
+    "t_stat": 1.63,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 316,
+    "profit_factor": 2.458,
+    "expectancy_r": 0.694,
+    "total_net_pnl_usd": 5617.26,
+    "max_drawdown_usd": 252.3,
+    "t_stat": 4.38,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 191,
+    "profit_factor": 1.925,
+    "expectancy_r": 0.4516,
+    "total_net_pnl_usd": 2085.85,
+    "max_drawdown_usd": 274.38,
+    "t_stat": 3.26,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 531,
+    "profit_factor": 1.735,
+    "expectancy_r": 0.3923,
+    "total_net_pnl_usd": 5089.41,
+    "max_drawdown_usd": 374.68,
+    "t_stat": 3.89,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 291,
+    "profit_factor": 1.326,
+    "expectancy_r": 0.1838,
+    "total_net_pnl_usd": 1231.69,
+    "max_drawdown_usd": 437.36,
+    "t_stat": 1.84,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 439,
+    "profit_factor": 1.86,
+    "expectancy_r": 0.4151,
+    "total_net_pnl_usd": 4641.5,
+    "max_drawdown_usd": 269.36,
+    "t_stat": 4.11,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 290,
+    "profit_factor": 1.394,
+    "expectancy_r": 0.1829,
+    "total_net_pnl_usd": 1418.65,
+    "max_drawdown_usd": 445.19,
+    "t_stat": 1.91,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 659,
+    "profit_factor": 1.513,
+    "expectancy_r": 0.256,
+    "total_net_pnl_usd": 4199.24,
+    "max_drawdown_usd": 399.09,
+    "t_stat": 3.54,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 394,
+    "profit_factor": 1.131,
+    "expectancy_r": 0.0634,
+    "total_net_pnl_usd": 674.77,
+    "max_drawdown_usd": 693.9,
+    "t_stat": 0.83,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 372,
+    "profit_factor": 1.939,
+    "expectancy_r": 0.515,
+    "total_net_pnl_usd": 4953.95,
+    "max_drawdown_usd": 382.22,
+    "t_stat": 3.98,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 224,
+    "profit_factor": 1.725,
+    "expectancy_r": 0.3773,
+    "total_net_pnl_usd": 2228.85,
+    "max_drawdown_usd": 407.64,
+    "t_stat": 2.77,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 567,
+    "profit_factor": 1.603,
+    "expectancy_r": 0.3342,
+    "total_net_pnl_usd": 4799.84,
+    "max_drawdown_usd": 548.71,
+    "t_stat": 3.67,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 316,
+    "profit_factor": 1.319,
+    "expectancy_r": 0.1742,
+    "total_net_pnl_usd": 1452.02,
+    "max_drawdown_usd": 575.31,
+    "t_stat": 1.68,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 332,
+    "profit_factor": 2.276,
+    "expectancy_r": 0.7153,
+    "total_net_pnl_usd": 6136.11,
+    "max_drawdown_usd": 327.56,
+    "t_stat": 4.15,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 208,
+    "profit_factor": 1.769,
+    "expectancy_r": 0.4269,
+    "total_net_pnl_usd": 2294.95,
+    "max_drawdown_usd": 419.94,
+    "t_stat": 2.72,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 522,
+    "profit_factor": 1.782,
+    "expectancy_r": 0.4471,
+    "total_net_pnl_usd": 5913.26,
+    "max_drawdown_usd": 402.9,
+    "t_stat": 3.86,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 296,
+    "profit_factor": 1.346,
+    "expectancy_r": 0.2041,
+    "total_net_pnl_usd": 1553.23,
+    "max_drawdown_usd": 499.11,
+    "t_stat": 1.71,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 418,
+    "profit_factor": 1.967,
+    "expectancy_r": 0.3727,
+    "total_net_pnl_usd": 4046.15,
+    "max_drawdown_usd": 225.42,
+    "t_stat": 4.37,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 273,
+    "profit_factor": 1.461,
+    "expectancy_r": 0.1949,
+    "total_net_pnl_usd": 1268.22,
+    "max_drawdown_usd": 300.02,
+    "t_stat": 2.39,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 634,
+    "profit_factor": 1.521,
+    "expectancy_r": 0.2225,
+    "total_net_pnl_usd": 3494.08,
+    "max_drawdown_usd": 313.41,
+    "t_stat": 3.67,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 373,
+    "profit_factor": 1.155,
+    "expectancy_r": 0.0829,
+    "total_net_pnl_usd": 627.84,
+    "max_drawdown_usd": 491.62,
+    "t_stat": 1.27,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 345,
+    "profit_factor": 2.089,
+    "expectancy_r": 0.4862,
+    "total_net_pnl_usd": 4380.64,
+    "max_drawdown_usd": 252.14,
+    "t_stat": 4.34,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 209,
+    "profit_factor": 1.754,
+    "expectancy_r": 0.3605,
+    "total_net_pnl_usd": 1820.9,
+    "max_drawdown_usd": 268.69,
+    "t_stat": 3.06,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 535,
+    "profit_factor": 1.619,
+    "expectancy_r": 0.3015,
+    "total_net_pnl_usd": 4032.27,
+    "max_drawdown_usd": 408.86,
+    "t_stat": 3.86,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 296,
+    "profit_factor": 1.321,
+    "expectancy_r": 0.1743,
+    "total_net_pnl_usd": 1175.96,
+    "max_drawdown_usd": 357.62,
+    "t_stat": 1.94,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 309,
+    "profit_factor": 2.377,
+    "expectancy_r": 0.646,
+    "total_net_pnl_usd": 5206.14,
+    "max_drawdown_usd": 284.77,
+    "t_stat": 4.33,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 189,
+    "profit_factor": 1.896,
+    "expectancy_r": 0.4395,
+    "total_net_pnl_usd": 2007.63,
+    "max_drawdown_usd": 274.38,
+    "t_stat": 3.16,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 40,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 492,
+    "profit_factor": 1.78,
+    "expectancy_r": 0.3958,
+    "total_net_pnl_usd": 4892.47,
+    "max_drawdown_usd": 357.83,
+    "t_stat": 3.97,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 272,
+    "profit_factor": 1.397,
+    "expectancy_r": 0.221,
+    "total_net_pnl_usd": 1390.65,
+    "max_drawdown_usd": 365.15,
+    "t_stat": 2.11,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 419,
+    "profit_factor": 1.87,
+    "expectancy_r": 0.4261,
+    "total_net_pnl_usd": 4519.99,
+    "max_drawdown_usd": 283.09,
+    "t_stat": 4.26,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 284,
+    "profit_factor": 1.328,
+    "expectancy_r": 0.1596,
+    "total_net_pnl_usd": 1213.98,
+    "max_drawdown_usd": 535.76,
+    "t_stat": 1.55,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 648,
+    "profit_factor": 1.474,
+    "expectancy_r": 0.2454,
+    "total_net_pnl_usd": 3909.29,
+    "max_drawdown_usd": 532.57,
+    "t_stat": 3.5,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 402,
+    "profit_factor": 1.062,
+    "expectancy_r": 0.0247,
+    "total_net_pnl_usd": 332.1,
+    "max_drawdown_usd": 720.64,
+    "t_stat": 0.32,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 342,
+    "profit_factor": 2.032,
+    "expectancy_r": 0.5828,
+    "total_net_pnl_usd": 5094.69,
+    "max_drawdown_usd": 465.9,
+    "t_stat": 4.35,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 206,
+    "profit_factor": 1.869,
+    "expectancy_r": 0.4674,
+    "total_net_pnl_usd": 2566.39,
+    "max_drawdown_usd": 469.14,
+    "t_stat": 2.75,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 533,
+    "profit_factor": 1.663,
+    "expectancy_r": 0.3773,
+    "total_net_pnl_usd": 5110.54,
+    "max_drawdown_usd": 793.45,
+    "t_stat": 3.99,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 308,
+    "profit_factor": 1.321,
+    "expectancy_r": 0.1708,
+    "total_net_pnl_usd": 1495.6,
+    "max_drawdown_usd": 676.9,
+    "t_stat": 1.42,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 295,
+    "profit_factor": 2.421,
+    "expectancy_r": 0.8594,
+    "total_net_pnl_usd": 6396.3,
+    "max_drawdown_usd": 386.83,
+    "t_stat": 4.09,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 184,
+    "profit_factor": 1.935,
+    "expectancy_r": 0.5353,
+    "total_net_pnl_usd": 2592.73,
+    "max_drawdown_usd": 418.96,
+    "t_stat": 2.74,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 475,
+    "profit_factor": 1.871,
+    "expectancy_r": 0.5335,
+    "total_net_pnl_usd": 6364.31,
+    "max_drawdown_usd": 610.69,
+    "t_stat": 3.84,
+    "liquidations": 1
+   },
+   "valid_2016_2025": {
+    "total_trades": 278,
+    "profit_factor": 1.356,
+    "expectancy_r": 0.2058,
+    "total_net_pnl_usd": 1585.77,
+    "max_drawdown_usd": 550.66,
+    "t_stat": 1.49,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 400,
+    "profit_factor": 1.929,
+    "expectancy_r": 0.3735,
+    "total_net_pnl_usd": 3799.17,
+    "max_drawdown_usd": 234.49,
+    "t_stat": 4.42,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 267,
+    "profit_factor": 1.39,
+    "expectancy_r": 0.1747,
+    "total_net_pnl_usd": 1099.7,
+    "max_drawdown_usd": 341.86,
+    "t_stat": 1.98,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 625,
+    "profit_factor": 1.449,
+    "expectancy_r": 0.2072,
+    "total_net_pnl_usd": 3079.98,
+    "max_drawdown_usd": 475.78,
+    "t_stat": 3.52,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 381,
+    "profit_factor": 1.077,
+    "expectancy_r": 0.0476,
+    "total_net_pnl_usd": 325.14,
+    "max_drawdown_usd": 519.72,
+    "t_stat": 0.72,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 319,
+    "profit_factor": 2.085,
+    "expectancy_r": 0.5242,
+    "total_net_pnl_usd": 4260.6,
+    "max_drawdown_usd": 410.71,
+    "t_stat": 4.52,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 191,
+    "profit_factor": 1.841,
+    "expectancy_r": 0.4263,
+    "total_net_pnl_usd": 1970.9,
+    "max_drawdown_usd": 287.34,
+    "t_stat": 2.88,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 504,
+    "profit_factor": 1.621,
+    "expectancy_r": 0.3222,
+    "total_net_pnl_usd": 4037.54,
+    "max_drawdown_usd": 765.0,
+    "t_stat": 3.96,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 287,
+    "profit_factor": 1.277,
+    "expectancy_r": 0.1625,
+    "total_net_pnl_usd": 1045.87,
+    "max_drawdown_usd": 422.93,
+    "t_stat": 1.55,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 276,
+    "profit_factor": 2.384,
+    "expectancy_r": 0.752,
+    "total_net_pnl_usd": 5132.74,
+    "max_drawdown_usd": 357.59,
+    "t_stat": 4.14,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 168,
+    "profit_factor": 1.948,
+    "expectancy_r": 0.5039,
+    "total_net_pnl_usd": 2057.9,
+    "max_drawdown_usd": 242.97,
+    "t_stat": 2.92,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 150,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 449,
+    "profit_factor": 1.795,
+    "expectancy_r": 0.4577,
+    "total_net_pnl_usd": 4970.84,
+    "max_drawdown_usd": 622.18,
+    "t_stat": 3.84,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 257,
+    "profit_factor": 1.319,
+    "expectancy_r": 0.1951,
+    "total_net_pnl_usd": 1150.35,
+    "max_drawdown_usd": 501.14,
+    "t_stat": 1.61,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 407,
+    "profit_factor": 1.79,
+    "expectancy_r": 0.3971,
+    "total_net_pnl_usd": 4058.49,
+    "max_drawdown_usd": 297.57,
+    "t_stat": 3.94,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 281,
+    "profit_factor": 1.306,
+    "expectancy_r": 0.1479,
+    "total_net_pnl_usd": 1123.01,
+    "max_drawdown_usd": 514.86,
+    "t_stat": 1.43,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 604,
+    "profit_factor": 1.479,
+    "expectancy_r": 0.2475,
+    "total_net_pnl_usd": 3675.44,
+    "max_drawdown_usd": 436.66,
+    "t_stat": 3.4,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 378,
+    "profit_factor": 1.082,
+    "expectancy_r": 0.038,
+    "total_net_pnl_usd": 417.66,
+    "max_drawdown_usd": 722.75,
+    "t_stat": 0.46,
+    "liquidations": 1
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 333,
+    "profit_factor": 1.939,
+    "expectancy_r": 0.5372,
+    "total_net_pnl_usd": 4576.94,
+    "max_drawdown_usd": 461.92,
+    "t_stat": 4.02,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 203,
+    "profit_factor": 1.851,
+    "expectancy_r": 0.4573,
+    "total_net_pnl_usd": 2482.76,
+    "max_drawdown_usd": 449.25,
+    "t_stat": 2.67,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 495,
+    "profit_factor": 1.681,
+    "expectancy_r": 0.381,
+    "total_net_pnl_usd": 4832.6,
+    "max_drawdown_usd": 646.81,
+    "t_stat": 3.9,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 288,
+    "profit_factor": 1.393,
+    "expectancy_r": 0.2152,
+    "total_net_pnl_usd": 1693.78,
+    "max_drawdown_usd": 599.66,
+    "t_stat": 1.7,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 288,
+    "profit_factor": 2.286,
+    "expectancy_r": 0.7795,
+    "total_net_pnl_usd": 5740.68,
+    "max_drawdown_usd": 360.26,
+    "t_stat": 3.99,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 181,
+    "profit_factor": 1.922,
+    "expectancy_r": 0.5279,
+    "total_net_pnl_usd": 2523.2,
+    "max_drawdown_usd": 398.91,
+    "t_stat": 2.67,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.0,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 440,
+    "profit_factor": 1.885,
+    "expectancy_r": 0.5259,
+    "total_net_pnl_usd": 5931.75,
+    "max_drawdown_usd": 427.81,
+    "t_stat": 3.88,
+    "liquidations": 1
+   },
+   "valid_2016_2025": {
+    "total_trades": 261,
+    "profit_factor": 1.422,
+    "expectancy_r": 0.2493,
+    "total_net_pnl_usd": 1748.81,
+    "max_drawdown_usd": 523.86,
+    "t_stat": 1.72,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 388,
+    "profit_factor": 1.861,
+    "expectancy_r": 0.3522,
+    "total_net_pnl_usd": 3472.48,
+    "max_drawdown_usd": 252.59,
+    "t_stat": 4.14,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 264,
+    "profit_factor": 1.364,
+    "expectancy_r": 0.1643,
+    "total_net_pnl_usd": 1022.69,
+    "max_drawdown_usd": 326.19,
+    "t_stat": 1.86,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 3.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 581,
+    "profit_factor": 1.47,
+    "expectancy_r": 0.2141,
+    "total_net_pnl_usd": 2985.09,
+    "max_drawdown_usd": 391.43,
+    "t_stat": 3.5,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 358,
+    "profit_factor": 1.098,
+    "expectancy_r": 0.0576,
+    "total_net_pnl_usd": 396.44,
+    "max_drawdown_usd": 507.96,
+    "t_stat": 0.82,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 309,
+    "profit_factor": 2.008,
+    "expectancy_r": 0.4944,
+    "total_net_pnl_usd": 3863.77,
+    "max_drawdown_usd": 410.5,
+    "t_stat": 4.25,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 188,
+    "profit_factor": 1.835,
+    "expectancy_r": 0.4211,
+    "total_net_pnl_usd": 1920.53,
+    "max_drawdown_usd": 287.34,
+    "t_stat": 2.82,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 4.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 465,
+    "profit_factor": 1.67,
+    "expectancy_r": 0.3395,
+    "total_net_pnl_usd": 3937.46,
+    "max_drawdown_usd": 618.17,
+    "t_stat": 4.02,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 270,
+    "profit_factor": 1.337,
+    "expectancy_r": 0.1923,
+    "total_net_pnl_usd": 1188.47,
+    "max_drawdown_usd": 356.95,
+    "t_stat": 1.75,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": false,
+   "dev_2000_2015": {
+    "total_trades": 269,
+    "profit_factor": 2.258,
+    "expectancy_r": 0.684,
+    "total_net_pnl_usd": 4590.79,
+    "max_drawdown_usd": 337.28,
+    "t_stat": 4.06,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 165,
+    "profit_factor": 1.949,
+    "expectancy_r": 0.5021,
+    "total_net_pnl_usd": 2019.12,
+    "max_drawdown_usd": 222.5,
+    "t_stat": 2.88,
+    "liquidations": 0
+   }
+  },
+  {
+   "entry_days": 55,
+   "sma_days": 200,
+   "init_stop_atr": 2.5,
+   "trail_atr": 5.0,
+   "shorts": true,
+   "dev_2000_2015": {
+    "total_trades": 413,
+    "profit_factor": 1.836,
+    "expectancy_r": 0.4658,
+    "total_net_pnl_usd": 4704.43,
+    "max_drawdown_usd": 430.53,
+    "t_stat": 3.99,
+    "liquidations": 0
+   },
+   "valid_2016_2025": {
+    "total_trades": 242,
+    "profit_factor": 1.383,
+    "expectancy_r": 0.2295,
+    "total_net_pnl_usd": 1287.07,
+    "max_drawdown_usd": 418.58,
+    "t_stat": 1.81,
+    "liquidations": 0
+   }
+  }
+ ],
+ "tests": {
+  "GOOGLUSDT_nasdaq_2004_now": {
+   "total_trades": 69,
+   "win_rate_pct": 43.48,
+   "profit_factor": 2.192,
+   "expectancy_r": 0.5276,
+   "expectancy_usd": 12.92,
+   "total_net_pnl_usd": 891.38,
+   "max_drawdown_usd": 69.62,
+   "return_over_dd": 12.8,
+   "sharpe_annualized": 0.48,
+   "sortino_annualized": 0.1,
+   "avg_win_usd": 54.63,
+   "avg_loss_usd": 19.17,
+   "payoff_ratio": 2.85,
+   "oos_days": 7790,
+   "t_stat": 2.35,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2005": 139.33,
+    "2006": 41.29,
+    "2007": 156.3,
+    "2008": -27.38,
+    "2009": 24.18,
+    "2010": 163.19,
+    "2011": -24.58,
+    "2012": 64.16,
+    "2013": -19.73,
+    "2014": -17.76,
+    "2015": 91.88,
+    "2016": -7.72,
+    "2017": 66.42,
+    "2018": -1.41,
+    "2019": -48.77,
+    "2020": 17.09,
+    "2021": 69.63,
+    "2023": -40.54,
+    "2024": 16.88,
+    "2025": 114.59,
+    "2026": 114.32
+   }
+  },
+  "GOOGLUSDT_nasdaq_dev_2004_2015": {
+   "total_trades": 33,
+   "win_rate_pct": 45.45,
+   "profit_factor": 2.769,
+   "expectancy_r": 0.7555,
+   "expectancy_usd": 18.38,
+   "total_net_pnl_usd": 606.69,
+   "max_drawdown_usd": 69.62,
+   "return_over_dd": 8.71,
+   "sharpe_annualized": 0.58,
+   "sortino_annualized": 0.14,
+   "avg_win_usd": 63.31,
+   "avg_loss_usd": 19.06,
+   "payoff_ratio": 3.32,
+   "oos_days": 3913,
+   "t_stat": 2.02,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2005": 139.33,
+    "2006": 41.29,
+    "2007": 156.3,
+    "2008": -27.38,
+    "2009": 24.18,
+    "2010": 163.19,
+    "2011": -24.58,
+    "2012": 64.16,
+    "2013": -19.73,
+    "2014": -17.76,
+    "2015": 91.88,
+    "2016": 15.8
+   }
+  },
+  "GOOGLUSDT_nasdaq_valid_2016_2025": {
+   "total_trades": 34,
+   "win_rate_pct": 41.18,
+   "profit_factor": 1.649,
+   "expectancy_r": 0.2949,
+   "expectancy_usd": 7.26,
+   "total_net_pnl_usd": 246.69,
+   "max_drawdown_usd": 67.76,
+   "return_over_dd": 3.64,
+   "sharpe_annualized": 0.34,
+   "sortino_annualized": 0.06,
+   "avg_win_usd": 44.79,
+   "avg_loss_usd": 19.02,
+   "payoff_ratio": 2.36,
+   "oos_days": 3594,
+   "t_stat": 1.1,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2016": -23.52,
+    "2017": 66.42,
+    "2018": -1.41,
+    "2019": -48.77,
+    "2020": 17.09,
+    "2021": 69.63,
+    "2023": -40.54,
+    "2024": 16.88,
+    "2025": 114.59,
+    "2026": 76.32
+   }
+  },
+  "GOOGLUSDT_nasdaq_holdout_2025_now": {
+   "total_trades": 3,
+   "win_rate_pct": 33.33,
+   "profit_factor": 1.335,
+   "expectancy_r": 0.1687,
+   "expectancy_usd": 5.22,
+   "total_net_pnl_usd": 15.65,
+   "max_drawdown_usd": 24.32,
+   "return_over_dd": 0.64,
+   "sharpe_annualized": 0.28,
+   "sortino_annualized": 0.06,
+   "avg_win_usd": 62.33,
+   "avg_loss_usd": 23.34,
+   "payoff_ratio": 2.67,
+   "oos_days": 221,
+   "t_stat": 0.15,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": 15.65
+   }
+  },
+  "GOOGLUSDT_nasdaq_krypton_daily": {
+   "total_trades": 114,
+   "win_rate_pct": 28.07,
+   "profit_factor": 0.962,
+   "expectancy_r": -0.0165,
+   "expectancy_usd": -0.55,
+   "total_net_pnl_usd": -62.44,
+   "max_drawdown_usd": 623.34,
+   "return_over_dd": -0.1,
+   "sharpe_annualized": -0.03,
+   "sortino_annualized": -0.01,
+   "avg_win_usd": 48.98,
+   "avg_loss_usd": 19.88,
+   "payoff_ratio": 2.46,
+   "oos_days": 7708,
+   "t_stat": -0.11,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2005": 45.96,
+    "2006": 70.95,
+    "2007": 119.07,
+    "2008": 122.7,
+    "2009": -26.99,
+    "2010": -51.27,
+    "2011": -106.93,
+    "2012": -98.14,
+    "2013": -2.17,
+    "2014": -71.15,
+    "2015": 79.51,
+    "2016": -113.61,
+    "2017": 61.22,
+    "2018": -44.11,
+    "2019": -74.7,
+    "2020": -15.11,
+    "2021": 33.83,
+    "2022": -48.71,
+    "2023": -93.34,
+    "2024": 12.18,
+    "2025": 120.97,
+    "2026": 17.41
+   }
+  },
+  "GOOGLUSDT_247_perp_4h": {
+   "total_trades": 2,
+   "win_rate_pct": 50.0,
+   "profit_factor": 2.477,
+   "expectancy_r": 0.7279,
+   "expectancy_usd": 20.62,
+   "total_net_pnl_usd": 41.23,
+   "max_drawdown_usd": 27.92,
+   "return_over_dd": 1.48,
+   "sharpe_annualized": 0.95,
+   "sortino_annualized": 0.23,
+   "avg_win_usd": 69.15,
+   "avg_loss_usd": 27.92,
+   "payoff_ratio": 2.48,
+   "oos_days": 123,
+   "t_stat": null,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": 41.23
+   }
+  },
+  "GOOGLUSDT_247_perp_4h_2x_cost": {
+   "total_trades": 2,
+   "win_rate_pct": 50.0,
+   "profit_factor": 2.403,
+   "expectancy_r": 0.7051,
+   "expectancy_usd": 19.98,
+   "total_net_pnl_usd": 39.97,
+   "max_drawdown_usd": 28.49,
+   "return_over_dd": 1.4,
+   "sharpe_annualized": 0.93,
+   "sortino_annualized": 0.22,
+   "avg_win_usd": 68.46,
+   "avg_loss_usd": 28.49,
+   "payoff_ratio": 2.4,
+   "oos_days": 123,
+   "t_stat": null,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": 39.97
+   }
+  },
+  "GOOGLUSDT_247_perp_1h": {
+   "total_trades": 2,
+   "win_rate_pct": 50.0,
+   "profit_factor": 2.487,
+   "expectancy_r": 0.73,
+   "expectancy_usd": 20.67,
+   "total_net_pnl_usd": 41.34,
+   "max_drawdown_usd": 27.81,
+   "return_over_dd": 1.49,
+   "sharpe_annualized": 0.95,
+   "sortino_annualized": 0.23,
+   "avg_win_usd": 69.15,
+   "avg_loss_usd": 27.81,
+   "payoff_ratio": 2.49,
+   "oos_days": 123,
+   "t_stat": null,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": 41.34
+   }
+  },
+  "GOOGLUSDT_perp_session_same_span": {
+   "total_trades": 2,
+   "win_rate_pct": 50.0,
+   "profit_factor": 2.563,
+   "expectancy_r": 0.7241,
+   "expectancy_usd": 19.0,
+   "total_net_pnl_usd": 38.0,
+   "max_drawdown_usd": 24.32,
+   "return_over_dd": 1.56,
+   "sharpe_annualized": 0.96,
+   "sortino_annualized": 0.23,
+   "avg_win_usd": 62.33,
+   "avg_loss_usd": 24.32,
+   "payoff_ratio": 2.56,
+   "oos_days": 127,
+   "t_stat": null,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": 38.0
+   }
+  },
+  "GOOGLUSDT_247_perp_4h_krypton": {
+   "total_trades": 25,
+   "win_rate_pct": 12.0,
+   "profit_factor": 0.189,
+   "expectancy_r": -0.6855,
+   "expectancy_usd": -17.13,
+   "total_net_pnl_usd": -428.19,
+   "max_drawdown_usd": 480.81,
+   "return_over_dd": -0.89,
+   "sharpe_annualized": -4.55,
+   "sortino_annualized": -1.71,
+   "avg_win_usd": 33.31,
+   "avg_loss_usd": 24.01,
+   "payoff_ratio": 1.39,
+   "oos_days": 188,
+   "t_stat": -4.02,
+   "liquidations": 0,
+   "weekend_exits": 3,
+   "yearly_pnl_usd": {
+    "2026": -428.19
+   }
+  },
+  "GOOGLUSDT_247_perp_1h_krypton": {
+   "total_trades": 23,
+   "win_rate_pct": 17.39,
+   "profit_factor": 0.333,
+   "expectancy_r": -0.6118,
+   "expectancy_usd": -15.16,
+   "total_net_pnl_usd": -348.61,
+   "max_drawdown_usd": 433.23,
+   "return_over_dd": -0.8,
+   "sharpe_annualized": -3.24,
+   "sortino_annualized": -1.26,
+   "avg_win_usd": 43.42,
+   "avg_loss_usd": 27.49,
+   "payoff_ratio": 1.58,
+   "oos_days": 188,
+   "t_stat": -2.57,
+   "liquidations": 0,
+   "weekend_exits": 1,
+   "yearly_pnl_usd": {
+    "2026": -348.61
+   }
+  },
+  "GOOGLUSDT_247_perp_4h_carbon_v2": {
+   "total_trades": 27,
+   "win_rate_pct": 29.63,
+   "profit_factor": 0.459,
+   "expectancy_r": -0.3977,
+   "expectancy_usd": -9.94,
+   "total_net_pnl_usd": -268.47,
+   "max_drawdown_usd": 395.89,
+   "return_over_dd": -0.68,
+   "sharpe_annualized": -2.43,
+   "sortino_annualized": -0.93,
+   "avg_win_usd": 28.45,
+   "avg_loss_usd": 26.11,
+   "payoff_ratio": 1.09,
+   "oos_days": 205,
+   "t_stat": -1.9,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": -268.47
+   }
+  },
+  "GOOGLUSDT_247_perp_1h_carbon_v2": {
+   "total_trades": 19,
+   "win_rate_pct": 26.32,
+   "profit_factor": 0.376,
+   "expectancy_r": -0.4397,
+   "expectancy_usd": -10.99,
+   "total_net_pnl_usd": -208.86,
+   "max_drawdown_usd": 279.67,
+   "return_over_dd": -0.75,
+   "sharpe_annualized": -2.47,
+   "sortino_annualized": -0.72,
+   "avg_win_usd": 25.2,
+   "avg_loss_usd": 23.92,
+   "payoff_ratio": 1.05,
+   "oos_days": 209,
+   "t_stat": -1.96,
+   "liquidations": 0,
+   "weekend_exits": 0,
+   "yearly_pnl_usd": {
+    "2026": -208.86
+   }
+  }
+ },
+ "live_summary": {
+  "GOOGLUSDT": {
+   "total_trades": 69,
+   "win_rate_pct": 43.48,
+   "profit_factor": 2.192,
+   "expectancy_r": 0.5276,
+   "total_net_pnl_usd": 891.38,
+   "max_drawdown_usd": 69.62
+  }
+ }
+}

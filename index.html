@@ -298,8 +298,8 @@
         <option value="1m">1m (Scalp — High Fee Hurdle)</option>
         <option value="5m">5m (Intraday — Maker Only)</option>
         <option value="15m">15m (Intraday — Maker Only)</option>
-        <option value="1h">1h (Krypton V3 Trend &#11088; hold-out PF 1.80)</option>
-        <option value="4h" selected>4h (Krypton V3 Swing &#11088; hold-out PF 1.29)</option>
+        <option value="1h">1h (Krypton V4 Trend + Sentiment + CVD)</option>
+        <option value="4h" selected>4h (Krypton V4 Swing + Sentiment + CVD)</option>
         <option value="1d">1d (Daily Macro Swing &#11088; Low Friction)</option>
         <option value="1w">1w (Weekly Macro Swing)</option>
         <option value="1M">1M (Monthly Macro Swing)</option>
@@ -316,8 +316,8 @@
 <div class="health-grid" id="healthGrid"></div>
 
 <div class="section-title">
-  <span>2. Live Trend Signals (Krypton V3) &amp; Breakout Watch Levels</span>
-  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA trend filter &rarr; ATR stop (1R) &rarr; chandelier trail &amp; exit-channel close (no fixed TP)</span>
+  <span>2. Live Trend Signals (Krypton V4 + Metals + Equities) &amp; Sentiment-Gated Watch Levels</span>
+  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA 20/80 &amp; slope + CVD orderflow + Extreme-Fear short gate &amp; Gemini catalyst check</span>
 </div>
 <div class="cards-grid" id="cardsGrid"></div>
 
@@ -340,6 +340,7 @@
         <option value="BTCUSDT">BTCUSDT</option>
         <option value="XAUUSDT">XAUUSDT (Gold)</option>
         <option value="XAGUSDT">XAGUSDT (Silver)</option>
+        <option value="GOOGLUSDT">GOOGLUSDT (Google)</option>
         <option value="PEPEUSDT">PEPEUSDT</option>
         <option value="AVAXUSDT">AVAXUSDT</option>
         <option value="WIFUSDT">WIFUSDT</option>
@@ -503,12 +504,17 @@ function renderDashboard(data) {
     const side = tp.side || 'LONG';
     const isLong = side === 'LONG';
     const isNow = tp.entry_mode === 'ENTER NOW';
+    const isStandAside = String(tp.entry_mode || '').includes('STAND ASIDE') || String(tp.entry_mode || '').includes('PAUSED') || String(tp.entry_mode || '').includes('VETOED');
     const conf = tp.confidence_pct || 65;
-    const confColor = conf >= 78 ? 'var(--green)' : (conf >= 65 ? 'var(--blue)' : 'var(--amber)');
-    const sideColor = isLong ? 'var(--green)' : 'var(--red)';
-    const sideBg = isLong ? 'rgba(16,185,129,0.14)' : 'rgba(244,63,94,0.14)';
+    const confColor = isStandAside ? 'var(--muted)' : (conf >= 78 ? 'var(--green)' : (conf >= 65 ? 'var(--blue)' : 'var(--amber)'));
+    const sideColor = isStandAside ? 'var(--muted)' : (isLong ? 'var(--green)' : 'var(--red)');
+    const sideBg = isStandAside ? 'rgba(148,163,184,0.14)' : (isLong ? 'rgba(16,185,129,0.14)' : 'rgba(244,63,94,0.14)');
     const mUsd = tp.margin_usd || c.margin_per_trade_usd || 5;
     const lev = tp.leverage || c.rec_leverage || 5;
+    const slLossStr = typeof tp.actual_sl_loss_usd === 'number' ? ` • SL ~$${tp.actual_sl_loss_usd.toFixed(2)}` : '';
+    const sizingWarn = tp.sizing_note ? `<div style="font-size:0.71rem;color:var(--amber);margin-top:2px;">&#9888;&#65039; ${tp.sizing_note}</div>` : '';
+    const fngVal = (c.market_intel && typeof c.market_intel.fear_greed_value === 'number') ? c.market_intel.fear_greed_value : tp.fear_greed_value;
+    const fngStr = (typeof fngVal === 'number') ? `${fngVal}` : 'n/a';
     const priceStr = c.price_str || c.price;
     const entryStr = tp.safe_entry_str || tp.safe_entry || priceStr;
     const slStr = tp.sl_str || tp.sl;
@@ -521,6 +527,7 @@ function renderDashboard(data) {
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
     const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
     const isKr = !!tp.entry_label;
+    const pillLabel = isStandAside ? 'STAND ASIDE' : `${side} ${isLong ? '&#9650;' : '&#9660;'}`;
 
     return `
       <div class="asset-card rec-${c.rec_color}">
@@ -529,7 +536,7 @@ function renderDashboard(data) {
             <div class="symbol-title">
               ${c.symbol}
               <span class="cat-pill" style="background:${sideBg};color:${sideColor};border:1px solid ${sideColor};font-weight:800;">
-                ${side} ${isLong ? '&#9650;' : '&#9660;'}
+                ${pillLabel}
               </span>
               <span class="cat-pill" style="color:${confColor};border:1px solid ${confColor};font-weight:800;">
                 ${conf}% CONFIDENCE
@@ -545,32 +552,32 @@ function renderDashboard(data) {
 
         <div class="signal-levels" style="border-color:${isNow ? sideColor : 'var(--border)'};margin-top:4px;">
           <div style="grid-column:1 / -1;font-weight:800;color:${sideColor};font-size:0.8rem;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} ${isNow ? 'ACTIVE SETUP' : (isKr ? 'BREAKOUT WATCH' : 'LIMIT TRAP')} (Click price to copy)</span>
+            <span>${isStandAside ? '&#128737;&#65039; ' + tp.entry_mode : ((isLong ? '&#128200; LONG' : '&#128201; SHORT') + ' ' + (isNow ? 'ACTIVE SETUP' : (isKr ? 'BREAKOUT WATCH' : 'LIMIT TRAP')))} (Click price to copy)</span>
             <span style="color:${confColor};">${conf}% Conf</span>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Maker Limit Entry">
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Entry">
             <span>${entryLbl}</span> <strong>$${entryStr} &#128203;</strong>
           </div>
           <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${slStr}', this)" title="Click to copy Stop-Loss">
             <span>Stop-Loss (SL):</span> <strong style="color:var(--red)">$${slStr} &#128203;</strong>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1 (55% Partial)">
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1 / Milestone">
             <span>${tp.tp1_label || 'TP1 (55% Partial):'}</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2 (45% Runner)">
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2 / Milestone">
             <span>${tp.tp2_label || 'TP2 (45% Runner):'}</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
           </div>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(15,23,42,0.55);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:0.71rem;margin-top:2px;">
           <div><span style="color:var(--muted);display:block;">Taker &Delta;</span><strong>${deltaPct}</strong></div>
-          <div><span style="color:var(--muted);display:block;">6-Bar CVD</span><strong>${cvd6Pct}</strong></div>
-          <div><span style="color:var(--muted);display:block;">Whale Print</span><strong>${whaleRatio}</strong></div>
+          <div><span style="color:var(--muted);display:block;">24h CVD</span><strong>${cvd6Pct}</strong></div>
+          <div><span style="color:var(--muted);display:block;">Fear &amp; Greed</span><strong style="color:${fngVal <= 25 ? 'var(--amber)' : 'var(--text)'}">${fngStr}</strong></div>
           <div><span style="color:var(--muted);display:block;">${isKr ? 'Hold-out E[R]' : 'Meta E[R]'}</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
         </div>
 
         <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
-          ${tp.simple_why || ''} &bull; Kelly Safe: <strong>$${mUsd} @ ${lev}x</strong>
+          ${tp.simple_why || ''} &bull; Safe Size: <strong>$${mUsd} @ ${lev}x${slLossStr}</strong>${sizingWarn}
         </div>
 
         <div style="display:flex;gap:6px;margin-top:2px;">

@@ -59,6 +59,7 @@ class DashboardController:
         self.recent_alerts: List[Dict[str, Any]] = []
         self.backtest_jobs: Dict[str, Dict[str, Any]] = {}
         self.sentiment_alert_cooldowns: Dict[str, float] = {}
+        self.pending_alert_slots: Dict[str, Dict[str, Any]] = {}
         self.alert_confidence_threshold: int = 80
         self._lock = threading.Lock()
         self._git_lock = threading.Lock()
@@ -69,8 +70,9 @@ class DashboardController:
         self._load_alert_cache()
 
     def _clear_symbol_position_cooldowns(self, symbol: Optional[str] = None) -> None:
-        """Clear stale position/exit alert cooldowns when a symbol (or ALL) is manually closed."""
+        """Clear stale position/exit alert cooldowns & pending slots when a symbol (or ALL) is manually closed."""
         if not symbol or symbol.upper() == "ALL":
+            self.pending_alert_slots.clear()
             self.sentiment_alert_cooldowns = {
                 k: v
                 for k, v in self.sentiment_alert_cooldowns.items()
@@ -78,6 +80,7 @@ class DashboardController:
             }
             return
         sym = symbol.upper()
+        self.pending_alert_slots.pop(sym, None)
         sl = sym.lower()
         self.sentiment_alert_cooldowns = {
             k: v
@@ -153,6 +156,11 @@ class DashboardController:
                     )
                 for bk in (rem_cache.get("alerted_bar_keys") or []):
                     self.orchestrator.alerted_bar_keys.add(str(bk))
+                for ps_sym, ps_val in (rem_cache.get("pending_alert_slots") or {}).items():
+                    if isinstance(ps_val, dict):
+                        cur = self.pending_alert_slots.get(str(ps_sym))
+                        if not cur or float(ps_val.get("ts", 0.0)) > float(cur.get("ts", 0.0)):
+                            self.pending_alert_slots[str(ps_sym)] = ps_val
                 self._save_alert_cache()
         except Exception:
             pass
@@ -218,6 +226,9 @@ class DashboardController:
                 self.sentiment_alert_cooldowns = {
                     str(k): float(v) for k, v in (data.get("cooldowns") or {}).items()
                 }
+                self.pending_alert_slots = {
+                    str(k): dict(v) for k, v in (data.get("pending_alert_slots") or {}).items() if isinstance(v, dict)
+                }
                 self.orchestrator.alerted_bar_keys = set(data.get("alerted_bar_keys") or [])
                 if data.get("last_update_id"):
                     self.orchestrator.telegram.last_update_id = int(data["last_update_id"])
@@ -233,6 +244,7 @@ class DashboardController:
                 json.dumps(
                     {
                         "cooldowns": self.sentiment_alert_cooldowns,
+                        "pending_alert_slots": self.pending_alert_slots,
                         "alerted_bar_keys": sorted(list(self.orchestrator.alerted_bar_keys))[-200:],
                         "last_update_id": self.orchestrator.telegram.last_update_id,
                         "alert_confidence_threshold": self.alert_confidence_threshold,
@@ -320,12 +332,12 @@ class DashboardController:
             "strategy_optimizers": {
                 "working": True,
                 "status": (
-                    f"KRYPTON V3 TREND BREAKOUT ({self.timeframe.upper()})"
+                    f"KRYPTON V4 + METALS + EQUITIES ({self.timeframe.upper()})"
                     if self.orchestrator.is_krypton
                     else f"CARBON V2 PURGED META-ENSEMBLE ({self.timeframe.upper()})"
                 ),
                 "detail": (
-                    "Hold-out verified (benchmark_krypton.py): 4H PF 1.29 / +$592, 1H PF 1.80 / +$821 vs Carbon V2 +$247 / -$224"
+                    "Krypton V4 (EMA 20/80 + slope + CVD + F&G>25 short gate) + Metals Trend (XAU/XAG PF 1.87) + Equities Trend (GOOGL PF 2.19)"
                     if self.orchestrator.is_krypton
                     else "4H OOS Verified: +$247.26 Net PnL (PF 1.26 • Absorption Reversal PF 1.97) + Maker-Limit Routing"
                 ),
@@ -334,9 +346,9 @@ class DashboardController:
             "sentiment_agent": {
                 "working": True,
                 "mode": "GEMINI_LIVE_SEARCH" if gemini_ok else "TV_SOCIAL_STATISTICAL_ENGINE",
-                "status": "LIVE TV NEWS + X/SOCIAL + CROWD L/S (50 Posts/Asset z-Test)",
+                "status": "ACTIVE TREND GATE: F&G + GEMINI + 50-POST z-TEST + L/S",
                 "detail": (
-                    "Pulling 30 TradingView + 20 X/Social posts per asset + OKX Crowd L/S Ratio with Binomial z-score/p-value alerts"
+                    "Actively gates breakouts: blocks crypto shorts in Extreme Fear (F&G<=25) & opposing news waves + Gemini live catalyst checks"
                 ),
             },
             "telegram_alerts": {
@@ -513,20 +525,32 @@ class DashboardController:
                 if not in_watchlist:
                     continue
 
-                # 2. Evaluate the active alpha engine (Krypton V3 trend breakout by default; Carbon V2 via ENGINE_VERSION)
+                # 2. Fetch live market sentiment FIRST so Krypton V4's causal Fear & Greed gate runs live
                 is_kr = self.orchestrator.is_krypton
                 sym_bridge = self.orchestrator.bridge_for(symbol)
                 eng_lbl = getattr(sym_bridge, "display_name", self.orchestrator.engine_label)
                 curr_ema20 = float(df["ema20"].iloc[last_idx]) if "ema20" in df.columns else curr_price
-                carbon_res = sym_bridge.evaluate_symbol_live(
-                    df=df, btc_df=btc_df, symbol=symbol, timeframe=tf
-                )
+                market_intel = self.orchestrator.sentiment_agent.get_live_market_intel_dict(symbol)
+                fng_live_val = market_intel.get("fear_greed_value")
+                if is_kr:
+                    carbon_res = sym_bridge.evaluate_symbol_live(
+                        df=df,
+                        btc_df=btc_df,
+                        symbol=symbol,
+                        timeframe=tf,
+                        fear_greed_value=fng_live_val,
+                        market_intel=market_intel,
+                    )
+                else:
+                    carbon_res = sym_bridge.evaluate_symbol_live(
+                        df=df, btc_df=btc_df, symbol=symbol, timeframe=tf
+                    )
                 active_signal: Optional[ReversalSetupSignal] = carbon_res.active_signal
                 signal_bars_ago: Optional[int] = carbon_res.signal_bars_ago
                 c_tel = carbon_res.telemetry
                 c_oos = carbon_res.oos_benchmark_stats
 
-                # Keep lightweight box telemetry for UI reference without overriding Carbon V2 signals
+                # Keep lightweight box telemetry for UI reference without overriding engine signals
                 mtf_radar = sym_detector.inspect_mtf_breakout_radar(
                     df, None, symbol=symbol, closeup_tf="15m"
                 )
@@ -536,10 +560,15 @@ class DashboardController:
                     (
                         f"⚡ {eng_lbl.upper()} TREND BREAKOUT {active_signal.trade_side} ACTIVE (trend {c_tel.get('trend')} • stop {fmt_price(active_signal.stop_loss)})"
                         if active_signal is not None
-                        else f"👀 {eng_lbl} {c_tel['archetype']}: {carbon_res.pending_order_plan['side']} if the "
-                        f"{c_tel.get('decision_label', tf + ' candle close')} is "
-                        f"{'above' if carbon_res.pending_order_plan['side'] == 'LONG' else 'below'} "
-                        f"${fmt_price(carbon_res.pending_order_plan['trigger_entry_price'])} ({c_tel['dist_to_trap_pct']:.2f}% away)"
+                        else (
+                            f"🛡️ {eng_lbl} SHORTS PAUSED (Extreme Fear F&G={fng_live_val}) — waiting for trend reclaim above "
+                            f"${fmt_price(carbon_res.pending_order_plan['trigger_entry_price'])}"
+                            if carbon_res.pending_order_plan.get("order_type") == "SHORTS_PAUSED_EXTREME_FEAR"
+                            else f"👀 {eng_lbl} {c_tel['archetype']}: {carbon_res.pending_order_plan['side']} if the "
+                            f"{c_tel.get('decision_label', tf + ' candle close')} is "
+                            f"{'above' if carbon_res.pending_order_plan['side'] == 'LONG' else 'below'} "
+                            f"${fmt_price(carbon_res.pending_order_plan['trigger_entry_price'])} ({c_tel['dist_to_trap_pct']:.2f}% away)"
+                        )
                     )
                     if is_kr
                     else f"⚡ CARBON V2 {c_tel['archetype']} ACTIVE (E[{c_tel['meta_pred_r']:+.2f}R] • Taker Δ {c_tel['delta_norm_pct']:+.1f}%)"
@@ -586,15 +615,14 @@ class DashboardController:
                 prec = 8 if curr_price < 0.001 else (5 if curr_price < 1.0 else (4 if curr_price < 100.0 else 2))
                 sparkline = [round(float(x), prec) for x in df["close"].tail(24).tolist()]
                 macro_compass = self.orchestrator.feed.get_macro_trend_compass(symbol)
-                market_intel = self.orchestrator.sentiment_agent.get_live_market_intel_dict(symbol)
 
                 import math
-                margin_usd = self.config.risk.margin_per_trade_usd
+                base_margin_usd = self.config.risk.margin_per_trade_usd
                 min_notional = profile.min_notional_usd if profile else 15.0
                 min_lot_lbl = profile.min_lot_label if profile else "0.01"
-                min_lev_needed = max(1, int(math.ceil(min_notional / max(margin_usd, 0.5))))
+                min_lev_needed = max(1, int(math.ceil(min_notional / max(base_margin_usd, 0.5))))
                 rec_lev = max(min_lev_needed, min(self.config.risk.default_leverage, profile.max_btcc_leverage if profile else 100))
-                est_sl_loss = round(margin_usd * (getattr(self.config.risk, "target_sl_margin_risk_pct", 20.0) / 100.0), 2)
+                est_sl_loss = round(base_margin_usd * (getattr(self.config.risk, "target_sl_margin_risk_pct", 15.0) / 100.0), 2)
 
                 sentiment_overlap = self.orchestrator.sentiment_agent.evaluate_pre_move_sentiment_overlap(
                     symbol=symbol,
@@ -607,35 +635,73 @@ class DashboardController:
                     rec_leverage=rec_lev,
                 )
 
-                # Compute Unified Carbon V2 Maker-Limit Trade Plan (Preserves Structural Sweep SL + Fractional Kelly Leverage!)
+                # Live Sentiment & Catalyst Validation (Trend-Aware for Krypton V4 / Metals / Equities; Exhaustion-Reversal for Carbon V2)
                 verdict_dict = None
-                # The Gemini veto ("VETO_CONTINUATION_RISK") is built for fading reversals; continuation is exactly
-                # what Krypton's trend breakouts want, so it is only applied to Carbon V2 signals.
-                if active_signal is not None and not is_kr:
-                    verdict = self.orchestrator.sentiment_agent.evaluate_setup(active_signal)
+                if active_signal is not None:
+                    if is_kr:
+                        verdict = self.orchestrator.sentiment_agent.evaluate_trend_breakout(active_signal)
+                    else:
+                        verdict = self.orchestrator.sentiment_agent.evaluate_setup(active_signal)
                     verdict_dict = verdict.model_dump()
 
-                if active_signal is not None and (verdict_dict is None or verdict_dict.get("decision") != "VETO_CONTINUATION_RISK"):
+                is_vetoed = bool(
+                    verdict_dict is not None
+                    and (
+                        str(verdict_dict.get("decision", "")).startswith("VETO")
+                        or float(verdict_dict.get("leverage_multiplier", 1.0)) <= 0.0
+                    )
+                )
+                is_caution = bool(
+                    verdict_dict is not None
+                    and str(verdict_dict.get("decision", "")) == "CAUTION_REDUCE_LEVERAGE"
+                )
+
+                plan = carbon_res.pending_order_plan
+                active_sz = c_tel.get("active_sizing") if isinstance(c_tel.get("active_sizing"), dict) else None
+                if active_signal is not None and not is_vetoed:
                     u_side = active_signal.trade_side
                     u_mode = "ENTER NOW"
-                    u_order_style = "MARKET (CANDLE-CLOSE BREAKOUT)" if is_kr else "POST-ONLY MAKER LIMIT"
+                    u_order_style = "MARKET OR MAKER LIMIT (ON CLOSE)" if is_kr else "POST-ONLY MAKER LIMIT"
                     u_entry = float(active_signal.entry_price)
+                    u_maker_entry = round(u_entry * (0.9995 if u_side == "LONG" else 1.0005), prec)
                     u_sl = float(active_signal.stop_loss)
                     u_tp1 = float(active_signal.tp1_price)
                     u_tp2 = float(active_signal.tp2_price)
                     u_lev = int(active_signal.recommended_leverage)
+                    if is_caution:
+                        u_lev = max(self.config.risk.min_leverage, int(round(u_lev * 0.5)))
+                    u_margin_usd = float(active_sz.get("margin_usd", base_margin_usd)) if active_sz else float(plan.get("recommended_margin_usd", base_margin_usd))
+                    u_sl_loss_usd = float(active_sz.get("actual_sl_loss_usd", est_sl_loss)) if active_sz else float(plan.get("actual_sl_loss_usd", est_sl_loss))
+                    u_risk_mult = float(active_sz.get("risk_multiple_of_1r", 1.0)) if active_sz else float(plan.get("risk_multiple_of_1r", 1.0))
+                    u_sizing_note = str(active_sz.get("sizing_note", "")) if active_sz else str(plan.get("sizing_note", ""))
                 else:
-                    plan = carbon_res.pending_order_plan
                     u_side = str(plan["side"])
-                    u_mode = ("NO TREND — STAND ASIDE" if plan.get("order_type") != "ENTER_ON_CLOSE_BEYOND_LEVEL" else "WATCH BREAKOUT") if is_kr else "SET MAKER LIMIT TRAP"
+                    if is_kr:
+                        if is_vetoed:
+                            u_mode = "SENTIMENT VETOED — STAND ASIDE"
+                        elif plan.get("order_type") == "SHORTS_PAUSED_EXTREME_FEAR":
+                            u_mode = "SHORTS PAUSED (EXTREME FEAR)"
+                        elif plan.get("order_type") != "ENTER_ON_CLOSE_BEYOND_LEVEL":
+                            u_mode = "NO TREND — STAND ASIDE"
+                        else:
+                            u_mode = "WATCH BREAKOUT"
+                    else:
+                        u_mode = "SET MAKER LIMIT TRAP"
                     u_order_style = "ENTER ON CANDLE CLOSE BEYOND LEVEL" if is_kr else "RESTING MAKER LIMIT TRAP"
                     u_entry = float(plan["limit_entry_price"])
+                    u_maker_entry = float(plan.get("maker_limit_price", u_entry))
                     u_sl = float(plan["stop_loss"])
                     u_tp1 = float(plan["tp1_price"])
                     u_tp2 = float(plan["tp2_price"])
                     u_lev = int(plan["recommended_leverage"])
+                    u_margin_usd = float(plan.get("recommended_margin_usd", base_margin_usd))
+                    u_sl_loss_usd = float(plan.get("actual_sl_loss_usd", est_sl_loss))
+                    u_risk_mult = float(plan.get("risk_multiple_of_1r", 1.0))
+                    u_sizing_note = str(plan.get("sizing_note", ""))
 
-                # Calibrated Carbon V2 Meta-Confidence % (grounded in PurgedMetaEnsemble E[R], WinProb, Macro & Sentiment)
+                margin_usd = u_margin_usd
+
+                # Calibrated Confidence % (grounded in breakout + live Sentiment verdict + Macro + Orderflow CVD)
                 dom_trend = macro_compass.get("dominant_trend", "MIXED")
                 macro_bonus = (
                     4.0
@@ -645,19 +711,27 @@ class DashboardController:
                 so_sig = bool(sentiment_overlap.get("is_statistically_significant"))
                 so_matches = sentiment_overlap.get("bias_side") == u_side
                 sent_bonus = (4.0 if so_matches else -4.0) if so_sig else (1.5 if so_matches else -1.0)
+                cvd_val = float(c_tel.get("cvd_window_pct", c_tel.get("cvd_6_pct", 0.0)))
+                cvd_aligned = (u_side == "LONG" and cvd_val > 0) or (u_side == "SHORT" and cvd_val < 0)
 
                 meta_er = float(c_tel["meta_pred_r"])
                 meta_wp = float(c_tel["meta_win_prob_pct"])
                 is_abs = "ABSORPTION" in str(c_tel["archetype"])
                 if is_kr:
-                    # Krypton V3: a live breakout is a full-strength system signal; the % only reflects context
-                    # alignment (macro trend + sentiment). The system's historical win rate is ~25-35% with large winners.
-                    if u_mode == "ENTER NOW":
-                        u_conf = int(round(max(80.0, min(95.0, 86.0 + macro_bonus + sent_bonus))))
-                    else:
+                    if is_vetoed:
+                        u_conf = 25
+                    elif u_mode == "ENTER NOW":
+                        v_conf = float((verdict_dict or {}).get("confidence", 0.75))
+                        raw_kr = 83.0 + (v_conf - 0.65) * 20.0 + macro_bonus + sent_bonus + (2.0 if cvd_aligned else -2.0)
+                        if is_caution:
+                            raw_kr = min(76.0, raw_kr - 10.0)
+                        u_conf = int(round(max(60.0, min(95.0, raw_kr))))
+                    elif u_mode == "WATCH BREAKOUT":
                         prox_bonus = max(0.0, 8.0 - float(c_tel["dist_to_trap_pct"]) * 2.0)
-                        base_w = 50.0 if u_mode == "WATCH BREAKOUT" else 35.0
-                        u_conf = int(round(max(30.0, min(70.0, base_w + prox_bonus + macro_bonus * 0.6 + sent_bonus * 0.6))))
+                        u_conf = int(round(max(42.0, min(70.0, 50.0 + prox_bonus + macro_bonus * 0.6 + sent_bonus * 0.6))))
+                    else:
+                        # STAND ASIDE / SHORTS PAUSED (EXTREME FEAR)
+                        u_conf = int(round(max(25.0, min(42.0, 34.0 + macro_bonus * 0.5 + sent_bonus * 0.5))))
                 elif u_mode == "ENTER NOW":
                     # Active meta-validated setup: 78% - 95%
                     raw_conf = 74.0 + min(14.0, max(0.0, meta_er * 32.0)) + (4.0 if is_abs else 0.0) + max(-3.0, min(5.0, (meta_wp - 50.0) * 0.35))
@@ -671,16 +745,35 @@ class DashboardController:
                     u_conf = int(round(max(44.0, min(76.0, raw_conf + macro_bonus * 0.6 + sent_bonus * 0.6))))
 
                 sent_lbl = f"{sentiment_overlap.get('dominant_pct', 50):.0f}% {'Bull' if sentiment_overlap.get('bias_side') == 'LONG' else 'Bear'}"
+                fng_tag = f"F&G {fng_live_val} ({market_intel.get('fear_greed_label', 'Neutral')})" if fng_live_val is not None else "F&G n/a"
                 arch_short = "Absorption Reversal" if is_abs else ("Whale Breakout" if u_mode == "ENTER NOW" else "VWAP Flush Trap")
                 if is_kr:
-                    exit_lvl = (carbon_res.pending_order_plan.get("exit_channel") if active_signal is None else None)
+                    exit_lvl = (plan.get("exit_channel") if active_signal is None else None)
                     if active_signal is not None:
                         exit_lvl = c_tel.get("exit_channel_long") if u_side == "LONG" else c_tel.get("exit_channel_short")
-                    simple_why = (
-                        f"{eng_lbl} {'trend breakout' if u_mode == 'ENTER NOW' else c_tel['archetype'].replace('_', ' ').lower()} "
-                        f"(trend {c_tel.get('trend')}, backtest E[{meta_er:+.2f}R]/trade) • No fixed TP: trail stop + "
-                        f"exit on {c_tel.get('decision_label', tf + ' close')} beyond ${fmt_price(float(exit_lvl or 0))} • Macro {dom_trend} • Sent {sent_lbl}"
-                    )
+                    if is_vetoed and verdict_dict:
+                        simple_why = f"🛑 {verdict_dict.get('decision')}: {verdict_dict.get('reasoning', '')} • {fng_tag}"
+                    elif u_mode == "SHORTS PAUSED (EXTREME FEAR)":
+                        simple_why = (
+                            f"🛡️ {eng_lbl} shorts paused ({fng_tag} <= 25 capitulation floor) • "
+                            f"Waiting for upside reclaim above ${fmt_price(u_entry)} • CVD {cvd_val:+.1f}% • Sent {sent_lbl}"
+                        )
+                    elif u_mode == "NO TREND — STAND ASIDE":
+                        simple_why = (
+                            f"⚪ {eng_lbl} stand aside (rebound/mixed trend {c_tel.get('trend')}, {fng_tag}) • "
+                            f"Long breakout level ${fmt_price(u_entry)} • CVD {cvd_val:+.1f}% • Sent {sent_lbl}"
+                        )
+                    else:
+                        v_note = (
+                            f" • Sentiment {verdict_dict.get('decision')}: {str(verdict_dict.get('reasoning', ''))[:110]}"
+                            if verdict_dict
+                            else ""
+                        )
+                        simple_why = (
+                            f"{eng_lbl} {'trend breakout' if u_mode == 'ENTER NOW' else 'breakout watch'} "
+                            f"(trend {c_tel.get('trend')}, CVD {cvd_val:+.1f}%, {fng_tag}, E[{meta_er:+.2f}R]) • "
+                            f"Trail stop + exit on {c_tel.get('decision_label', tf + ' close')} beyond ${fmt_price(float(exit_lvl or 0))}{v_note}"
+                        )
                 else:
                     simple_why = (
                         f"Carbon V2 {arch_short} (E[{meta_er:+.2f}R]) • "
@@ -688,6 +781,7 @@ class DashboardController:
                         f"Macro {dom_trend} • Sent {sent_lbl}"
                     )
 
+                is_stand_aside = is_kr and (u_mode not in ("ENTER NOW", "WATCH BREAKOUT"))
                 trade_plan = {
                     "side": u_side,
                     "entry_mode": u_mode,
@@ -695,6 +789,8 @@ class DashboardController:
                     "confidence_pct": u_conf,
                     "safe_entry": round(u_entry, prec),
                     "safe_entry_str": fmt_price(u_entry),
+                    "maker_limit_entry": round(u_maker_entry, prec),
+                    "maker_limit_str": fmt_price(u_maker_entry),
                     "sl": round(u_sl, prec),
                     "sl_str": fmt_price(u_sl),
                     "tp1": round(u_tp1, prec),
@@ -702,29 +798,48 @@ class DashboardController:
                     "tp2": round(u_tp2, prec),
                     "tp2_str": fmt_price(u_tp2),
                     "leverage": u_lev,
-                    "margin_usd": margin_usd,
+                    "margin_usd": round(u_margin_usd, 2),
+                    "actual_sl_loss_usd": round(u_sl_loss_usd, 2),
+                    "risk_multiple_of_1r": round(u_risk_mult, 2),
+                    "sizing_note": u_sizing_note,
+                    "fear_greed_value": fng_live_val,
+                    "sentiment_decision": verdict_dict.get("decision") if verdict_dict else ("SHORTS_PAUSED_EXTREME_FEAR" if u_mode == "SHORTS PAUSED (EXTREME FEAR)" else None),
+                    "sentiment_reasoning": verdict_dict.get("reasoning") if verdict_dict else None,
                     "simple_why": simple_why,
                     "meta_pred_r": meta_er,
                     "archetype": c_tel["archetype"],
                     "engine": eng_lbl,
                     "breakout_score": float(active_signal.impulse_atr_mult) if (is_kr and active_signal is not None) else 0.0,
                     "entry_label": (
-                        ("Market Entry (on close):" if u_mode == "ENTER NOW" else
+                        ("Market / Maker Entry:" if u_mode == "ENTER NOW" else
                          ("Enter if daily close (00:00 UTC) is above:" if c_tel.get("decision_label") else "Enter if candle closes beyond:"))
                         if is_kr else None
                     ),
                     "tp1_label": "Milestone +3R (no auto-TP):" if is_kr else None,
                     "tp2_label": "Milestone +6R (trail exit):" if is_kr else None,
                     "mode_label": (
-                        (f"⚡ {eng_lbl.upper()} TREND BREAKOUT — ENTER NOW" if u_mode == "ENTER NOW" else f"👀 {eng_lbl.upper()} — {u_mode}") if is_kr else None
+                        (
+                            f"⚡ {eng_lbl.upper()} TREND BREAKOUT — ENTER NOW"
+                            if u_mode == "ENTER NOW"
+                            else (f"🛡️ {eng_lbl.upper()} — {u_mode}" if is_stand_aside else f"👀 {eng_lbl.upper()} — {u_mode}")
+                        )
+                        if is_kr else None
                     ),
                 }
 
-                rec_action = f"{u_side} {'📈' if u_side == 'LONG' else '📉'} — {u_conf}% CONFIDENCE ({u_mode})"
+                rec_action = (
+                    f"STAND ASIDE ⚪ — {u_mode}"
+                    if is_stand_aside
+                    else f"{u_side} {'📈' if u_side == 'LONG' else '📉'} — {u_conf}% CONFIDENCE ({u_mode})"
+                )
                 rec_color = (
-                    ("green" if u_side == "LONG" else "red")
-                    if u_mode == "ENTER NOW"
-                    else ("amber-long" if u_side == "LONG" else "amber-short")
+                    "neutral"
+                    if is_stand_aside
+                    else (
+                        ("green" if u_side == "LONG" else "red")
+                        if u_mode == "ENTER NOW"
+                        else ("amber-long" if u_side == "LONG" else "amber-short")
+                    )
                 )
                 rec_summary = (
                     f"Safe Entry: ${trade_plan['safe_entry_str']} | TP1: ${trade_plan['tp1_str']} | TP2: ${trade_plan['tp2_str']} | SL: ${trade_plan['sl_str']} • {simple_why}"
@@ -734,7 +849,8 @@ class DashboardController:
                 #   1. Backtest-validated asset (`profile.validated_for_alerts` and OOS `validated`)
                 #   2. Reliable 24/7 exchange feed (`reliable_24_7` — NEVER fire off gappy Yahoo fallback data!)
                 #   3. Sufficient bar warmup (`archetype != INSUFFICIENT_HISTORY`)
-                #   4. Bar-timestamp deduplication for Krypton breakouts (1 alert per breakout bar, not hourly repeats!)
+                #   4. Live Sentiment approval (not vetoed) + user's `alert_confidence_threshold`
+                #   5. Bar-timestamp deduplication + pending-slot portfolio cap
                 asset_alert_eligible = (
                     in_watchlist
                     and bool(getattr(profile, "validated_for_alerts", False))
@@ -742,12 +858,13 @@ class DashboardController:
                     and c_tel.get("archetype") != "INSUFFICIENT_HISTORY"
                     and (not is_kr or bool(c_oos.get("validated", False)))
                 )
-                should_alert = asset_alert_eligible and (u_conf >= self.alert_confidence_threshold) and (
+                should_alert = asset_alert_eligible and (not is_vetoed) and (u_conf >= self.alert_confidence_threshold) and (
                     u_mode == "ENTER NOW" or flatline_met or u_conf >= self.alert_confidence_threshold
                 )
                 if is_kr:
-                    # Under Krypton V3, ONLY fire push alerts on genuine confirmed breakouts ("ENTER NOW") on validated 24/7 feeds
-                    should_alert = asset_alert_eligible and (u_mode == "ENTER NOW")
+                    # Under Krypton V4 / Metals / Equities, ONLY fire push alerts on confirmed, sentiment-approved
+                    # breakouts ("ENTER NOW") that clear the user's alert confidence threshold.
+                    should_alert = asset_alert_eligible and (u_mode == "ENTER NOW") and (not is_vetoed) and (u_conf >= self.alert_confidence_threshold)
                 if is_kr and symbol in self.orchestrator.execution.open_positions:
                     should_alert = False  # open Krypton positions are managed by the exit monitor (trail / channel alerts)
                 if should_alert and self.orchestrator.telegram.is_configured:
@@ -788,20 +905,35 @@ class DashboardController:
                             entry_lbl = "Maker Limit Entry" if u_mode == "ENTER NOW" else "Resting Maker Trap"
                             if is_kr:
                                 ex_word = "below" if u_side == "LONG" else "above"
+                                eng_code = str(c_tel.get("engine", "")).upper()
+                                sent_line = (
+                                    f"• *Sentiment*: `{verdict_dict.get('decision', 'APPROVED')}` _({fng_tag} • {str(verdict_dict.get('reasoning', ''))[:120]})_\n"
+                                    if verdict_dict
+                                    else f"• *Sentiment*: `{sent_lbl}` _({fng_tag})_\n"
+                                )
+                                sizing_line = (
+                                    f"• *Sizing Warning*: _{u_sizing_note}_\n"
+                                    if u_sizing_note
+                                    else ""
+                                )
+                                if eng_code == "EQUITIES_TREND":
+                                    foot_note = "• _Equities Trend V1 (gap-honest daily close): ~43% winners, ~3–4 trades/yr — rides multi-month trends._"
+                                elif c_tel.get("decision_label"):
+                                    foot_note = "• _Gold/silver trend system: ~40% winners, ~4 trades per metal per year — the edge comes from letting trends run._"
+                                else:
+                                    foot_note = "• _Krypton V4 (EMA 20/80 + CVD + Sentiment): ~28–37% winners; big winners pay for small stops._"
                                 tg_msg = (
-                                    f"{icon} *{eng_lbl.upper()} SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'}*\n"
+                                    f"{icon} *{eng_lbl.upper()} SIGNAL: {symbol} — {u_side} {'📈' if u_side == 'LONG' else '📉'} ({u_conf}% Conf)*\n"
                                     f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | "
                                     f"{'daily-close' if c_tel.get('decision_label') else tf.upper()} trend breakout • {actual_source})_\n"
-                                    f"• *Entry*: `{trade_plan['safe_entry_str']}` _(market — breakout confirmed on the {c_tel.get('decision_label', 'candle close')})_\n"
-                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(= 1R • ${margin_usd:.0f} @ {u_lev}x)_\n"
-                                    f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a "
+                                    f"• *Entry*: `{trade_plan['safe_entry_str']}` _(or Post-Only Maker Limit `{trade_plan['maker_limit_str']}` to save fees)_\n"
+                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${u_margin_usd:.0f} @ {u_lev}x • est. SL loss `${u_sl_loss_usd:.2f}`)_\n"
+                                    + sizing_line
+                                    + sent_line
+                                    + f"• *Exit*: _no fixed TP_ — I'll tell you when to raise the stop, and close if a "
                                     f"{c_tel.get('decision_label', tf + ' candle close')} is {ex_word} the exit channel\n"
                                     f"• *Milestones*: +3R `{trade_plan['tp1_str']}` | +6R `{trade_plan['tp2_str']}` _(info only)_\n"
-                                    + (
-                                        f"• _Gold/silver trend system: ~40% winners, ~4 trades per metal per year — the edge comes from letting trends run._"
-                                        if c_tel.get("decision_label")
-                                        else f"• _Expect ~25-35% winners; the edge comes from letting the big trends run._"
-                                    )
+                                    + foot_note
                                 )
                             else:
                                 tg_msg = (
@@ -809,11 +941,11 @@ class DashboardController:
                                     f"• *Status*: `{u_mode}` _(Now: `${fmt_price(curr_price)}` | {tf.upper()})_\n"
                                     f"• *{entry_lbl}*: `{trade_plan['safe_entry_str']}` _(Post-Only 0.020% Fee)_\n"
                                     f"• *Take-Profit*: TP1 `{trade_plan['tp1_str']}` _(55%)_ | TP2 `{trade_plan['tp2_str']}` _(45% Chandelier Runner)_\n"
-                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${margin_usd:.0f} @ {u_lev}x Kelly Safe)_\n"
+                                    f"• *Stop-Loss (SL)*: `{trade_plan['sl_str']}` _(${u_margin_usd:.0f} @ {u_lev}x Kelly Safe)_\n"
                                     f"• *Why*: _{simple_why}_"
                                 )
                         if is_kr and open_pos is None and u_mode == "ENTER NOW":
-                            kr_queue.append({"symbol": symbol, "msg": tg_msg, "key": alert_key, "bar_key": bar_dedup_key})
+                            kr_queue.append({"symbol": symbol, "side": u_side, "msg": tg_msg, "key": alert_key, "bar_key": bar_dedup_key})
                         else:
                             self.orchestrator.telegram.send_message(tg_msg, reply_markup=tg_markup)
 
@@ -824,9 +956,9 @@ class DashboardController:
                     "min_lot_label": min_lot_lbl,
                     "min_notional_usd": min_notional,
                     "min_lev_needed": min_lev_needed,
-                    "rec_leverage": rec_lev,
-                    "margin_per_trade_usd": margin_usd,
-                    "est_sl_loss_usd": est_sl_loss,
+                    "rec_leverage": u_lev,
+                    "margin_per_trade_usd": round(u_margin_usd, 2),
+                    "est_sl_loss_usd": round(u_sl_loss_usd, 2),
                     "timeframe": tf,
                     "price": round(curr_price, prec),
                     "price_str": fmt_price(curr_price),
@@ -884,8 +1016,9 @@ class DashboardController:
 
     def _apply_krypton_portfolio_cap(self, kr_queue: List[Dict[str, Any]]) -> None:
         """
-        Apply the portfolio limits (default 4 open, max 3 long, max 1 short): rank live ENTER NOW breakouts
-        by breakout strength, mark the ones beyond the cap as skips, and only send Telegram alerts for the rest.
+        Apply the portfolio limits (default 4 open, max 3 long, max 1 short): count BOTH tracked open
+        positions AND recently alerted pending slots (12h TTL on 4h / 4h TTL on 1h) so the bot never
+        machine-guns multiple correlated alerts before the user logs their manual BTCC entry.
         """
         max_conc = int(getattr(self.config.risk, "max_concurrent_positions", 4))
         legacy = int(getattr(self.config.risk, "max_same_side_positions", 2))
@@ -894,11 +1027,27 @@ class DashboardController:
             "SHORT": int(getattr(self.config.risk, "max_short_positions", legacy)),
         }
         opens = self.orchestrator.execution.open_positions
-        n_open = len(opens)
-        side_ct = {"LONG": sum(1 for p in opens.values() if p.side == "LONG"), "SHORT": sum(1 for p in opens.values() if p.side == "SHORT")}
+        now_ts = time.time()
+        pending_ttl = 43200.0 if self.timeframe in ("4h", "1d", "1w", "1M") else 14400.0
+        # Prune expired pending alert slots or ones already converted into open positions
+        self.pending_alert_slots = {
+            s: v
+            for s, v in self.pending_alert_slots.items()
+            if s not in opens and (now_ts - float(v.get("ts", 0.0))) < pending_ttl
+        }
+
+        n_open = len(opens) + len(self.pending_alert_slots)
+        side_ct = {
+            "LONG": sum(1 for p in opens.values() if p.side == "LONG")
+            + sum(1 for v in self.pending_alert_slots.values() if str(v.get("side", "")).upper() == "LONG"),
+            "SHORT": sum(1 for p in opens.values() if p.side == "SHORT")
+            + sum(1 for v in self.pending_alert_slots.values() if str(v.get("side", "")).upper() == "SHORT"),
+        }
         live = [
             c for s, c in self.asset_cards.items()
-            if s not in opens and (c.get("trade_plan") or {}).get("entry_mode") == "ENTER NOW"
+            if s not in opens
+            and s not in self.pending_alert_slots
+            and (c.get("trade_plan") or {}).get("entry_mode") == "ENTER NOW"
         ]
         live.sort(key=lambda c: -float(c["trade_plan"].get("breakout_score", 0.0)))
         allowed = set()
@@ -915,6 +1064,11 @@ class DashboardController:
             if item["symbol"] in allowed:
                 if item.get("bar_key"):
                     self.orchestrator.alerted_bar_keys.add(item["bar_key"])
+                self.pending_alert_slots[item["symbol"]] = {
+                    "side": item.get("side", "LONG"),
+                    "ts": now_ts,
+                    "tf": self.timeframe,
+                }
                 self.orchestrator.telegram.send_message(item["msg"])
             else:
                 # Do not burn the cooldown: if a slot frees up while the breakout is still valid, alert then.
@@ -1012,6 +1166,7 @@ class DashboardController:
             ("AVAXUSDT", ["avaxusdt", "avalanche", "avax"]),
             ("WIFUSDT", ["wifusdt", "dogwifhat", "wif"]),
             ("INJUSDT", ["injusdt", "injective", "inj"]),
+            ("GOOGLUSDT", ["googlusdt", "google", "googl", "alphabet"]),
             ("NVDAUSDT", ["nvdausdt", "nvidia", "nvda"]),
             ("SPACEXUSDT", ["spacexusdt", "spcxusdt", "spacex", "space x", "spcx"]),
         ]
@@ -1061,18 +1216,21 @@ class DashboardController:
         entry_lbl = "Maker Limit Entry" if mode == "ENTER NOW" else "Resting Maker Trap"
         if self.orchestrator.is_krypton:
             ex_word = "below" if side == "LONG" else "above"
-            eng_name = tp.get("engine") or "Krypton V3"
+            eng_name = tp.get("engine") or "Krypton V4"
             close_lbl = (c.get("carbon_telemetry") or {}).get("decision_label") or f"{self.timeframe} candle close"
+            m_usd = float(tp.get("margin_usd") or self.config.risk.margin_per_trade_usd)
+            sl_usd = float(tp.get("actual_sl_loss_usd") or 0.0)
+            sz_note = f"\n• *Sizing*: _{tp['sizing_note']}_" if tp.get("sizing_note") else ""
             entry_line = (
-                f"• *Market Entry*: `{tp.get('safe_entry_str')}` _(breakout confirmed on the {close_lbl})_\n"
+                f"• *Market / Maker Entry*: `{tp.get('safe_entry_str')}` _(Maker Limit `{tp.get('maker_limit_str', tp.get('safe_entry_str'))}`)_\n"
                 if mode == "ENTER NOW"
                 else f"• *Trigger*: {side} only if the {close_lbl} is {'above' if side == 'LONG' else 'below'} `{tp.get('safe_entry_str')}`\n"
             )
             return (
                 f"{icon} *{sym} ({self.timeframe.upper()}) — {side} {arrow} ({eng_name})*\n"
-                f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}`)_\n"
+                f"• *Status*: `{mode}` _(Live Price: `${c.get('price_str')}` | {conf}% Conf)_\n"
                 + entry_line
-                + f"• *Stop-Loss (SL)*: `{tp.get('sl_str')}` _(1R • {tp.get('leverage', 5)}x)_\n"
+                + f"• *Stop-Loss (SL)*: `{tp.get('sl_str')}` _(${m_usd:.0f} @ {tp.get('leverage', 5)}x • est. SL `${sl_usd:.2f}`)_{sz_note}\n"
                 f"• *Exit*: _no fixed TP_ — trail stop + close if the {close_lbl} is {ex_word} the exit channel "
                 f"_(milestones +3R `{tp.get('tp1_str')}` | +6R `{tp.get('tp2_str')}`)_\n"
                 f"• *Why*: _{tp.get('simple_why', '')}_"
@@ -1143,8 +1301,8 @@ class DashboardController:
         is_kr = self.orchestrator.is_krypton
         lines = (
             [
-                f"🎯 *BTCC KRYPTON V3 TREND SIGNALS ({tf_lbl})*",
-                f"_⚡ = live breakout (enter) • 👀 = enter only if a {self.timeframe} candle closes beyond the level • no fixed TP, trail exits:_\n",
+                f"🎯 *BTCC KRYPTON V4 + METALS + EQUITIES SIGNALS ({tf_lbl})*",
+                f"_⚡ = confirmed & sentiment-approved breakout • 👀 = breakout watch • 🛡️/⚪ = stand aside (Extreme Fear / no trend) • Alert Threshold: {self.alert_confidence_threshold}%+:_\n",
             ]
             if is_kr
             else [
@@ -1164,13 +1322,18 @@ class DashboardController:
             arrow = "📈" if side == "LONG" else "📉"
             entry_tag = "Maker Entry" if mode == "ENTER NOW" else "Maker Trap"
             if is_kr:
+                m_str = str(mode)
+                is_paused = ("PAUSED" in m_str) or ("VETOED" in m_str)
+                is_stand = ("STAND ASIDE" in m_str) or is_paused
                 if mode == "ENTER NOW" or is_open:
                     icon = "🟠" if is_open else "⚡"
-                elif "STAND ASIDE" in str(mode):
+                elif is_paused:
+                    icon = "🛡️"
+                elif is_stand:
                     icon = "⚪"
                 else:
                     icon = "👀"
-                trig = "Entry" if mode == "ENTER NOW" else ("Trigger (close beyond)" if "STAND ASIDE" not in str(mode) else "No trend — level")
+                trig = "Entry" if mode == "ENTER NOW" else ("Trigger (close beyond)" if not is_stand else "Upside watch level")
                 mode_txt = mode
                 if mode == "ENTER NOW" and tp.get("portfolio_cap_skip") and not is_open:
                     r_ = self.config.risk
@@ -1178,9 +1341,11 @@ class DashboardController:
                         f"BREAKOUT — SKIP (limit {r_.max_concurrent_positions} open / "
                         f"{r_.max_long_positions} long / {r_.max_short_positions} short)"
                     )
+                side_disp = "STAND ASIDE" if (is_stand and not is_open) else f"{side} {arrow}"
+                m_usd = float(tp.get("margin_usd") or self.config.risk.margin_per_trade_usd)
                 lines.append(
-                    f"{icon} *{lbl}* — *{side} {arrow}* (`{mode_txt}`)\n"
-                    f"   {trig}: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}` | {tp.get('leverage', 5)}x)_ | SL: `{tp.get('sl_str')}`"
+                    f"{icon} *{lbl}* — *{side_disp}* (`{mode_txt}`)\n"
+                    f"   {trig}: `{tp.get('safe_entry_str')}` _(Now: `{c.get('price_str')}` | ${m_usd:.0f} @ {tp.get('leverage', 5)}x)_ | SL: `{tp.get('sl_str')}`"
                 )
                 continue
             lines.append(
@@ -1216,7 +1381,7 @@ Important BTCC / exchange conventions:
 - "Open Price" / "Avg. Open Price" / "Entry Price" = entry_price.
 - "Margin" / "Position Margin" = margin_usd.
 - Leverage is usually shown like "20X", "50x", "100x", "5x".
-- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA), SPACEXUSDT (SpaceX / SPCX).
+- Common BTCC symbols: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT, DOGEUSDT, SUIUSDT, XAUUSDT (Gold / GOLDUSDT), XAGUSDT (Silver / SILVERUSDT), GOOGLUSDT (Google / Alphabet), PEPEUSDT (1000PEPE), AVAXUSDT, WIFUSDT, INJUSDT, NVDAUSDT (NVDA), SPACEXUSDT (SpaceX / SPCX).
 - If the screenshot is an exchange "Positions" tab showing ZERO open positions (e.g. "Positions (0)", "No Data", "No open positions"), set screen_type="EMPTY_POSITIONS" and positions=[].
 - If the screenshot is a full exchange "Positions" list tab showing currently open positions, set screen_type="OPEN_POSITIONS".
 - If the screenshot is a "Closed Position" / "Position History" / "Realized PnL" card or row (or the user caption says "closed"), set screen_type="CLOSED_PNL" and set is_closed=true (and exit_price if visible) for closed rows.
@@ -1416,6 +1581,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 peak_favorable_price=entry_p,
             )
             self.orchestrator.execution.open_positions[sym] = pos
+            self.pending_alert_slots.pop(sym, None)
             pnl_usd = pos.unrealized_pnl_usd()
             roe_pct = pos.unrealized_roe_pct()
 
@@ -1756,6 +1922,7 @@ Return ONLY valid JSON (no markdown fences) matching this exact structure:
                 peak_favorable_price=entry_p,
             )
             self.orchestrator.execution.open_positions[sym_in_msg] = pos
+            self.pending_alert_slots.pop(sym_in_msg, None)
             self.orchestrator.execution.touch_positions_version()
             self.push_state_to_git_async(f"chore(state): track manual {sym_in_msg} position [skip ci]")
             pnl_usd = pos.unrealized_pnl_usd()
@@ -2102,8 +2269,8 @@ HTML_PAGE = """<!DOCTYPE html>
         <option value="1m">1m (Scalp — High Fee Hurdle)</option>
         <option value="5m">5m (Intraday — Maker Only)</option>
         <option value="15m">15m (Intraday — Maker Only)</option>
-        <option value="1h">1h (Krypton V3 Trend &#11088; hold-out PF 1.80)</option>
-        <option value="4h" selected>4h (Krypton V3 Swing &#11088; hold-out PF 1.29)</option>
+        <option value="1h">1h (Krypton V4 Trend + Sentiment + CVD)</option>
+        <option value="4h" selected>4h (Krypton V4 Swing + Sentiment + CVD)</option>
         <option value="1d">1d (Daily Macro Swing &#11088; Low Friction)</option>
         <option value="1w">1w (Weekly Macro Swing)</option>
         <option value="1M">1M (Monthly Macro Swing)</option>
@@ -2120,8 +2287,8 @@ HTML_PAGE = """<!DOCTYPE html>
 <div class="health-grid" id="healthGrid"></div>
 
 <div class="section-title">
-  <span>2. Live Trend Signals (Krypton V3) &amp; Breakout Watch Levels</span>
-  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA trend filter &rarr; ATR stop (1R) &rarr; chandelier trail &amp; exit-channel close (no fixed TP)</span>
+  <span>2. Live Trend Signals (Krypton V4 + Metals + Equities) &amp; Sentiment-Gated Watch Levels</span>
+  <span style="font-size:0.78rem;text-transform:none;">Engine: Donchian breakout + EMA 20/80 &amp; slope + CVD orderflow + Extreme-Fear short gate &amp; Gemini catalyst check</span>
 </div>
 <div class="cards-grid" id="cardsGrid"></div>
 
@@ -2144,6 +2311,7 @@ HTML_PAGE = """<!DOCTYPE html>
         <option value="BTCUSDT">BTCUSDT</option>
         <option value="XAUUSDT">XAUUSDT (Gold)</option>
         <option value="XAGUSDT">XAGUSDT (Silver)</option>
+        <option value="GOOGLUSDT">GOOGLUSDT (Google)</option>
         <option value="PEPEUSDT">PEPEUSDT</option>
         <option value="AVAXUSDT">AVAXUSDT</option>
         <option value="WIFUSDT">WIFUSDT</option>
@@ -2307,12 +2475,17 @@ function renderDashboard(data) {
     const side = tp.side || 'LONG';
     const isLong = side === 'LONG';
     const isNow = tp.entry_mode === 'ENTER NOW';
+    const isStandAside = String(tp.entry_mode || '').includes('STAND ASIDE') || String(tp.entry_mode || '').includes('PAUSED') || String(tp.entry_mode || '').includes('VETOED');
     const conf = tp.confidence_pct || 65;
-    const confColor = conf >= 78 ? 'var(--green)' : (conf >= 65 ? 'var(--blue)' : 'var(--amber)');
-    const sideColor = isLong ? 'var(--green)' : 'var(--red)';
-    const sideBg = isLong ? 'rgba(16,185,129,0.14)' : 'rgba(244,63,94,0.14)';
+    const confColor = isStandAside ? 'var(--muted)' : (conf >= 78 ? 'var(--green)' : (conf >= 65 ? 'var(--blue)' : 'var(--amber)'));
+    const sideColor = isStandAside ? 'var(--muted)' : (isLong ? 'var(--green)' : 'var(--red)');
+    const sideBg = isStandAside ? 'rgba(148,163,184,0.14)' : (isLong ? 'rgba(16,185,129,0.14)' : 'rgba(244,63,94,0.14)');
     const mUsd = tp.margin_usd || c.margin_per_trade_usd || 5;
     const lev = tp.leverage || c.rec_leverage || 5;
+    const slLossStr = typeof tp.actual_sl_loss_usd === 'number' ? ` • SL ~$${tp.actual_sl_loss_usd.toFixed(2)}` : '';
+    const sizingWarn = tp.sizing_note ? `<div style="font-size:0.71rem;color:var(--amber);margin-top:2px;">&#9888;&#65039; ${tp.sizing_note}</div>` : '';
+    const fngVal = (c.market_intel && typeof c.market_intel.fear_greed_value === 'number') ? c.market_intel.fear_greed_value : tp.fear_greed_value;
+    const fngStr = (typeof fngVal === 'number') ? `${fngVal}` : 'n/a';
     const priceStr = c.price_str || c.price;
     const entryStr = tp.safe_entry_str || tp.safe_entry || priceStr;
     const slStr = tp.sl_str || tp.sl;
@@ -2325,6 +2498,7 @@ function renderDashboard(data) {
     const metaEr = typeof ctel.meta_pred_r === 'number' ? `${ctel.meta_pred_r >= 0 ? '+' : ''}${ctel.meta_pred_r.toFixed(2)}R` : 'n/a';
     const entryLbl = tp.entry_label || (isNow ? 'Maker Limit Entry:' : 'Maker Limit Trap:');
     const isKr = !!tp.entry_label;
+    const pillLabel = isStandAside ? 'STAND ASIDE' : `${side} ${isLong ? '&#9650;' : '&#9660;'}`;
 
     return `
       <div class="asset-card rec-${c.rec_color}">
@@ -2333,7 +2507,7 @@ function renderDashboard(data) {
             <div class="symbol-title">
               ${c.symbol}
               <span class="cat-pill" style="background:${sideBg};color:${sideColor};border:1px solid ${sideColor};font-weight:800;">
-                ${side} ${isLong ? '&#9650;' : '&#9660;'}
+                ${pillLabel}
               </span>
               <span class="cat-pill" style="color:${confColor};border:1px solid ${confColor};font-weight:800;">
                 ${conf}% CONFIDENCE
@@ -2349,32 +2523,32 @@ function renderDashboard(data) {
 
         <div class="signal-levels" style="border-color:${isNow ? sideColor : 'var(--border)'};margin-top:4px;">
           <div style="grid-column:1 / -1;font-weight:800;color:${sideColor};font-size:0.8rem;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-            <span>${isLong ? '&#128200; LONG' : '&#128201; SHORT'} ${isNow ? 'ACTIVE SETUP' : (isKr ? 'BREAKOUT WATCH' : 'LIMIT TRAP')} (Click price to copy)</span>
+            <span>${isStandAside ? '&#128737;&#65039; ' + tp.entry_mode : ((isLong ? '&#128200; LONG' : '&#128201; SHORT') + ' ' + (isNow ? 'ACTIVE SETUP' : (isKr ? 'BREAKOUT WATCH' : 'LIMIT TRAP')))} (Click price to copy)</span>
             <span style="color:${confColor};">${conf}% Conf</span>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Maker Limit Entry">
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${entryStr}', this)" title="Click to copy Entry">
             <span>${entryLbl}</span> <strong>$${entryStr} &#128203;</strong>
           </div>
           <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${slStr}', this)" title="Click to copy Stop-Loss">
             <span>Stop-Loss (SL):</span> <strong style="color:var(--red)">$${slStr} &#128203;</strong>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1 (55% Partial)">
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp1Str}', this)" title="Click to copy TP1 / Milestone">
             <span>${tp.tp1_label || 'TP1 (55% Partial):'}</span> <strong style="color:var(--green)">$${tp1Str} &#128203;</strong>
           </div>
-          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2 (45% Runner)">
+          <div style="cursor:pointer;font-size:0.84rem;" onclick="copyPrice('${tp2Str}', this)" title="Click to copy TP2 / Milestone">
             <span>${tp.tp2_label || 'TP2 (45% Runner):'}</span> <strong style="color:var(--green)">$${tp2Str} &#128203;</strong>
           </div>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(15,23,42,0.55);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:0.71rem;margin-top:2px;">
           <div><span style="color:var(--muted);display:block;">Taker &Delta;</span><strong>${deltaPct}</strong></div>
-          <div><span style="color:var(--muted);display:block;">6-Bar CVD</span><strong>${cvd6Pct}</strong></div>
-          <div><span style="color:var(--muted);display:block;">Whale Print</span><strong>${whaleRatio}</strong></div>
+          <div><span style="color:var(--muted);display:block;">24h CVD</span><strong>${cvd6Pct}</strong></div>
+          <div><span style="color:var(--muted);display:block;">Fear &amp; Greed</span><strong style="color:${fngVal <= 25 ? 'var(--amber)' : 'var(--text)'}">${fngStr}</strong></div>
           <div><span style="color:var(--muted);display:block;">${isKr ? 'Hold-out E[R]' : 'Meta E[R]'}</span><strong style="color:${ctel.meta_pred_r > 0 ? 'var(--green)' : 'var(--amber)'}">${metaEr}</strong></div>
         </div>
 
         <div style="font-size:0.74rem;color:var(--muted);padding:4px 2px;">
-          ${tp.simple_why || ''} &bull; Kelly Safe: <strong>$${mUsd} @ ${lev}x</strong>
+          ${tp.simple_why || ''} &bull; Safe Size: <strong>$${mUsd} @ ${lev}x${slLossStr}</strong>${sizingWarn}
         </div>
 
         <div style="display:flex;gap:6px;margin-top:2px;">

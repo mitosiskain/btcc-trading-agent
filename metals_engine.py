@@ -229,7 +229,15 @@ class MetalsTrendBridge(KryptonLiveBridge):
         return base[base.index < today]  # closed days only
 
     # ---------------------------------------------------------------- entries
-    def evaluate_symbol_live(self, df: pd.DataFrame, btc_df: Optional[pd.DataFrame], symbol: str, timeframe: str = "4h") -> KryptonLiveScanResult:
+    def evaluate_symbol_live(
+        self,
+        df: pd.DataFrame,
+        btc_df: Optional[pd.DataFrame],
+        symbol: str,
+        timeframe: str = "4h",
+        fear_greed_value: Optional[float] = None,
+        market_intel: Optional[Dict[str, Any]] = None,
+    ) -> KryptonLiveScanResult:
         from detector import ReversalSetupSignal
 
         p = self.p
@@ -301,7 +309,9 @@ class MetalsTrendBridge(KryptonLiveBridge):
                 room = (live_price - trail) if is_long else (trail - live_price)
                 if not alive or run > 0.5 * r or room < 0.3 * r:
                     continue
-                lev, liq = self.compute_safe_leverage(symbol, side, live_price, abs(live_price - trail) / live_price * 100.0)
+                active_sizing = self.compute_position_sizing(symbol, side, live_price, abs(live_price - trail) / live_price * 100.0)
+                lev, liq = int(active_sizing["leverage"]), float(active_sizing["liq_price"])
+                tel["active_sizing"] = active_sizing
                 sg = 1.0 if is_long else -1.0
                 active = ReversalSetupSignal(
                     symbol=symbol, timeframe=timeframe, timestamp=str(d.index[i]),

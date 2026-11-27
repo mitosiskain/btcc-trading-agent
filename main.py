@@ -21,6 +21,7 @@ from detector import ImpulseFlatlineDetector
 from carbon_v2_engine import CarbonLiveBridge
 from krypton_engine import KryptonLiveBridge
 from metals_engine import MetalsTrendBridge, METALS_SYMBOLS
+from equities_engine import EquitiesTrendBridge, EQUITIES_SYMBOLS
 from sentiment_agent import SentimentAnalystAgent
 from execution_engine import ExecutionEngine
 from backtest_researcher import AutomatedBacktestResearcher
@@ -35,14 +36,17 @@ class BTCCTradingOrchestrator:
         self.state_dir = Path(__file__).resolve().parent / "state"
         self.carbon_bridge = CarbonLiveBridge(config.risk, state_dir=self.state_dir)
         self.krypton_bridge = KryptonLiveBridge(config.risk, state_dir=self.state_dir)
-        # Active live engine (ENGINE_VERSION env / LeverageRiskConfig.engine_version): KRYPTON_V3 (default) or CARBON_V2
-        self.engine_version = str(getattr(config.risk, "engine_version", "KRYPTON_V3")).upper()
+        # Active live engine (ENGINE_VERSION env / LeverageRiskConfig.engine_version): KRYPTON_V4 (default) or CARBON_V2
+        self.engine_version = str(getattr(config.risk, "engine_version", "KRYPTON_V4")).upper()
         self.is_krypton = self.engine_version.startswith("KRYPTON")
         self.engine_bridge = self.krypton_bridge if self.is_krypton else self.carbon_bridge
-        self.engine_label = "Krypton V3" if self.is_krypton else "Carbon V2"
-        # Gold & silver run the dedicated, calendar-consistent Metals Trend engine (METALS_ENGINE=OFF -> Krypton V3)
+        self.engine_label = "Krypton V4" if self.is_krypton else "Carbon V2"
+        # Gold & silver run the dedicated, calendar-consistent Metals Trend engine (METALS_ENGINE=OFF -> Krypton V4)
         self.metals_bridge = MetalsTrendBridge(config.risk, state_dir=self.state_dir, feed=self.feed)
         self.use_metals_engine = os.getenv("METALS_ENGINE", "METALS_TREND").upper() != "OFF"
+        # Tokenized US equities (GOOGLUSDT) run the dedicated, gap-honest Equities Trend engine (EQUITIES_ENGINE=OFF -> Krypton V4)
+        self.equities_bridge = EquitiesTrendBridge(config.risk, state_dir=self.state_dir, feed=self.feed)
+        self.use_equities_engine = os.getenv("EQUITIES_ENGINE", "EQUITIES_TREND").upper() != "OFF"
         self.sentiment_agent = SentimentAnalystAgent(config)
         self.execution = ExecutionEngine(config)
         self.researcher = AutomatedBacktestResearcher(config)
@@ -50,9 +54,12 @@ class BTCCTradingOrchestrator:
         self.alerted_bar_keys: Set[str] = set()
 
     def bridge_for(self, symbol: str):
-        """Live engine for a symbol: Metals Trend for XAU/XAG, otherwise the active engine (Krypton V3 / Carbon V2)."""
-        if self.is_krypton and self.use_metals_engine and str(symbol).upper() in METALS_SYMBOLS:
+        """Live engine for a symbol: Metals Trend for XAU/XAG, Equities Trend for GOOGL, otherwise Krypton V4 / Carbon V2."""
+        sym_u = str(symbol).upper()
+        if self.is_krypton and self.use_metals_engine and sym_u in METALS_SYMBOLS:
             return self.metals_bridge
+        if self.is_krypton and self.use_equities_engine and sym_u in EQUITIES_SYMBOLS:
+            return self.equities_bridge
         return self.engine_bridge
 
     def scan_bars(self, timeframe: str) -> int:
@@ -151,8 +158,20 @@ class BTCCTradingOrchestrator:
             if not bool(df.attrs.get("is_reliable_24_7_feed", True)):
                 continue
 
-            # 2. Scan with the active engine (Krypton V3 trend breakout by default, Carbon V2 optional)
-            scan_res = self.bridge_for(symbol).evaluate_symbol_live(df, btc_df, symbol=symbol, timeframe=tf)
+            # 2. Scan with the active engine (Krypton V4 trend + sentiment + orderflow by default, Carbon V2 optional)
+            market_intel = self.sentiment_agent.get_live_market_intel_dict(symbol)
+            bridge = self.bridge_for(symbol)
+            if self.is_krypton:
+                scan_res = bridge.evaluate_symbol_live(
+                    df,
+                    btc_df,
+                    symbol=symbol,
+                    timeframe=tf,
+                    fear_greed_value=market_intel.get("fear_greed_value"),
+                    market_intel=market_intel,
+                )
+            else:
+                scan_res = bridge.evaluate_symbol_live(df, btc_df, symbol=symbol, timeframe=tf)
             tel = scan_res.telemetry
             if scan_res.active_signal is not None and scan_res.signal_bars_ago in (0, 1):
                 signal = scan_res.active_signal
@@ -160,12 +179,11 @@ class BTCCTradingOrchestrator:
                 dedup_key = f"{symbol}:{tf}:{signal.timestamp}"
                 if dedup_key not in self.alerted_bar_keys:
                     if self.is_krypton:
-                        verdict = SentimentVerdictSchema(
-                            decision="APPROVE_REVERSAL",
-                            confidence_score=0.85,
-                            leverage_multiplier=1.0,
-                            catalyst_summary="Krypton V3 Trend Breakout (continuation aligned)",
-                            reasoning=f"Krypton V3 {tel['archetype']} (trend {tel.get('trend')}, hold-out E[{tel['meta_pred_r']:+.2f}R])",
+                        verdict = self.sentiment_agent.evaluate_trend_breakout(signal)
+                        verdict.reasoning = (
+                            f"{bridge.display_name} {tel['archetype']} (trend {tel.get('trend')}, "
+                            f"CVD {tel.get('cvd_window_pct', 0.0):+.1f}%, F&G {market_intel.get('fear_greed_value', 50)}, "
+                            f"hold-out E[{tel['meta_pred_r']:+.2f}R]) • {verdict.reasoning}"
                         )
                     else:
                         verdict = self.sentiment_agent.evaluate_setup(signal)

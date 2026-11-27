@@ -34,6 +34,7 @@ TV_SYMBOL_MAP: Dict[str, str] = {
     "XAUUSDT": "OANDA:XAUUSD",
     "XAGUSDT": "TVC:SILVER",
     "NVDAUSDT": "NASDAQ:NVDA",
+    "GOOGLUSDT": "NASDAQ:GOOGL",
     "SPACEXUSDT": "NASDAQ:SPCX",
     "PEPEUSDT": "BINANCE:PEPEUSDT",
     "WIFUSDT": "BINANCE:WIFUSDT",
@@ -55,6 +56,7 @@ SOCIAL_QUERY_MAP: Dict[str, str] = {
     "XAUUSDT": "(Gold price OR XAUUSD) (Fed OR central bank OR safe haven OR inflation)",
     "XAGUSDT": "(Silver price OR XAGUSD) (COMEX OR industrial demand OR safe haven OR Gold)",
     "NVDAUSDT": "(Nvidia OR NVDA) (AI chips OR Jensen Huang OR earnings OR Wall Street)",
+    "GOOGLUSDT": "(Alphabet OR Google OR GOOGL) (AI OR Gemini OR cloud OR earnings OR Nasdaq)",
     "SPACEXUSDT": "(SpaceX OR SPCX OR Starlink) (stock OR Starship OR launch OR Musk OR earnings OR Nasdaq)",
     "PEPEUSDT": "(Pepe coin OR $PEPE) (memecoin OR whale OR rally OR breakout)",
     "WIFUSDT": "(dogwifhat OR $WIF) (Solana memecoin OR whale OR breakout OR rally)",
@@ -186,7 +188,7 @@ class SentimentAnalystAgent:
 
         # 1. OKX Perp Funding Rate & Retail Long/Short Account Ratio (no geo-block)
         base_ccy = sym.replace("USDT", "")
-        if sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT"):
+        if sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT", "GOOGLUSDT"):
             try:
                 r_fund = self.session.get(
                     "https://www.okx.com/api/v5/public/funding-rate",
@@ -664,5 +666,218 @@ Return ONLY valid JSON matching this exact structure:
             pattern_diagnosis=diag,
             catalysts_found=(deriv_ctx.tv_headlines[:2] + deriv_ctx.social_headlines[:2]) or reasons,
             reasoning="; ".join(reasons[:3]) if reasons else "Standard exhaustion flatline detected.",
+            leverage_multiplier=lev_mult,
+        )
+
+    def evaluate_trend_breakout(
+        self,
+        signal: ReversalSetupSignal,
+        deriv_ctx: Optional[DerivativesContext] = None,
+    ) -> SentimentVerdictSchema:
+        """
+        Trend-Breakout Sentiment & Catalyst Validator for Krypton V4 / Metals Trend / Equities Trend.
+
+        Unlike `evaluate_setup()` (which vetoes mean-reversion fades when a news catalyst is present),
+        trend breakouts WANT aligned catalysts and clean continuation while vetoing:
+          1. Crypto SHORT breakouts during Extreme Fear capitulation (Fear & Greed <= 25).
+          2. Breakouts directly fighting a statistically significant opposing news wave (|z| >= 1.90).
+          3. Breaking structural shocks contradicting the breakout side (via Gemini Live Search Grounding).
+        """
+        sym = signal.symbol.upper()
+        ctx = deriv_ctx if deriv_ctx is not None else self.fetch_derivatives_context(sym)
+        cache_key = (
+            f"trend:{sym}:{signal.timeframe}:{signal.trade_side}:{signal.timestamp}:"
+            f"{ctx.fear_greed_value}:{ctx.news_bias_label}:{ctx.is_statistically_significant}:{bool(self.config.gemini_api_key)}"
+        )
+        if deriv_ctx is None and cache_key in self._verdict_cache:
+            return self._verdict_cache[cache_key]
+
+        is_crypto = sym not in ("XAUUSDT", "XAGUSDT", "NVDAUSDT", "TSLAUSDT", "SPACEXUSDT", "GOOGLUSDT")
+
+        # ---- Deterministic Hard Safety Gates (always enforced before LLM / heuristic) ----
+        if is_crypto and signal.trade_side == "SHORT" and ctx.fear_greed_value <= 25:
+            verdict = SentimentVerdictSchema(
+                decision="VETO_CAPITULATION_SHORT",
+                confidence=0.90,
+                sentiment_score=ctx.news_sentiment_score,
+                is_news_catalyst_driven=ctx.major_catalyst_detected,
+                pattern_diagnosis="EXTREME_FEAR_SQUEEZE_RISK",
+                catalysts_found=[f"Crypto Fear & Greed = {ctx.fear_greed_value} ({ctx.fear_greed_label})"] + ctx.tv_headlines[:2],
+                reasoning=(
+                    f"Blocked {sym} SHORT: Crypto Fear & Greed is in Extreme Fear ({ctx.fear_greed_value} <= 25), "
+                    "where breakdown shorts face severe short-squeeze risk."
+                ),
+                leverage_multiplier=0.0,
+            )
+            self._verdict_cache[cache_key] = verdict
+            return verdict
+
+        if (
+            signal.trade_side == "SHORT"
+            and ctx.is_statistically_significant
+            and ctx.news_bias_label == "BULLISH"
+        ):
+            verdict = SentimentVerdictSchema(
+                decision="VETO_SENTIMENT_CONFLICT",
+                confidence=round(min(0.95, ctx.confidence_pct / 100.0), 2),
+                sentiment_score=ctx.news_sentiment_score,
+                is_news_catalyst_driven=ctx.major_catalyst_detected,
+                pattern_diagnosis="OPPOSING_BULLISH_NEWS_WAVE",
+                catalysts_found=(ctx.tv_headlines[:2] + ctx.social_headlines[:2]),
+                reasoning=(
+                    f"Blocked {sym} SHORT: statistically significant BULLISH news wave "
+                    f"({ctx.bull_posts}B/{ctx.bear_posts}S, z={ctx.sentiment_z_score:+.2f}, p={ctx.sentiment_p_value:.3f})."
+                ),
+                leverage_multiplier=0.0,
+            )
+            self._verdict_cache[cache_key] = verdict
+            return verdict
+
+        if (
+            signal.trade_side == "LONG"
+            and ctx.is_statistically_significant
+            and ctx.news_bias_label == "BEARISH"
+            and ctx.major_catalyst_detected
+        ):
+            verdict = SentimentVerdictSchema(
+                decision="VETO_SENTIMENT_CONFLICT",
+                confidence=round(min(0.95, ctx.confidence_pct / 100.0), 2),
+                sentiment_score=ctx.news_sentiment_score,
+                is_news_catalyst_driven=True,
+                pattern_diagnosis="OPPOSING_BEARISH_CATALYST",
+                catalysts_found=(ctx.tv_headlines[:2] + ctx.social_headlines[:2]),
+                reasoning=(
+                    f"Blocked {sym} LONG: statistically significant BEARISH catalyst wave "
+                    f"({ctx.bull_posts}B/{ctx.bear_posts}S, z={ctx.sentiment_z_score:+.2f})."
+                ),
+                leverage_multiplier=0.0,
+            )
+            self._verdict_cache[cache_key] = verdict
+            return verdict
+
+        if not self.config.gemini_api_key:
+            verdict = self._trend_heuristic_fallback(signal, ctx)
+            self._verdict_cache[cache_key] = verdict
+            return verdict
+
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=self.config.gemini_api_key)
+            headlines_block = "\n".join(f"  * {h}" for h in (ctx.tv_headlines[:6] + ctx.social_headlines[:5]))
+            prompt = f"""
+You are a Quantitative Trend-Following & Catalyst Analyst for BTCC perpetual futures.
+Our systematic engine (Krypton V4 / Metals / Equities Trend) just detected a confirmed trend BREAKOUT:
+
+- Asset: {sym} ({signal.timeframe} chart)
+- Timestamp (UTC): {signal.timestamp}
+- Breakout Side: {signal.trade_side} at {signal.entry_price} | Stop-Loss: {signal.stop_loss}
+- Breakout Strength: {signal.impulse_atr_mult:.2f}x ATR beyond Donchian channel | Recent Window Move: {signal.impulse_pct:+.2f}%
+- RSI(14): {signal.rsi_at_flatline} | Relative Volume: {signal.volume_decay_ratio:.2f}x
+- Live Perp Funding Rate: {ctx.funding_rate_pct:+.4f}% | Retail L/S Ratio: {ctx.long_short_ratio:.2f}x ({ctx.crowd_long_pct:.1f}% Long)
+- Crypto Fear & Greed Index: {ctx.fear_greed_value} ({ctx.fear_greed_label})
+- Statistical News Scan ({ctx.total_posts_analyzed} posts): {ctx.news_bias_label} ({ctx.bull_posts} Bull / {ctx.bear_posts} Bear, z={ctx.sentiment_z_score:+.2f}, p={ctx.sentiment_p_value:.3f})
+- Live TradingView & Social Headlines:
+{headlines_block or '  * None'}
+
+YOUR TASK (TREND-FOLLOWING — DO NOT VETO GOOD CONTINUATION CATALYSTS!):
+1. Check live news for {sym} from the last 12 hours using Google Search.
+2. APPROVE_BREAKOUT (leverage_multiplier=1.0) if news/macro/orderflow supports the {signal.trade_side} trend OR there is no major opposing shock (trend-following thrives on clean momentum and confirming catalysts!).
+3. CAUTION_REDUCE_LEVERAGE (leverage_multiplier=0.5) if positioning is heavily crowded on the same side (squeeze risk) or headlines are conflicted/choppy ahead of an imminent binary event (e.g. CPI/FOMC/earnings in <2 hours).
+4. VETO_SENTIMENT_CONFLICT (leverage_multiplier=0.0) ONLY if there is a clear breaking fundamental/macro catalyst directly OPPOSING {signal.trade_side} (e.g., shorting right as a major bullish ETF/Fed headline hits, or longing right after a hack/exploit/bearish shock).
+
+Return ONLY valid JSON matching this exact structure:
+{{
+  "decision": "APPROVE_BREAKOUT" | "CAUTION_REDUCE_LEVERAGE" | "VETO_SENTIMENT_CONFLICT",
+  "confidence": 0.0 to 1.0,
+  "sentiment_score": -1.0 to 1.0,
+  "is_news_catalyst_driven": true | false,
+  "pattern_diagnosis": "TREND_CONTINUATION_CONFIRMED" | "CROWDED_BREAKOUT_CAUTION" | "CATALYST_FAKEOUT_RISK",
+  "catalysts_found": ["headline or factor 1", "factor 2"],
+  "reasoning": "Concise 2-sentence trader summary of sentiment alignment for Telegram",
+  "leverage_multiplier": 1.0 | 0.5 | 0.0
+}}
+"""
+            response = client.models.generate_content(
+                model=self.config.gemini_model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    tools=[types.Tool(google_search=types.GoogleSearch())],
+                    temperature=0.2,
+                ),
+            )
+            raw_text = (response.text or "").strip()
+            if "```" in raw_text:
+                for part in raw_text.split("```"):
+                    pc = part.strip()
+                    if pc.startswith("json"):
+                        pc = pc[4:].strip()
+                    if pc.startswith("{") and pc.endswith("}"):
+                        raw_text = pc
+                        break
+            parsed = json.loads(raw_text)
+            verdict = SentimentVerdictSchema(**parsed)
+            self._verdict_cache[cache_key] = verdict
+            return verdict
+        except Exception as e:
+            fallback = self._trend_heuristic_fallback(signal, ctx)
+            fallback.reasoning += f" (Heuristic fallback: {type(e).__name__})"
+            self._verdict_cache[cache_key] = fallback
+            return fallback
+
+    def _trend_heuristic_fallback(
+        self,
+        signal: ReversalSetupSignal,
+        ctx: DerivativesContext,
+    ) -> SentimentVerdictSchema:
+        """Deterministic trend-breakout sentiment scoring using TV/Social z-score, Funding, L/S ratio, and Fear & Greed."""
+        reasons: List[str] = []
+        score = 0.72
+        is_long = signal.trade_side == "LONG"
+
+        # 1. News alignment with breakout direction
+        if (is_long and ctx.news_sentiment_score >= 0.20) or ((not is_long) and ctx.news_sentiment_score <= -0.20):
+            score += 0.10
+            reasons.append(f"News sentiment ({ctx.news_bias_label}, {ctx.news_sentiment_score:+.2f}) confirms {signal.trade_side}")
+        elif (is_long and ctx.news_sentiment_score <= -0.35) or ((not is_long) and ctx.news_sentiment_score >= 0.35):
+            score -= 0.16
+            reasons.append(f"News sentiment ({ctx.news_bias_label}, {ctx.news_sentiment_score:+.2f}) conflicts with {signal.trade_side}")
+
+        # 2. Derivatives crowding / squeeze risk
+        if not is_long and ctx.funding_rate_pct <= -0.015:
+            score -= 0.14
+            reasons.append(f"Negative perp funding ({ctx.funding_rate_pct:+.4f}%) signals crowded shorts / squeeze risk")
+        elif is_long and ctx.funding_rate_pct >= 0.05:
+            score -= 0.10
+            reasons.append(f"Elevated long funding ({ctx.funding_rate_pct:+.4f}%) signals crowded longs")
+        elif is_long and ctx.funding_rate_pct <= 0.01:
+            score += 0.05
+            reasons.append(f"Healthy non-crowded funding ({ctx.funding_rate_pct:+.4f}%) supports upside trend")
+
+        # 3. Breakout volume support
+        if signal.volume_decay_ratio >= 1.2:
+            score += 0.05
+            reasons.append(f"Expanding breakout volume ({signal.volume_decay_ratio:.2f}x)")
+
+        if ctx.top_headline:
+            reasons.append(f"Top headline: {ctx.top_headline[:85]}")
+
+        score = max(0.15, min(0.95, score))
+        if score >= 0.68:
+            decision, diag, lev_mult = "APPROVE_BREAKOUT", "TREND_CONTINUATION_CONFIRMED", 1.0
+        elif score >= 0.52:
+            decision, diag, lev_mult = "CAUTION_REDUCE_LEVERAGE", "CROWDED_BREAKOUT_CAUTION", 0.5
+        else:
+            decision, diag, lev_mult = "VETO_SENTIMENT_CONFLICT", "CATALYST_FAKEOUT_RISK", 0.0
+
+        return SentimentVerdictSchema(
+            decision=decision,
+            confidence=round(score, 2),
+            sentiment_score=ctx.news_sentiment_score,
+            is_news_catalyst_driven=ctx.major_catalyst_detected,
+            pattern_diagnosis=diag,
+            catalysts_found=(ctx.tv_headlines[:2] + ctx.social_headlines[:2]) or reasons,
+            reasoning="; ".join(reasons[:3]) if reasons else f"Krypton V4 {signal.trade_side} trend breakout cleared sentiment checks.",
             leverage_multiplier=lev_mult,
         )

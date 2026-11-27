@@ -206,7 +206,7 @@ class ExecutionEngine:
         """
         Validates risk & correlation guardrails and opens an isolated Maker-Limit / Kelly-scaled position.
         """
-        if verdict.decision == "VETO_CONTINUATION_RISK" or verdict.leverage_multiplier <= 0:
+        if str(verdict.decision).startswith("VETO") or verdict.leverage_multiplier <= 0:
             return None
 
         allowed, _ = self.can_open_trade(signal.symbol, side=signal.trade_side)

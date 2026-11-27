@@ -72,11 +72,54 @@ def _max_lev(sym: str) -> int:
     return prof.max_btcc_leverage if prof else 100
 
 
-def load_benchmark_panel(tf: str) -> Dict[str, pd.DataFrame]:
+def load_causal_fng() -> pd.DataFrame:
+    """Fetch & cache full daily Crypto Fear & Greed history, shifted by 1 day for strict causality."""
+    import requests
+
+    cache_p = STATE / "research_cache" / "fng_history.pkl"
+    cache_p.parent.mkdir(parents=True, exist_ok=True)
+    if cache_p.exists():
+        try:
+            df = pd.read_pickle(cache_p)
+            if len(df) > 100 and "fng_causal" in df.columns:
+                return df
+        except Exception:
+            pass
+    r = requests.get("https://api.alternative.me/fng/?limit=0", timeout=15)
+    raw = r.json().get("data", []) if r.status_code == 200 else []
+    df = pd.DataFrame(
+        {
+            "date": pd.to_datetime([int(x["timestamp"]) for x in raw], unit="s", utc=True).floor("D"),
+            "fng": [float(x["value"]) for x in raw],
+        }
+    ).drop_duplicates("date").sort_values("date").reset_index(drop=True)
+    df["fng_causal"] = df["fng"].shift(1)
+    df.to_pickle(cache_p)
+    return df
+
+
+def attach_causal_fng(df: pd.DataFrame, fg_df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or fg_df.empty:
+        return df
+    out = df.copy()
+    out["date"] = pd.to_datetime(out["timestamp"], utc=True).dt.floor("D")
+    out = pd.merge_asof(
+        out.sort_values("date"),
+        fg_df[["date", "fng_causal"]].dropna().sort_values("date"),
+        on="date",
+        direction="backward",
+    )
+    return out.sort_values("timestamp").reset_index(drop=True)
+
+
+def load_benchmark_panel(tf: str, fg_df: pd.DataFrame | None = None) -> Dict[str, pd.DataFrame]:
     spec = TF_SPECS[tf]
     raw = {s: fetch_paginated_perp_data(s, f, tf, spec["total_bars"]) for s, f in BENCHMARK_SYMBOLS}
     m = min(len(d) for d in raw.values())
-    return {s: d.iloc[-m:].reset_index(drop=True) for s, d in raw.items()}
+    out = {s: d.iloc[-m:].reset_index(drop=True) for s, d in raw.items()}
+    if fg_df is not None and not fg_df.empty:
+        out = {s: attach_causal_fng(d, fg_df) for s, d in out.items()}
+    return out
 
 
 def build_folds(min_len: int, train_bars: int, fold_bars: int) -> List[Tuple[int, int]]:
@@ -116,7 +159,7 @@ def check_simulator_equivalence(raw: Dict[str, pd.DataFrame], tf: str) -> Dict[s
 def check_causality(raw: Dict[str, pd.DataFrame], tf: str) -> Dict[str, Any]:
     p = KryptonParams.for_timeframe(tf)
     pts, max_diff = 0, 0.0
-    cols = ("atr", "ema_f", "ema_s", "don_hi", "don_lo", "ex_hi", "ex_lo", "btc_trend")
+    cols = ("atr", "ema_f", "ema_s", "don_hi", "don_lo", "ex_hi", "ex_lo", "btc_trend", "cvd", "fng_causal")
     for s in ("ETHUSDT", "SOLUSDT", "XAUUSDT"):
         full = compute_features(raw[s], p, btc_df=raw["BTCUSDT"])
         sig_full = generate_signals(full, s, p)
@@ -184,14 +227,18 @@ def breakdown(trades: List[Dict[str, Any]], key: str, oos_days: float) -> Dict[s
 # --------------------------------------------------------------------------------------
 # Extended (full-history) evaluation
 # --------------------------------------------------------------------------------------
-def run_full_history(tf: str, start: pd.Timestamp, end: pd.Timestamp | None = None) -> Dict[str, Any]:
+def run_full_history(tf: str, start: pd.Timestamp, end: pd.Timestamp | None = None, fg_df: pd.DataFrame | None = None) -> Dict[str, Any]:
     from research_data import load_panel
 
     p = KryptonParams.for_timeframe(tf)
     panel = load_panel(tf)
+    if fg_df is not None and not fg_df.empty:
+        panel = {s: attach_causal_fng(d, fg_df) for s, d in panel.items()}
     btc = panel["BTCUSDT"]
     trades: List[Dict[str, Any]] = []
     for s, d in panel.items():
+        if s == "XAUUSDT":
+            continue  # Gold runs on dedicated Metals Trend V1; Krypton V4 runs on the 7 crypto pairs
         ts = d["timestamp"]
         lo = int(ts.searchsorted(start, side="left"))
         hi = len(d) - 1 if end is None else int(ts.searchsorted(end, side="left"))
@@ -200,7 +247,7 @@ def run_full_history(tf: str, start: pd.Timestamp, end: pd.Timestamp | None = No
             hi = len(d) - 1
         f = compute_features(d, p, btc_df=btc)
         trades += run_symbol(f, s, p, lo, hi, max_btcc_leverage=_max_lev(s))
-    trades = portfolio_cap_by_time(trades)
+    trades = portfolio_cap_by_time(trades, max_concurrent=4, max_long=3, max_short=1)
     if not trades:
         return {}
     days = (max(t["exit_ns"] for t in trades) - min(t["entry_ns"] for t in trades)) / 86400e9
@@ -219,11 +266,12 @@ def main() -> None:
     args = ap.parse_args()
 
     ref = json.loads(REF_PATH.read_text()) if REF_PATH.exists() else {}
-    results: Dict[str, Any] = {"generated_at": pd.Timestamp.now(tz="UTC").isoformat(), "params": {}}
+    fg_df = load_causal_fng()
+    results: Dict[str, Any] = {"generated_at": pd.Timestamp.now(tz="UTC").isoformat(), "engine": "KRYPTON_V4", "params": {}}
 
     for tf, spec in TF_SPECS.items():
         t0 = time.time()
-        raw = load_benchmark_panel(tf)
+        raw = load_benchmark_panel(tf, fg_df=fg_df)
         min_len = len(raw["BTCUSDT"])
         folds = build_folds(min_len, spec["train_bars"], spec["fold_bars"])
         bar_h = 4.0 if tf == "4h" else 1.0
@@ -234,8 +282,10 @@ def main() -> None:
         cau_chk = check_causality(raw, tf)
 
         k_trades = run_krypton_oos(raw, tf, folds)
+        k_v3_trades = run_krypton_oos(raw, tf, folds, p=KryptonParams.v3_for_timeframe(tf))
         k_stress = run_krypton_oos(raw, tf, folds, cost_mult=2.0)
         m_k = compute_portfolio_metrics(k_trades, oos_days)
+        m_kv3 = compute_portfolio_metrics(k_v3_trades, oos_days)
         m_ks = compute_portfolio_metrics(k_stress, oos_days)
 
         if args.rerun_reference:
@@ -251,7 +301,9 @@ def main() -> None:
             "oos_days": round(oos_days, 1),
             "simulator_equivalence": sim_chk,
             "causality_check": cau_chk,
-            "krypton_v3_oos": m_k,
+            "krypton_v4_oos": m_k,
+            "krypton_v3_oos": strip(m_kv3),
+            "krypton_v4_oos_2x_costs": strip(m_ks),
             "krypton_v3_oos_2x_costs": strip(m_ks),
             "krypton_bootstrap": bootstrap_ci(k_trades),
             "krypton_per_symbol": breakdown(k_trades, "symbol", oos_days),
@@ -274,8 +326,8 @@ def main() -> None:
     results["extended"] = {}
     for tf in ("4h", "1h"):
         results["extended"][tf] = {
-            "development_2019_to_2025_11": run_full_history(tf, pd.Timestamp("2019-01-01", tz="UTC"), DEV_CUTOFF),
-            "holdout_2025_12_to_latest": run_full_history(tf, DEV_CUTOFF),
+            "development_2019_to_2025_11": run_full_history(tf, pd.Timestamp("2019-01-01", tz="UTC"), DEV_CUTOFF, fg_df=fg_df),
+            "holdout_2025_12_to_latest": run_full_history(tf, DEV_CUTOFF, fg_df=fg_df),
         }
         for k in results["extended"][tf].values():
             if k and "metrics" in k:
@@ -293,8 +345,9 @@ def main() -> None:
             ("Argon V1 (static, OOS)", r["reference"]["argon_static_oos"]),
             ("Argon V1 (walk-forward, OOS)", r["reference"]["argon_walkforward_oos"]),
             ("Carbon V2 (purged meta-WF, OOS)", r["reference"]["carbon_v2_walkforward_oos"]),
-            ("Krypton V3 (trend, OOS)", r["krypton_v3_oos"]),
-            ("Krypton V3 (trend, OOS, 2x costs)", r["krypton_v3_oos_2x_costs"]),
+            ("Krypton V3 (legacy 50/200, OOS)", r["krypton_v3_oos"]),
+            ("Krypton V4 (20/80+CVD+F&G, OOS)", r["krypton_v4_oos"]),
+            ("Krypton V4 (OOS, 2x costs)", r["krypton_v4_oos_2x_costs"]),
         ]
         for name, m in rows:
             if not m:

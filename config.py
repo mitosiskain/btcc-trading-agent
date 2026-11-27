@@ -64,7 +64,7 @@ class LeverageRiskConfig:
     btcc_taker_fee_pct: float = 0.045          # 0.045% per side typical BTCC VIP/standard perp taker fee
     btcc_maker_fee_pct: float = 0.020          # 0.020% per side post-only / maker limit fee
     prefer_maker_limit_entries: bool = True    # Route entries as Maker/Pullback limits to cut fee+spread drag
-    engine_version: str = os.getenv("ENGINE_VERSION", "KRYPTON_V3").upper()  # Active alpha engine: KRYPTON_V3 (default) | CARBON_V2
+    engine_version: str = os.getenv("ENGINE_VERSION", "KRYPTON_V4").upper()  # Active alpha engine: KRYPTON_V4 (default) | KRYPTON_V3 | CARBON_V2
 
 
 @dataclass
@@ -82,7 +82,10 @@ class AssetProfile:
     validated_for_alerts: bool = False  # True ONLY for multi-year backtested & hold-out verified 24/7 assets
 
 
-# Hold-out verified 24/7 universe (benchmark_krypton.py: 4h PF 1.62 / +$1,068 under live 3L/1S cap, 1h PF 1.43 / +$884).
+# Hold-out verified 24/7 universe:
+#   - 7 crypto pairs via Krypton V4 (EMA 20/80 + slope + CVD orderflow + causal Fear & Greed short gate)
+#   - Gold & Silver via Metals Trend V1 (daily-close calendar-consistent, 2000-2026 PF 1.87)
+#   - Alphabet/Google via Equities Trend V1 (daily-close gap-honest, 2004-2026 PF 2.19, 24/7 perp PF 2.48)
 VALIDATED_WATCHLIST: List[str] = [
     "BTCUSDT",
     "ETHUSDT",
@@ -93,6 +96,7 @@ VALIDATED_WATCHLIST: List[str] = [
     "AVAXUSDT",
     "XAUUSDT",
     "XAGUSDT",   # validated under Metals Trend V1 (benchmark_metals.py: COMEX 2000-2026 PF 1.87, 24/7 perp positive)
+    "GOOGLUSDT", # validated under Equities Trend V1 (benchmark_equities.py: Nasdaq 2004-2026 PF 2.19, 24/7 perp PF 2.48)
 ]
 
 
@@ -225,6 +229,19 @@ DEFAULT_ASSETS: Dict[str, AssetProfile] = {
         min_lot_label="0.1 oz",
         min_notional_usd=10.0,
         okx_inst_id="XAG-USDT-SWAP",
+        validated_for_alerts=True,
+    ),
+    "GOOGLUSDT": AssetProfile(
+        symbol="GOOGLUSDT",
+        btcc_symbol="GOOGLUSDT",
+        category="rwa",
+        binance_symbol="GOOGLUSDT",    # 24/7 Binance perp + OKX GOOGL-USDT-SWAP (US-cloud safe); signals via Equities Trend V1
+        yfinance_ticker="GOOGL",
+        max_btcc_leverage=50,
+        default_impulse_pct=0.70,
+        min_lot_label="0.1 GOOGL",
+        min_notional_usd=28.0,
+        okx_inst_id="GOOGL-USDT-SWAP",
         validated_for_alerts=True,
     ),
     "PEPEUSDT": AssetProfile(
