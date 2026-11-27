@@ -28,10 +28,18 @@
     "trail_BTCUSDT_62997.69": 1795323615.817617,
     "kr_brk:SOLUSDT:4h:SHORT:2026-11-25 04:00:00+00:00": 1795593602.2174954,
     "kr_brk:SUIUSDT:4h:SHORT:2026-11-25 08:00:00+00:00": 1795617910.277684,
-    "kr_brk:XRPUSDT:4h:SHORT:2026-11-25 08:00:00+00:00": 1795643667.2593486
+    "kr_brk:XRPUSDT:4h:SHORT:2026-11-25 08:00:00+00:00": 1795643667.2593486,
+    "kr_brk:AAPLUSDT:4h:LONG:2026-11-26 00:00:00+00:00": 1795761335.1690848
   },
-  "pending_alert_slots": {},
+  "pending_alert_slots": {
+    "AAPLUSDT": {
+      "side": "LONG",
+      "ts": 1795761335.1691632,
+      "tf": "4h"
+    }
+  },
   "alerted_bar_keys": [
+    "kr_brk:AAPLUSDT:4h:LONG:2026-11-26 00:00:00+00:00",
     "kr_brk:AVAXUSDT:4h:SHORT:2026-11-14 12:00:00+00:00",
     "kr_brk:BTCUSDT:4h:SHORT:2026-11-13 00:00:00+00:00",
     "kr_brk:BTCUSDT:4h:SHORT:2026-11-14 12:00:00+00:00",
@@ -48,5 +56,7 @@
     "kr_brk:SUIUSDT:4h:SHORT:2026-11-25 08:00:00+00:00"
   ],
   "last_update_id": 125375776,
-  "alert_confidence_threshold": 80
+  "alert_confidence_threshold": 80,
+  "compound_risk_pct": 2.0,
+  "sizing_equity_usd": null
 }
