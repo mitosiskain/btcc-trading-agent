@@ -1007,7 +1007,7 @@ class DashboardController:
             self.last_scan_duration_ms = int((time.time() - t0) * 1000)
             self.scan_count += 1
             self.export_static_cloud_dashboard()
-            if (time.time() - self._last_git_push_ts) >= 180.0:
+            if getattr(self, "runner_id", "local") != "cloud" and (time.time() - self._last_git_push_ts) >= 180.0:
                 self.push_state_to_git_async(f"chore(state): auto-sync live {self.orchestrator.engine_label} cloud state [skip ci]")
         except Exception as scan_err:
             print(f"[SCAN ERROR] {scan_err}", flush=True)

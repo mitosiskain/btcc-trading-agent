@@ -76,6 +76,8 @@ jobs:
           git add state/portfolio_state.json state/cloud_alert_cache.json state/carbon_v2_live_model.json docs/index.html docs/state.json btcc/index.html btcc/state.json index.html state.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
             git commit -m "chore(state): update cloud portfolio & live phone web GUI [skip ci]"
-            git pull --rebase --autostash -X theirs origin main 2>/dev/null || git rebase --abort 2>/dev/null || true
-            git push origin HEAD 2>/dev/null || true
+          fi
+          if [ "$(git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)" -gt 0 ]; then
+            git pull --rebase --autostash -X theirs origin main || git rebase --abort || true
+            git push origin HEAD:main || true
           fi

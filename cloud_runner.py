@@ -47,6 +47,9 @@ def get_local_daemon_heartbeat_age(max_age_sec: float = 360.0) -> tuple[bool, fl
 
 def sync_state_to_git(controller: DashboardController | None = None) -> None:
     """Commit and push updated portfolio, alert cache & static phone dashboard to GitHub without JSON rebase conflicts."""
+    lock = getattr(controller, "_git_lock", None)
+    if lock is not None:
+        lock.acquire()
     try:
         if controller is not None:
             controller._save_alert_cache()
@@ -71,8 +74,9 @@ def sync_state_to_git(controller: DashboardController | None = None) -> None:
         )
         diff = subprocess.run(["git", "diff", "--staged", "--quiet"], check=False, timeout=5)
         if diff.returncode != 0:
+            eng = getattr(getattr(controller, "orchestrator", None), "engine_label", "Krypton V4")
             subprocess.run(
-                ["git", "commit", "-m", "chore(state): sync live Telegram positions & alert cache [skip ci]"],
+                ["git", "commit", "-m", f"chore(state): auto-sync live {eng} cloud state [skip ci]"],
                 check=False,
                 capture_output=True,
                 timeout=10,
@@ -81,14 +85,27 @@ def sync_state_to_git(controller: DashboardController | None = None) -> None:
                 ["git", "pull", "--rebase", "--autostash", "-X", "theirs", "origin", "main"],
                 check=False,
                 capture_output=True,
+                text=True,
                 timeout=20,
             )
             if rb.returncode != 0:
+                print(f"[GIT REBASE WARN] {rb.stderr.strip()}", flush=True)
                 subprocess.run(["git", "rebase", "--abort"], check=False, capture_output=True, timeout=5)
             else:
-                subprocess.run(["git", "push", "origin", "main"], check=False, capture_output=True, timeout=20)
-    except Exception:
-        pass
+                ps = subprocess.run(
+                    ["git", "push", "origin", "main"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=20,
+                )
+                if ps.returncode != 0:
+                    print(f"[GIT PUSH WARN] {ps.stderr.strip()}", flush=True)
+    except Exception as e:
+        print(f"[GIT SYNC ERR] {e}", flush=True)
+    finally:
+        if lock is not None:
+            lock.release()
 
 
 def main() -> None:
